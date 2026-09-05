@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:docs": "ng build --base-href /Tracker_Alcalde/ --output-path docs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
