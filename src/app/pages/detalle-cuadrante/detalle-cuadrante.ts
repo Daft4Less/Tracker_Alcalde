@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CuadrantesService, QuadrantDetail } from '../../services/cuadrantes.service';
+import { MapaQuitoComponent } from '../../components/mapa-quito/mapa-quito';
 
 @Component({
   selector: 'app-detalle-cuadrante',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MapaQuitoComponent],
   templateUrl: './detalle-cuadrante.html',
   styleUrl: './detalle-cuadrante.css'
 })

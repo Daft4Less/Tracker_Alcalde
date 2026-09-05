@@ -4,11 +4,11 @@
     <div class="banner-content">
       <div class="banner-tag">
         <span class="material-symbols-rounded icon-small">verified</span>
-        <span>MONITOREO DE COMPROMISOS</span>
+        <span>MONITOREO DE COMPROMISOS EN QUITO, ECUADOR</span>
       </div>
       <h1 class="hero-title">Tablero de Promesas Municipales</h1>
       <p class="hero-description">
-        Estado de ejecución en tiempo real de los compromisos asumidos con la ciudadanía.
+        Estado de ejecución en tiempo real de los compromisos asumidos con la ciudadanía en el Distrito Metropolitano de Quito.
       </p>
     </div>
 
@@ -58,6 +58,11 @@
         Incumplidas / Rotas
       </button>
     </div>
+  </section>
+
+  <!-- Interactive Map of Quito Section -->
+  <section class="quito-map-section">
+    <app-mapa-quito [quadrants]="quadrants()" mapHeight="480px"></app-mapa-quito>
   </section>
 
   <!-- 3x3 Grid of Promises -->

@@ -2,9 +2,9 @@
   @if (quadrant(); as item) {
     <!-- Top Navigation Bar -->
     <div class="navigation-bar">
-      <a routerLink="/vista1" class="btn-back">
+      <a routerLink="/promesas" class="btn-back">
         <span class="material-symbols-rounded">arrow_back</span>
-        <span>Volver al Grid 3x3</span>
+        <span>Volver a Promesas (Grid 3x3)</span>
       </a>
 
       <!-- Quick Quadrant Switcher -->
@@ -46,7 +46,7 @@
             <h1 class="detail-title">{{ item.title }}</h1>
             <p class="detail-zone">
               <span class="material-symbols-rounded icon-inline">location_on</span>
-              <span>{{ item.locationZone }}</span>
+              <span>Quito, Ecuador - {{ item.locationZone }}</span>
             </p>
           </div>
         </div>
@@ -65,14 +65,17 @@
       </div>
     </section>
 
-    <!-- Details Grid Grid Layout -->
+    <!-- Map & Details Grid Layout -->
     <div class="details-content-grid">
-      <!-- Left Column: Metrics & Indicators -->
+      <!-- Left Column: Mini Quito Map & Metrics -->
       <div class="content-column">
+        <!-- Interactive Quito Map for this single project -->
+        <app-mapa-quito [singleQuadrant]="item" mapHeight="320px"></app-mapa-quito>
+
         <div class="info-card">
           <div class="card-header">
             <span class="material-symbols-rounded card-icon">monitoring</span>
-            <h3>Métricas Específicas del Cuadrante</h3>
+            <h3>Métricas Específicas del Proyecto</h3>
           </div>
 
           <div class="metrics-list">
@@ -98,15 +101,22 @@
             </div>
           </div>
         </div>
+      </div>
 
+      <!-- Right Column: Meta Info & Timeline -->
+      <div class="content-column">
         <!-- Meta Info Card -->
         <div class="info-card">
           <div class="card-header">
             <span class="material-symbols-rounded card-icon">info</span>
-            <h3>Ficha de Metadatos</h3>
+            <h3>Ficha de Metadatos del Proyecto</h3>
           </div>
 
           <div class="meta-rows">
+            <div class="meta-row">
+              <span class="meta-key">Ubicación en Quito:</span>
+              <span class="meta-value">{{ item.locationZone }}</span>
+            </div>
             <div class="meta-row">
               <span class="meta-key">Equipo Responsable:</span>
               <span class="meta-value">{{ item.responsibleTeam }}</span>
@@ -121,18 +131,15 @@
             </div>
             <div class="meta-row">
               <span class="meta-key">ID de Sistema:</span>
-              <code class="system-id">SYS-QUAD-00{{ item.id }}</code>
+              <code class="system-id">SYS-UIO-00{{ item.id }}</code>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Right Column: Timeline / Bitácora -->
-      <div class="content-column">
         <div class="info-card">
           <div class="card-header">
             <span class="material-symbols-rounded card-icon">history</span>
-            <h3>Bitácora de Eventos Recientes</h3>
+            <h3>Bitácora de Avance en Campo</h3>
           </div>
 
           <div class="timeline-container">
@@ -150,30 +157,15 @@
             }
           </div>
         </div>
-
-        <!-- Quick Actions Card -->
-        <div class="info-card actions-card">
-          <h3>Acciones del Cuadrante</h3>
-          <div class="action-buttons">
-            <button class="btn-action primary">
-              <span class="material-symbols-rounded">download</span>
-              <span>Exportar Ficha</span>
-            </button>
-            <button class="btn-action secondary">
-              <span class="material-symbols-rounded">edit_note</span>
-              <span>Editar Datos</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   } @else {
     <!-- Not Found State -->
     <div class="not-found-card">
       <span class="material-symbols-rounded warning-icon">warning</span>
-      <h2>Cuadrante no encontrado</h2>
-      <p>El identificador de nota seleccionado no existe en el sistema.</p>
-      <a routerLink="/vista1" class="btn-back">Volver al Grid 3x3</a>
+      <h2>Proyecto no encontrado</h2>
+      <p>El identificador seleccionado no existe en el mapa de Quito.</p>
+      <a routerLink="/promesas" class="btn-back">Volver al Tablero de Promesas</a>
     </div>
   }
 </main>
