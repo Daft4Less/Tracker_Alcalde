@@ -1,0 +1,179 @@
+<main class="view-container">
+  @if (quadrant(); as item) {
+    <!-- Top Navigation Bar -->
+    <div class="navigation-bar">
+      <a routerLink="/vista1" class="btn-back">
+        <span class="material-symbols-rounded">arrow_back</span>
+        <span>Volver al Grid 3x3</span>
+      </a>
+
+      <!-- Quick Quadrant Switcher -->
+      <div class="quadrant-pager">
+        <button 
+          class="btn-pager" 
+          [disabled]="item.id <= 1"
+          (click)="navigateToQuadrant(item.id - 1)"
+        >
+          <span class="material-symbols-rounded">chevron_left</span>
+          <span>Anterior</span>
+        </button>
+
+        <span class="pager-info">Nota {{ item.id }} de 9</span>
+
+        <button 
+          class="btn-pager" 
+          [disabled]="item.id >= 9"
+          (click)="navigateToQuadrant(item.id + 1)"
+        >
+          <span>Siguiente</span>
+          <span class="material-symbols-rounded">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Detail Hero Section -->
+    <section class="detail-hero" [attr.data-color]="item.statusColor">
+      <div class="hero-header-row">
+        <div class="hero-title-group">
+          <div class="hero-icon-box" [attr.data-color]="item.statusColor">
+            <span class="material-symbols-rounded">{{ item.icon }}</span>
+          </div>
+          <div>
+            <div class="badge-row">
+              <span class="badge" [attr.data-color]="item.statusColor">{{ item.badgeText }}</span>
+              <span class="priority-badge" [attr.data-priority]="item.priority">Prioridad {{ item.priority }}</span>
+            </div>
+            <h1 class="detail-title">{{ item.title }}</h1>
+            <p class="detail-zone">
+              <span class="material-symbols-rounded icon-inline">location_on</span>
+              <span>{{ item.locationZone }}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="hero-metric-box">
+          <span class="metric-label">Métrica Principal</span>
+          <span class="metric-value">{{ item.value }}</span>
+          <span class="metric-subtext">{{ item.subtext }}</span>
+        </div>
+      </div>
+
+      <!-- Description Banner -->
+      <div class="description-card">
+        <h3>Descripción Ejecutiva</h3>
+        <p>{{ item.fullDescription }}</p>
+      </div>
+    </section>
+
+    <!-- Details Grid Grid Layout -->
+    <div class="details-content-grid">
+      <!-- Left Column: Metrics & Indicators -->
+      <div class="content-column">
+        <div class="info-card">
+          <div class="card-header">
+            <span class="material-symbols-rounded card-icon">monitoring</span>
+            <h3>Métricas Específicas del Cuadrante</h3>
+          </div>
+
+          <div class="metrics-list">
+            @for (m of item.metrics; track m.label) {
+              <div class="metric-item">
+                <span class="m-label">{{ m.label }}</span>
+                <strong class="m-val">{{ m.val }}</strong>
+              </div>
+            }
+          </div>
+
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>Nivel de Cumplimiento General</span>
+              <strong>{{ item.progressPercentage }}%</strong>
+            </div>
+            <div class="progress-bar-bg">
+              <div 
+                class="progress-bar-fill" 
+                [style.width.%]="item.progressPercentage"
+                [attr.data-color]="item.statusColor"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta Info Card -->
+        <div class="info-card">
+          <div class="card-header">
+            <span class="material-symbols-rounded card-icon">info</span>
+            <h3>Ficha de Metadatos</h3>
+          </div>
+
+          <div class="meta-rows">
+            <div class="meta-row">
+              <span class="meta-key">Equipo Responsable:</span>
+              <span class="meta-value">{{ item.responsibleTeam }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-key">Categoría:</span>
+              <span class="meta-value text-capitalize">{{ item.category }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-key">Última Actualización:</span>
+              <span class="meta-value">{{ item.lastUpdated }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-key">ID de Sistema:</span>
+              <code class="system-id">SYS-QUAD-00{{ item.id }}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Timeline / Bitácora -->
+      <div class="content-column">
+        <div class="info-card">
+          <div class="card-header">
+            <span class="material-symbols-rounded card-icon">history</span>
+            <h3>Bitácora de Eventos Recientes</h3>
+          </div>
+
+          <div class="timeline-container">
+            @for (act of item.timeline; track act.time) {
+              <div class="timeline-item">
+                <div class="timeline-dot" [attr.data-color]="item.statusColor"></div>
+                <div class="timeline-body">
+                  <div class="timeline-top">
+                    <span class="timeline-time">{{ act.time }}</span>
+                    <span class="timeline-user">{{ act.user }}</span>
+                  </div>
+                  <p class="timeline-action">{{ act.action }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="info-card actions-card">
+          <h3>Acciones del Cuadrante</h3>
+          <div class="action-buttons">
+            <button class="btn-action primary">
+              <span class="material-symbols-rounded">download</span>
+              <span>Exportar Ficha</span>
+            </button>
+            <button class="btn-action secondary">
+              <span class="material-symbols-rounded">edit_note</span>
+              <span>Editar Datos</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- Not Found State -->
+    <div class="not-found-card">
+      <span class="material-symbols-rounded warning-icon">warning</span>
+      <h2>Cuadrante no encontrado</h2>
+      <p>El identificador de nota seleccionado no existe en el sistema.</p>
+      <a routerLink="/vista1" class="btn-back">Volver al Grid 3x3</a>
+    </div>
+  }
+</main>

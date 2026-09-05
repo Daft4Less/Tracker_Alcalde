@@ -1,0 +1,94 @@
+<main class="view-container">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="header-tag">
+      <span class="material-symbols-rounded icon-small">calendar_month</span>
+      <span>AGENDA MUNICIPAL</span>
+    </div>
+    <h1 class="page-title">Agenda y Calendario de Actividades</h1>
+    <p class="page-subtitle">Programación diaria de eventos, audiencias públicas y supervisión de obras municipales.</p>
+  </section>
+
+  <!-- Controls & Filters -->
+  <section class="agenda-controls">
+    <div class="search-box">
+      <span class="material-symbols-rounded">search</span>
+      <input type="text" placeholder="Buscar evento, lugar u organizador..." />
+    </div>
+
+    <div class="filter-pills">
+      <button 
+        class="pill-btn" 
+        [class.active]="selectedFilter() === 'todos'"
+        (click)="filterEvents('todos')"
+      >
+        Todos
+      </button>
+      <button 
+        class="pill-btn" 
+        [class.active]="selectedFilter() === 'Audiencia'"
+        (click)="filterEvents('Audiencia')"
+      >
+        Audiencias
+      </button>
+      <button 
+        class="pill-btn" 
+        [class.active]="selectedFilter() === 'Inauguración'"
+        (click)="filterEvents('Inauguración')"
+      >
+        Inauguraciones
+      </button>
+      <button 
+        class="pill-btn" 
+        [class.active]="selectedFilter() === 'Supervisión'"
+        (click)="filterEvents('Supervisión')"
+      >
+        Supervisiones
+      </button>
+    </div>
+  </section>
+
+  <!-- Timeline Events List -->
+  <section class="events-list-container">
+    @for (ev of events(); track ev.id) {
+      @if (selectedFilter() === 'todos' || selectedFilter() === ev.category) {
+        <article class="event-card">
+          <!-- Left Time Block -->
+          <div class="time-block">
+            <span class="event-time">{{ ev.time }}</span>
+            <span class="event-date">{{ ev.date }}</span>
+          </div>
+
+          <!-- Divider Indicator -->
+          <div class="timeline-indicator" [attr.data-status]="ev.status"></div>
+
+          <!-- Main Event Content -->
+          <div class="event-main">
+            <div class="event-top-row">
+              <span class="category-badge">{{ ev.category }}</span>
+              <span class="status-badge" [attr.data-status]="ev.status">{{ ev.status }}</span>
+            </div>
+            <h3 class="event-title">{{ ev.title }}</h3>
+            <div class="event-meta">
+              <span class="meta-item">
+                <span class="material-symbols-rounded icon-mini">location_on</span>
+                <span>{{ ev.location }}</span>
+              </span>
+              <span class="meta-item">
+                <span class="material-symbols-rounded icon-mini">person</span>
+                <span>{{ ev.organizer }}</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="event-action">
+            <button class="btn-event-detail" title="Ver detalles del evento">
+              <span class="material-symbols-rounded">chevron_right</span>
+            </button>
+          </div>
+        </article>
+      }
+    }
+  </section>
+</main>

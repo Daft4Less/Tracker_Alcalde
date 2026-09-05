@@ -1,0 +1,88 @@
+<main class="view-container">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="header-tag">
+      <span class="material-symbols-rounded icon-small">trending_up</span>
+      <span>IMPACTO Y MEJORAS URBANAS</span>
+    </div>
+    <h1 class="page-title">Impacto de Obras y Porcentaje de Mejoras</h1>
+    <p class="page-subtitle">Medición directa de las mejoras en la calidad de vida, movilidad e infraestructura de la ciudad.</p>
+  </section>
+
+  <!-- Key Impact KPI Cards -->
+  <section class="impact-cards-grid">
+    @for (card of impactSummary(); track card.title) {
+      <div class="impact-card" [attr.data-color]="card.statusColor">
+        <div class="card-top">
+          <div class="icon-box" [attr.data-color]="card.statusColor">
+            <span class="material-symbols-rounded">{{ card.icon }}</span>
+          </div>
+          <span class="impact-badge">+ Mejoras</span>
+        </div>
+
+        <div class="card-center">
+          <span class="impact-value">{{ card.percentage }}</span>
+          <h3 class="impact-title">{{ card.title }}</h3>
+          <p class="impact-subtext">{{ card.changeSubtext }}</p>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Detailed Impact per Sector / District -->
+  <section class="sector-impact-section">
+    <div class="section-header">
+      <div class="header-left">
+        <span class="material-symbols-rounded icon-header">domain</span>
+        <h3>Porcentaje de Mejora por Sector y Distrito</h3>
+      </div>
+      <span class="tag-neutral">Evaluación Ciudadana 2026</span>
+    </div>
+
+    <div class="sectors-list">
+      @for (sec of sectorImpacts(); track sec.sector) {
+        <div class="sector-item">
+          <div class="sector-info">
+            <div class="sector-title-row">
+              <h4 class="sector-name">{{ sec.sector }}</h4>
+              <span class="work-tag">{{ sec.mainWork }}</span>
+            </div>
+            <div class="sector-progress-row">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" [style.width.%]="sec.improvementPercentage"></div>
+              </div>
+              <span class="percentage-label">{{ sec.improvementPercentage }}% de mejora</span>
+            </div>
+          </div>
+
+          <div class="sector-badge-col">
+            <span class="status-pill">{{ sec.statusText }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Work Type Comparison Bar Chart -->
+  <section class="chart-section">
+    <div class="chart-header">
+      <div class="chart-title-group">
+        <span class="material-symbols-rounded icon-header">bar_chart</span>
+        <h3>Nivel de Eficiencia y Mejora por Tipo de Obra Publica</h3>
+      </div>
+    </div>
+
+    <div class="chart-bars-container">
+      @for (bar of workTypeBars; track bar.label) {
+        <div class="bar-column">
+          <div class="bar-wrapper">
+            <div class="bar-fill" [style.height.%]="bar.percentage">
+              <span class="bar-value-tooltip">{{ bar.percentage }}%</span>
+            </div>
+          </div>
+          <span class="bar-label">{{ bar.label }}</span>
+        </div>
+      }
+    </div>
+  </section>
+</main>

@@ -1,0 +1,107 @@
+<main class="view-container">
+  <!-- View Header Banner -->
+  <section class="hero-banner">
+    <div class="banner-content">
+      <div class="banner-tag">
+        <span class="material-symbols-rounded icon-small">verified</span>
+        <span>MONITOREO DE COMPROMISOS</span>
+      </div>
+      <h1 class="hero-title">Tablero de Promesas Municipales</h1>
+      <p class="hero-description">
+        Estado de ejecución en tiempo real de los compromisos asumidos con la ciudadanía.
+      </p>
+    </div>
+
+    <!-- Promise Status Filters -->
+    <div class="filter-controls">
+      <span class="filter-label">Estado de la promesa:</span>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedStatus() === 'todas'"
+        (click)="filterByStatus('todas')"
+      >
+        Todas (9)
+      </button>
+      <button 
+        class="filter-btn status-cumplida" 
+        [class.active]="selectedStatus() === 'cumplidas'"
+        (click)="filterByStatus('cumplidas')"
+      >
+        Cumplidas
+      </button>
+      <button 
+        class="filter-btn status-proceso" 
+        [class.active]="selectedStatus() === 'en-proceso'"
+        (click)="filterByStatus('en-proceso')"
+      >
+        En Proceso
+      </button>
+      <button 
+        class="filter-btn status-detenida" 
+        [class.active]="selectedStatus() === 'detenidas'"
+        (click)="filterByStatus('detenidas')"
+      >
+        Detenidas
+      </button>
+      <button 
+        class="filter-btn status-sincomenzar" 
+        [class.active]="selectedStatus() === 'sin-comenzar'"
+        (click)="filterByStatus('sin-comenzar')"
+      >
+        Sin Comenzar
+      </button>
+      <button 
+        class="filter-btn status-incumplida" 
+        [class.active]="selectedStatus() === 'incumplidas'"
+        (click)="filterByStatus('incumplidas')"
+      >
+        Incumplidas / Rotas
+      </button>
+    </div>
+  </section>
+
+  <!-- 3x3 Grid of Promises -->
+  <section class="grid-3x3-container">
+    @for (card of quadrants(); track card.id) {
+      @if (selectedStatus() === 'todas' || selectedStatus() === card.promiseStatus) {
+        <article class="quadrant-card" [attr.data-color]="card.statusColor">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="card-icon-box" [attr.data-color]="card.statusColor">
+              <span class="material-symbols-rounded">{{ card.icon }}</span>
+            </div>
+            <span class="badge" [attr.data-color]="card.statusColor">
+              {{ card.badgeText }}
+            </span>
+          </div>
+
+          <!-- Card Body / Center -->
+          <div class="card-body">
+            <h3 class="card-title">{{ card.title }}</h3>
+            <div class="card-metric">{{ card.value }}</div>
+            <p class="card-subtext">{{ card.subtext }}</p>
+
+            <div class="progress-container">
+              <div class="progress-bar-bg">
+                <div 
+                  class="progress-bar-fill" 
+                  [style.width.%]="card.progressPercentage"
+                  [attr.data-color]="card.statusColor"
+                ></div>
+              </div>
+              <span class="progress-label">{{ card.progressPercentage }}%</span>
+            </div>
+          </div>
+
+          <!-- Card Footer Action: Botón "Ver más" -->
+          <div class="card-footer">
+            <a [routerLink]="['/cuadrante', card.id]" class="btn-ver-mas" [attr.data-color]="card.statusColor">
+              <span>Ver más</span>
+              <span class="material-symbols-rounded arrow-icon">arrow_forward</span>
+            </a>
+          </div>
+        </article>
+      }
+    }
+  </section>
+</main>

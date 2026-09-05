@@ -1,0 +1,28 @@
+<header class="header-container">
+  <div class="header-content">
+    <!-- Brand / Logo -->
+    <div class="brand">
+      <div class="logo-icon">
+        <span class="material-symbols-rounded">shield_person</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Alcalde<span class="brand-highlight">Tracker</span></span>
+        <span class="brand-badge">ENTORNO DE PRUEBA</span>
+      </div>
+    </div>
+
+    <!-- Navigation Bar with 4 Links -->
+    <nav class="nav-menu">
+      @for (link of navLinks; track link.path) {
+        <a 
+          [routerLink]="link.path" 
+          routerLinkActive="active" 
+          class="nav-link"
+        >
+          <span class="material-symbols-rounded nav-icon">{{ link.icon }}</span>
+          <span class="nav-label">{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</header>

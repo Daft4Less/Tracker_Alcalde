@@ -1,0 +1,31 @@
+name: Angular CI/CD - Control de Errores y Build
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+jobs:
+  build-and-test:
+    name: Compilación y Verificación de Errores
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Obtener código fuente del repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar entorno de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Instalar dependencias
+        run: npm ci
+
+      - name: 4. Validar compilación del proyecto Angular (ng build)
+        run: npm run build -- --configuration production
+
+      - name: 5. Verificación completada con éxito
+        run: echo "El proyecto Angular ha compilado sin errores TypeScript ni de sintaxis."
