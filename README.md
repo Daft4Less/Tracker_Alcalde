@@ -1,59 +1,80 @@
-# AlcaldeTracker
+# Tracker Alcalde Quito - Observatorio Civico de Transparencia
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.10.
+Plataforma web de monitoreo y auditoria ciudadana para el seguimiento en tiempo real de los compromisos municipales y obras publicas en el Distrito Metropolitano de Quito (2024-2028).
 
-## Development server
+## Requisitos Previos
 
-To start a local development server, run:
+- Node.js version 18.x o superior
+- npm version 9.x o superior
+- Angular CLI version 18.x / 20.x
 
-```bash
-ng serve
-```
+## Instalacion y Despliegue Local
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1. Clonar el repositorio:
+   git clone https://github.com/Daft4Less/Tracker_Alcalde.git
 
-## Code scaffolding
+2. Acceder al directorio del proyecto:
+   cd Tracker_Alcalde
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+3. Instalar las dependencias:
+   npm install
 
-```bash
-ng generate component component-name
-```
+4. Levantar el servidor de desarrollo local:
+   npm start
+   o bien:
+   npx ng serve --port 4200
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+5. Abrir el navegador e ingresar a:
+   http://localhost:4200/
 
-```bash
-ng generate --help
-```
+## Compilacion para Produccion y GitHub Pages
 
-## Building
+Para generar los archivos estaticos optimizados para hosting o despliegue en GitHub Pages:
 
-To build the project run:
+1. Ejecutar el comando de construccion:
+   npx ng build --base-href ./ --output-path docs
 
-```bash
-ng build
-```
+2. Copiar los archivos resultantes al directorio raiz para GitHub Pages si aplica:
+   xcopy /E /Y docs\browser\* docs\
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Descripcion de las Vistas del Proyecto
 
-## Running unit tests
+### 1. Vista 1: Promesas y Auditoria Civica (Inicio)
+- Banner Hero con declaracion institucional y resumen ejecutivo de gestion.
+- Bento Grid con scorecards de metricas clave (obras cumplidas, en ejecucion, planificadas e inversion ejecutada en USD).
+- Catalogo dinamico de obras y compromisos con barra de filtros interactivas por estado (Todas, Cumplidas, En Proceso, Detenidas, Sin Comenzar, Incumplidas).
+- Tarjetas informativas adaptables a dispositivos moviles y escritorio con indicador visual de estado y porcentaje de avance fisico.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### 2. Vista 2: Mapa General de Impacto Territorial
+- Mapa interactivo completo del Distrito Metropolitano de Quito (Norte, Centro, Sur y Valles) con marcadores de geolocalizacion satelital por obra.
+- Tarjetas de resumen de impacto en movilidad urbana, prevencion de inundaciones, seguridad y espacios verdes.
+- Desglose sectorial del porcentaje de mejora por distrito con barras de progreso.
 
-```bash
-ng test
-```
+### 3. Vista 3: Agenda Civica y Rendicion de Cuentas
+- Cronograma publico de audiencias civicas, inspecciones tecnicas de campo y publicaciones de informes de veeduria.
+- Registro cronologico de eventos con fechas, ubicaciones y estado de convocatoria.
 
-## Running end-to-end tests
+### 4. Vista 4: Sobre Nosotros
+- Seccion institucional que detalla la mision, vision y principios rectoras de la auditoria cívica abierta.
+- Presentacion del equipo directivo y veedores ciudadanos.
 
-For end-to-end (e2e) testing, run:
+### 5. Ficha de Compromiso (Detalle por Obra)
+- Vista detallada accesible desde cada tarjeta de compromiso (/cuadrante/:id).
+- Informacion tecnica detallada: presupuesto asignado, contratista o entidad ejecutora, beneficiarios directos, cronograma de actividades y mapa focalizado.
 
-```bash
-ng e2e
-```
+## Librerias y Recursos Utilizados
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Framework y Core
+- Angular 18/20: Framework principal estructurado en Componentes Standalone (Standalone Components), Signals para control de estado reactivo y HashLocationStrategy (withHashLocation) para compatibilidad con GitHub Pages.
 
-## Additional Resources
+### Mapas y Geolocalizacion
+- Leaflet v1.9.4: Libreria JavaScript de codigo abierto para la renderizacion de mapas interactivos.
+- OpenStreetMap: Proveedor de capas de mapas cartograficos vectoriales y satelitales del Distrito Metropolitano de Quito.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Estilos y Diseno Adaptable
+- TailwindCSS CDN: Sistema de diseño basado en utilidades configuradas con los tokens oficiales de color y espaciado de la plataforma (colores primarios navy #001428, secundarios esmeralda #006c49 y menta #6cf8bb).
+- CSS3 Vanilla: Estilos globales y variables personalizadas para jerarquía tipografica y soporte de dispositivos moviles.
+
+### Fuentes e Iconografía
+- Google Fonts: Familias tipograficas Plus Jakarta Sans (utilizada para encabezados y numeros de metricas) e Inter (para cuerpo de texto y etiquetas).
+- Google Material Symbols Outlined: Set de iconos vectoriales para la representacion visual de servicios y estados de obras.

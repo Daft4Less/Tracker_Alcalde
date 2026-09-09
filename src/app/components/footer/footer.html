@@ -1,52 +1,53 @@
-<footer class="footer-container">
-  <div class="footer-content">
-    <div class="footer-brand">
-      <div class="brand-info">
-        <span class="material-symbols-rounded footer-logo-icon">shield_person</span>
-        <span class="footer-title">AlcaldeTracker</span>
+<footer class="w-full bg-primary text-on-primary border-t border-outline-variant/20 pt-space-2xl pb-space-lg">
+  <div class="max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-space-2xl">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-space-xl">
+      <!-- Col 1: Brand & Civic Statement -->
+      <div class="md:col-span-5 flex flex-col gap-space-md">
+        <div class="flex items-center gap-space-sm">
+          <div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-on-secondary shadow-sm">
+            <span class="material-symbols-outlined text-[24px]">verified_user</span>
+          </div>
+          <span class="font-headline-sm text-headline-sm text-surface-container-lowest">Compromiso &amp; Transparencia</span>
+        </div>
+        <p class="font-body-md text-body-md text-surface-variant max-w-md">
+          Plataforma de auditoría ciudadana y seguimiento de compromisos para el Distrito Metropolitano de Quito 2024–2028.
+        </p>
+        <div class="flex items-center gap-space-xs text-secondary-fixed">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          <span class="font-label-sm text-label-sm">Auditoría cívica independiente e inalterable</span>
+        </div>
       </div>
-      <p class="footer-description">
-        Plataforma de seguimiento y entorno de prueba para la gestión municipal y análisis de datos en tiempo real.
-      </p>
+
+      <!-- Col 2: Navigation Links -->
+      <div class="md:col-span-3 flex flex-col gap-space-sm">
+        <h4 class="font-headline-sm text-headline-sm text-surface-container-lowest text-sm uppercase tracking-wider">Módulos Cívicos</h4>
+        <ul class="flex flex-col gap-space-xs font-body-sm text-body-sm text-surface-variant">
+          <li><a routerLink="/promesas" class="hover:text-secondary transition-colors">Inicio &amp; Rendición de Cuentas</a></li>
+          <li><a routerLink="/vista2" class="hover:text-secondary transition-colors">Mapa de Impacto Territorial</a></li>
+          <li><a routerLink="/agenda" class="hover:text-secondary transition-colors">Agenda Cívica &amp; Cabildos</a></li>
+          <li><a routerLink="/nosotros" class="hover:text-secondary transition-colors">Sobre Nosotros</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Institutional Links -->
+      <div class="md:col-span-4 flex flex-col gap-space-sm">
+        <h4 class="font-headline-sm text-headline-sm text-surface-container-lowest text-sm uppercase tracking-wider">Marco Normativo</h4>
+        <p class="font-body-sm text-body-sm text-surface-variant">
+          Desarrollado bajo los lineamientos del Plan de Gobierno 2023–2027 y el Presupuesto Participativo del DMQ.
+        </p>
+        <div class="flex items-center gap-space-sm pt-space-xs">
+          <span class="material-symbols-outlined text-[20px] text-secondary">verified_user</span>
+          <span class="font-label-sm text-label-sm text-surface-variant">Código Abierto - GitHub Actions CI/CD Verified</span>
+        </div>
+      </div>
     </div>
 
-    <div class="footer-links-group">
-      <div class="footer-col">
-        <h4 class="col-title">Vistas de Prueba</h4>
-        <ul>
-          <li><a routerLink="/promesas">Promesas de Campaña</a></li>
-          <li><a routerLink="/vista2">Módulo de Estadísticas</a></li>
-          <li><a routerLink="/agenda">Agenda Municipal</a></li>
-          <li><a routerLink="/nosotros">Sobre Nosotros</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4 class="col-title">Recursos</h4>
-        <ul>
-          <li><a href="javascript:void(0)">Documentación API</a></li>
-          <li><a href="javascript:void(0)">Estado del Servidor</a></li>
-          <li><a href="javascript:void(0)">Guía de Escalamiento</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4 class="col-title">Soporte</h4>
-        <ul>
-          <li><a href="javascript:void(0)">Centro de Ayuda</a></li>
-          <li><a href="javascript:void(0)">Contacto Técnico</a></li>
-          <li><a href="javascript:void(0)">Términos de Prueba</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <div class="footer-bottom-content">
-      <p>&copy; {{ currentYear }} AlcaldeTracker Mockup - Entorno de Prueba Angular. Todos los derechos reservados.</p>
-      <div class="version-tag">
-        <span class="material-symbols-rounded icon-small">code</span>
-        <span>Angular v19.x - Standalone Mode</span>
+    <!-- Bottom Copyright -->
+    <div class="pt-space-md border-t border-surface-variant/10 flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-surface-variant">
+      <p>&copy; {{ currentYear }} Observatorio Cívico Electoral de Quito. Todos los derechos reservados.</p>
+      <div class="flex items-center gap-space-xs">
+        <span class="material-symbols-outlined text-[16px] text-secondary">code</span>
+        <span>Angular v19 Standalone - Design System Modelado</span>
       </div>
     </div>
   </div>

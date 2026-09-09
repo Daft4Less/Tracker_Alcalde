@@ -1,94 +1,137 @@
-<main class="view-container">
-  <!-- Page Header -->
-  <section class="page-header">
-    <div class="header-tag">
-      <span class="material-symbols-rounded icon-small">calendar_month</span>
-      <span>AGENDA MUNICIPAL</span>
+<main class="w-full pt-20 bg-surface min-h-screen">
+  <div class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
+    
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col gap-space-xs">
+      <div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-secondary-container/40 text-on-secondary-container self-start">
+        <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+        <span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Agenda Cívica &amp; Cabildos</span>
+      </div>
+      <h1 class="font-display-hero text-headline-lg-mobile md:text-display-hero text-on-surface tracking-tight">
+        Agenda y Calendario de Actividades
+      </h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+        Programación diaria de eventos, audiencias públicas, inspecciones de obra y sesiones de cabildo en Quito.
+      </p>
     </div>
-    <h1 class="page-title">Agenda y Calendario de Actividades</h1>
-    <p class="page-subtitle">Programación diaria de eventos, audiencias públicas y supervisión de obras municipales.</p>
-  </section>
 
-  <!-- Controls & Filters -->
-  <section class="agenda-controls">
-    <div class="search-box">
-      <span class="material-symbols-rounded">search</span>
-      <input type="text" placeholder="Buscar evento, lugar u organizador..." />
+    <!-- CONTROLS & FILTER PILLS -->
+    <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+      
+      <!-- Search Box -->
+      <div class="flex items-center bg-surface-container-low border border-outline-variant/30 rounded-xl px-space-md py-space-xs w-full md:w-96">
+        <span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-space-xs">search</span>
+        <input class="bg-transparent border-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant w-full" placeholder="Buscar evento, lugar u organizador..." type="text"/>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="flex items-center gap-space-xs overflow-x-auto pb-1 md:pb-0">
+        <button 
+          (click)="filterEvents('todos')"
+          [class.bg-primary]="selectedFilter() === 'todos'"
+          [class.text-on-primary]="selectedFilter() === 'todos'"
+          [class.bg-surface-container-low]="selectedFilter() !== 'todos'"
+          [class.text-on-surface-variant]="selectedFilter() !== 'todos'"
+          class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-semibold"
+        >
+          Todos
+        </button>
+        
+        <button 
+          (click)="filterEvents('Audiencia')"
+          [class.bg-secondary]="selectedFilter() === 'Audiencia'"
+          [class.text-on-secondary]="selectedFilter() === 'Audiencia'"
+          [class.bg-surface-container-low]="selectedFilter() !== 'Audiencia'"
+          [class.text-on-surface-variant]="selectedFilter() !== 'Audiencia'"
+          class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-semibold"
+        >
+          Audiencias
+        </button>
+
+        <button 
+          (click)="filterEvents('Inauguración')"
+          [class.bg-primary]="selectedFilter() === 'Inauguración'"
+          [class.text-on-primary]="selectedFilter() === 'Inauguración'"
+          [class.bg-surface-container-low]="selectedFilter() !== 'Inauguración'"
+          [class.text-on-surface-variant]="selectedFilter() !== 'Inauguración'"
+          class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-semibold"
+        >
+          Inauguraciones
+        </button>
+
+        <button 
+          (click)="filterEvents('Supervisión')"
+          [class.bg-tertiary-fixed-dim]="selectedFilter() === 'Supervisión'"
+          [class.text-on-tertiary-fixed]="selectedFilter() === 'Supervisión'"
+          [class.bg-surface-container-low]="selectedFilter() !== 'Supervisión'"
+          [class.text-on-surface-variant]="selectedFilter() !== 'Supervisión'"
+          class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-semibold"
+        >
+          Supervisiones
+        </button>
+      </div>
+
     </div>
 
-    <div class="filter-pills">
-      <button 
-        class="pill-btn" 
-        [class.active]="selectedFilter() === 'todos'"
-        (click)="filterEvents('todos')"
-      >
-        Todos
-      </button>
-      <button 
-        class="pill-btn" 
-        [class.active]="selectedFilter() === 'Audiencia'"
-        (click)="filterEvents('Audiencia')"
-      >
-        Audiencias
-      </button>
-      <button 
-        class="pill-btn" 
-        [class.active]="selectedFilter() === 'Inauguración'"
-        (click)="filterEvents('Inauguración')"
-      >
-        Inauguraciones
-      </button>
-      <button 
-        class="pill-btn" 
-        [class.active]="selectedFilter() === 'Supervisión'"
-        (click)="filterEvents('Supervisión')"
-      >
-        Supervisiones
-      </button>
-    </div>
-  </section>
-
-  <!-- Timeline Events List -->
-  <section class="events-list-container">
-    @for (ev of events(); track ev.id) {
-      @if (selectedFilter() === 'todos' || selectedFilter() === ev.category) {
-        <article class="event-card">
-          <!-- Left Time Block -->
-          <div class="time-block">
-            <span class="event-time">{{ ev.time }}</span>
-            <span class="event-date">{{ ev.date }}</span>
-          </div>
-
-          <!-- Divider Indicator -->
-          <div class="timeline-indicator" [attr.data-status]="ev.status"></div>
-
-          <!-- Main Event Content -->
-          <div class="event-main">
-            <div class="event-top-row">
-              <span class="category-badge">{{ ev.category }}</span>
-              <span class="status-badge" [attr.data-status]="ev.status">{{ ev.status }}</span>
+    <!-- EVENTS TIMELINE LIST -->
+    <div class="flex flex-col gap-space-md">
+      @for (ev of events(); track ev.id) {
+        @if (selectedFilter() === 'todos' || selectedFilter() === ev.category) {
+          <article class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-lg hover:shadow-md transition-all">
+            
+            <!-- Time Block -->
+            <div class="flex items-center md:flex-col md:items-start min-w-[120px] gap-space-xs md:gap-0">
+              <span class="font-headline-sm text-headline-sm font-bold text-primary">{{ ev.time }}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">{{ ev.date }}</span>
             </div>
-            <h3 class="event-title">{{ ev.title }}</h3>
-            <div class="event-meta">
-              <span class="meta-item">
-                <span class="material-symbols-rounded icon-mini">location_on</span>
-                <span>{{ ev.location }}</span>
-              </span>
-              <span class="meta-item">
-                <span class="material-symbols-rounded icon-mini">person</span>
-                <span>{{ ev.organizer }}</span>
-              </span>
-            </div>
-          </div>
 
-          <!-- Action Button -->
-          <div class="event-action">
-            <button class="btn-event-detail" title="Ver detalles del evento">
-              <span class="material-symbols-rounded">chevron_right</span>
-            </button>
-          </div>
-        </article>
+            <!-- Divider Line -->
+            <div class="hidden md:block w-1 h-12 bg-secondary/40 rounded-full"></div>
+
+            <!-- Main Info -->
+            <div class="flex-1 flex flex-col gap-space-2xs">
+              <div class="flex items-center gap-space-xs">
+                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-low text-on-surface-variant rounded font-semibold">
+                  {{ ev.category }}
+                </span>
+                <span 
+                  class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold"
+                  [class.bg-secondary-container/40]="ev.status === 'En Curso'"
+                  [class.text-on-secondary-container]="ev.status === 'En Curso'"
+                  [class.bg-primary-fixed/60]="ev.status === 'Confirmado'"
+                  [class.text-primary]="ev.status === 'Confirmado'"
+                  [class.bg-surface-container-high]="ev.status === 'Programado'"
+                  [class.text-on-surface-variant]="ev.status === 'Programado'"
+                >
+                  {{ ev.status }}
+                </span>
+              </div>
+
+              <h3 class="font-headline-md text-headline-sm text-on-surface font-bold">{{ ev.title }}</h3>
+              
+              <div class="flex flex-wrap items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+                <span class="flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px] text-secondary">location_on</span>
+                  <span>{{ ev.location }}</span>
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px] text-primary">person</span>
+                  <span>{{ ev.organizer }}</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Arrow -->
+            <div class="self-end md:self-center">
+              <button class="w-10 h-10 rounded-xl bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+              </button>
+            </div>
+
+          </article>
+        }
       }
-    }
-  </section>
+    </div>
+
+  </div>
 </main>

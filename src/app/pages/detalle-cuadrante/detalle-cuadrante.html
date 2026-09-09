@@ -1,171 +1,187 @@
-<main class="view-container">
+<main class="w-full pt-20 bg-surface min-h-screen">
   @if (quadrant(); as item) {
-    <!-- Top Navigation Bar -->
-    <div class="navigation-bar">
-      <a routerLink="/promesas" class="btn-back">
-        <span class="material-symbols-rounded">arrow_back</span>
-        <span>Volver a Promesas (Grid 3x3)</span>
-      </a>
+    <div class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
+      
+      <!-- TOP NAVIGATION & PAGER BAR -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm border-b border-outline-variant/30 pb-space-sm">
+        <a routerLink="/promesas" class="inline-flex items-center gap-space-xs font-label-md text-label-md text-primary hover:text-secondary font-bold transition-colors">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span>Volver al Catálogo de Obras</span>
+        </a>
 
-      <!-- Quick Quadrant Switcher -->
-      <div class="quadrant-pager">
-        <button 
-          class="btn-pager" 
-          [disabled]="item.id <= 1"
-          (click)="navigateToQuadrant(item.id - 1)"
-        >
-          <span class="material-symbols-rounded">chevron_left</span>
-          <span>Anterior</span>
-        </button>
+        <!-- Quick Switcher -->
+        <div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-2xs rounded-full border border-outline-variant/30 self-start sm:self-auto">
+          <button 
+            [disabled]="item.id <= 1"
+            (click)="navigateToQuadrant(item.id - 1)"
+            class="p-1 text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+          </button>
+          
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface">Compromiso {{ item.id }} de 9</span>
 
-        <span class="pager-info">Nota {{ item.id }} de 9</span>
-
-        <button 
-          class="btn-pager" 
-          [disabled]="item.id >= 9"
-          (click)="navigateToQuadrant(item.id + 1)"
-        >
-          <span>Siguiente</span>
-          <span class="material-symbols-rounded">chevron_right</span>
-        </button>
+          <button 
+            [disabled]="item.id >= 9"
+            (click)="navigateToQuadrant(item.id + 1)"
+            class="p-1 text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Main Detail Hero Section -->
-    <section class="detail-hero" [attr.data-color]="item.statusColor">
-      <div class="hero-header-row">
-        <div class="hero-title-group">
-          <div class="hero-icon-box" [attr.data-color]="item.statusColor">
-            <span class="material-symbols-rounded">{{ item.icon }}</span>
-          </div>
-          <div>
-            <div class="badge-row">
-              <span class="badge" [attr.data-color]="item.statusColor">{{ item.badgeText }}</span>
-              <span class="priority-badge" [attr.data-priority]="item.priority">Prioridad {{ item.priority }}</span>
+      <!-- HERO BANNER FICHA -->
+      <div class="bg-primary text-on-primary rounded-2xl p-space-xl shadow-lg relative overflow-hidden flex flex-col gap-space-lg">
+        <div class="absolute right-0 top-0 w-80 h-80 rounded-full bg-secondary/10 blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-space-lg relative z-10">
+          <div class="flex flex-col gap-space-xs flex-1">
+            <div class="flex flex-wrap items-center gap-space-xs">
+              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-secondary-container/40 text-on-secondary-container font-bold">
+                {{ item.badgeText }}
+              </span>
+              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-surface-container-lowest/10 text-surface-container-lowest border border-white/10 font-semibold">
+                Prioridad {{ item.priority }}
+              </span>
             </div>
-            <h1 class="detail-title">{{ item.title }}</h1>
-            <p class="detail-zone">
-              <span class="material-symbols-rounded icon-inline">location_on</span>
+
+            <h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-surface-container-lowest leading-tight pt-space-2xs">
+              {{ item.title }}
+            </h1>
+
+            <p class="font-body-md text-body-md text-surface-variant flex items-center gap-space-2xs pt-space-2xs">
+              <span class="material-symbols-outlined text-[18px] text-secondary-fixed">location_on</span>
               <span>Quito, Ecuador - {{ item.locationZone }}</span>
             </p>
           </div>
+
+          <!-- Executed Budget KPI Box -->
+          <div class="bg-surface-container-lowest/10 backdrop-blur-md p-space-lg rounded-xl border border-white/10 flex flex-col items-start lg:items-end min-w-[220px]">
+            <span class="font-label-sm text-label-sm uppercase tracking-wider text-surface-variant font-semibold">Presupuesto Ejecutado</span>
+            <span class="font-data-metric text-headline-lg text-secondary-fixed font-bold leading-none py-1">{{ item.value }}</span>
+            <span class="font-label-sm text-label-sm text-surface-variant">{{ item.subtext }}</span>
+          </div>
         </div>
 
-        <div class="hero-metric-box">
-          <span class="metric-label">Métrica Principal</span>
-          <span class="metric-value">{{ item.value }}</span>
-          <span class="metric-subtext">{{ item.subtext }}</span>
-        </div>
-      </div>
-
-      <!-- Description Banner -->
-      <div class="description-card">
-        <h3>Descripción Ejecutiva</h3>
-        <p>{{ item.fullDescription }}</p>
-      </div>
-    </section>
-
-    <!-- Map & Details Grid Layout -->
-    <div class="details-content-grid">
-      <!-- Left Column: Mini Quito Map & Metrics -->
-      <div class="content-column">
-        <!-- Interactive Quito Map for this single project -->
-        <app-mapa-quito [singleQuadrant]="item" mapHeight="320px"></app-mapa-quito>
-
-        <div class="info-card">
-          <div class="card-header">
-            <span class="material-symbols-rounded card-icon">monitoring</span>
-            <h3>Métricas Específicas del Proyecto</h3>
-          </div>
-
-          <div class="metrics-list">
-            @for (m of item.metrics; track m.label) {
-              <div class="metric-item">
-                <span class="m-label">{{ m.label }}</span>
-                <strong class="m-val">{{ m.val }}</strong>
-              </div>
-            }
-          </div>
-
-          <div class="progress-section">
-            <div class="progress-header">
-              <span>Nivel de Cumplimiento General</span>
-              <strong>{{ item.progressPercentage }}%</strong>
-            </div>
-            <div class="progress-bar-bg">
-              <div 
-                class="progress-bar-fill" 
-                [style.width.%]="item.progressPercentage"
-                [attr.data-color]="item.statusColor"
-              ></div>
-            </div>
-          </div>
+        <!-- Executive Description -->
+        <div class="bg-surface-container-lowest/5 backdrop-blur-sm p-space-md rounded-xl border border-white/5 relative z-10">
+          <h4 class="font-label-sm text-label-sm uppercase tracking-wider text-surface-variant font-bold mb-1">Descripción Ejecutiva</h4>
+          <p class="font-body-md text-body-md text-surface-container-lowest leading-relaxed">{{ item.fullDescription }}</p>
         </div>
       </div>
 
-      <!-- Right Column: Meta Info & Timeline -->
-      <div class="content-column">
-        <!-- Meta Info Card -->
-        <div class="info-card">
-          <div class="card-header">
-            <span class="material-symbols-rounded card-icon">info</span>
-            <h3>Ficha de Metadatos del Proyecto</h3>
+      <!-- MAIN CONTENT GRID (2 COLUMNS) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+        
+        <!-- LEFT COLUMN: MAP & METRICS -->
+        <div class="lg:col-span-6 flex flex-col gap-space-xl">
+          
+          <!-- Leaflet Quito Map Box -->
+          <div class="w-full">
+            <app-mapa-quito [singleQuadrant]="item" mapHeight="360px"></app-mapa-quito>
           </div>
 
-          <div class="meta-rows">
-            <div class="meta-row">
-              <span class="meta-key">Ubicación en Quito:</span>
-              <span class="meta-value">{{ item.locationZone }}</span>
+          <!-- Specific Project Metrics -->
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div class="flex items-center gap-space-xs border-b border-outline-variant/30 pb-space-xs">
+              <span class="material-symbols-outlined text-[22px] text-primary">monitoring</span>
+              <h3 class="font-headline-md text-headline-sm text-on-surface font-bold">Métricas &amp; Desglose Físico</h3>
             </div>
-            <div class="meta-row">
-              <span class="meta-key">Equipo Responsable:</span>
-              <span class="meta-value">{{ item.responsibleTeam }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-key">Categoría:</span>
-              <span class="meta-value text-capitalize">{{ item.category }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-key">Última Actualización:</span>
-              <span class="meta-value">{{ item.lastUpdated }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-key">ID de Sistema:</span>
-              <code class="system-id">SYS-UIO-00{{ item.id }}</code>
-            </div>
-          </div>
-        </div>
 
-        <div class="info-card">
-          <div class="card-header">
-            <span class="material-symbols-rounded card-icon">history</span>
-            <h3>Bitácora de Avance en Campo</h3>
-          </div>
-
-          <div class="timeline-container">
-            @for (act of item.timeline; track act.time) {
-              <div class="timeline-item">
-                <div class="timeline-dot" [attr.data-color]="item.statusColor"></div>
-                <div class="timeline-body">
-                  <div class="timeline-top">
-                    <span class="timeline-time">{{ act.time }}</span>
-                    <span class="timeline-user">{{ act.user }}</span>
-                  </div>
-                  <p class="timeline-action">{{ act.action }}</p>
+            <div class="flex flex-col gap-space-sm">
+              @for (m of item.metrics; track m.label) {
+                <div class="bg-surface-container-low/60 border border-outline-variant/30 rounded-xl p-space-md flex items-center justify-between">
+                  <span class="font-body-md text-body-md text-on-surface-variant font-medium">{{ m.label }}</span>
+                  <strong class="font-headline-sm text-headline-sm text-primary font-bold">{{ m.val }}</strong>
                 </div>
+              }
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex flex-col gap-space-xs pt-space-xs">
+              <div class="flex justify-between items-center font-label-md text-label-md font-semibold">
+                <span class="text-on-surface-variant">Cumplimiento Físico</span>
+                <span class="text-secondary font-bold">{{ item.progressPercentage }}%</span>
               </div>
-            }
+              <div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden">
+                <div class="h-full bg-secondary rounded-full" [style.width.%]="item.progressPercentage"></div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- RIGHT COLUMN: METADATA & TIMELINE -->
+        <div class="lg:col-span-6 flex flex-col gap-space-xl">
+          
+          <!-- Metadata Card -->
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div class="flex items-center gap-space-xs border-b border-outline-variant/30 pb-space-xs">
+              <span class="material-symbols-outlined text-[22px] text-primary">info</span>
+              <h3 class="font-headline-md text-headline-sm text-on-surface font-bold">Ficha de Datos de la Obra</h3>
+            </div>
+
+            <div class="flex flex-col gap-space-xs font-body-md text-body-md">
+              <div class="flex justify-between py-2 border-b border-outline-variant/20">
+                <span class="text-on-surface-variant">Parroquia / Sector:</span>
+                <strong class="text-on-surface font-semibold">Quito - {{ item.locationZone }}</strong>
+              </div>
+              
+              <div class="flex justify-between py-2 border-b border-outline-variant/20">
+                <span class="text-on-surface-variant">Unidad Responsable:</span>
+                <strong class="text-on-surface font-semibold text-right max-w-[220px]">{{ item.responsibleTeam }}</strong>
+              </div>
+
+              <div class="flex justify-between py-2 border-b border-outline-variant/20">
+                <span class="text-on-surface-variant">Eje / Categoría:</span>
+                <strong class="text-on-surface font-semibold capitalize">{{ item.category }}</strong>
+              </div>
+
+              <div class="flex justify-between py-2 border-b border-outline-variant/20">
+                <span class="text-on-surface-variant">Última Auditoría:</span>
+                <strong class="text-on-surface font-semibold">{{ item.lastUpdated }}</strong>
+              </div>
+
+              <div class="flex justify-between py-2 items-center">
+                <span class="text-on-surface-variant">Código Único:</span>
+                <span class="font-mono text-xs font-bold px-2 py-1 bg-surface-container-low rounded text-primary">OBR-UIO-00{{ item.id }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Bitácora Card -->
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div class="flex items-center gap-space-xs border-b border-outline-variant/30 pb-space-xs">
+              <span class="material-symbols-outlined text-[22px] text-primary">history</span>
+              <h3 class="font-headline-md text-headline-sm text-on-surface font-bold">Bitácora de Inspección en Campo</h3>
+            </div>
+
+            <div class="flex flex-col gap-space-md relative pl-2">
+              @for (act of item.timeline; track act.time) {
+                <div class="flex gap-space-md relative">
+                  <div class="w-3 h-3 rounded-full bg-secondary ring-4 ring-secondary-container/40 mt-1 flex-shrink-0"></div>
+                  <div class="flex flex-col gap-0.5">
+                    <div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+                      <span class="text-secondary font-bold">{{ act.time }}</span>
+                      <span class="text-on-surface-variant">• {{ act.user }}</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-on-surface leading-snug">{{ act.action }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
   } @else {
-    <!-- Not Found State -->
-    <div class="not-found-card">
-      <span class="material-symbols-rounded warning-icon">warning</span>
-      <h2>Proyecto no encontrado</h2>
-      <p>El identificador seleccionado no existe en el mapa de Quito.</p>
-      <a routerLink="/promesas" class="btn-back">Volver al Tablero de Promesas</a>
+    <div class="max-w-md mx-auto my-20 p-space-xl bg-surface-container-lowest rounded-2xl border border-outline-variant text-center flex flex-col items-center gap-space-md">
+      <span class="material-symbols-outlined text-[48px] text-error">warning</span>
+      <h2 class="font-headline-md text-headline-md text-on-surface font-bold">Obra no encontrada</h2>
+      <a routerLink="/promesas" class="bg-primary text-on-primary px-space-lg py-space-sm rounded-lg font-label-md">Volver a Promesas</a>
     </div>
   }
 </main>

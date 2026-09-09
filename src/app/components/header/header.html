@@ -1,28 +1,64 @@
-<header class="header-container">
-  <div class="header-content">
-    <!-- Brand / Logo -->
-    <div class="brand">
-      <div class="logo-icon">
-        <span class="material-symbols-rounded">shield_person</span>
-      </div>
-      <div class="brand-text">
-        <span class="brand-title">Alcalde<span class="brand-highlight">Tracker</span></span>
-        <span class="brand-badge">ENTORNO DE PRUEBA</span>
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-md border-b border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <div class="h-20 max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop flex items-center justify-between gap-space-md">
+    
+    <!-- Logo Brand -->
+    <div class="flex items-center gap-space-lg">
+      <a routerLink="/promesas" class="flex items-center gap-space-sm group">
+        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">verified_user</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline-sm text-headline-sm tracking-tight text-primary leading-none">Compromiso &amp; Transparencia</span>
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Observatorio Cívico - Quito</span>
+        </div>
+      </a>
+
+      <!-- Global Badge -->
+      <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container/40 text-on-secondary-container px-space-sm py-space-2xs rounded-full">
+        <span class="material-symbols-outlined text-[16px]">verified</span>
+        <span class="font-label-sm text-label-sm font-semibold">78% Cumplimiento Global</span>
       </div>
     </div>
 
-    <!-- Navigation Bar with 4 Links -->
-    <nav class="nav-menu">
+    <!-- PC Navigation Bar -->
+    <nav class="hidden md:flex items-center gap-space-lg">
       @for (link of navLinks; track link.path) {
         <a 
           [routerLink]="link.path" 
-          routerLinkActive="active" 
-          class="nav-link"
+          routerLinkActive="text-primary font-bold border-b-2 border-primary" 
+          class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all py-2"
         >
-          <span class="material-symbols-rounded nav-icon">{{ link.icon }}</span>
-          <span class="nav-label">{{ link.label }}</span>
+          {{ link.label }}
         </a>
       }
     </nav>
+
+    <!-- Mobile Hamburger Toggle -->
+    <div class="flex md:hidden items-center">
+      <button 
+        (click)="toggleMobileMenu()" 
+        class="p-2 text-on-surface hover:bg-surface-container rounded-lg"
+        aria-label="Abrir Menú"
+      >
+        <span class="material-symbols-outlined text-[28px]">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
   </div>
+
+  <!-- Mobile Dropdown Navigation -->
+  @if (isMobileMenuOpen) {
+    <div class="md:hidden bg-surface-container-lowest border-b border-outline-variant px-space-md py-space-sm flex flex-col gap-space-xs shadow-lg">
+      @for (link of navLinks; track link.path) {
+        <a 
+          [routerLink]="link.path" 
+          routerLinkActive="bg-primary/10 text-primary font-bold" 
+          (click)="isMobileMenuOpen = false"
+          class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-md"
+        >
+          <span class="material-symbols-outlined text-[20px]">{{ link.icon }}</span>
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </div>
+  }
 </header>

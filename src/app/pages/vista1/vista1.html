@@ -1,112 +1,321 @@
-<main class="view-container">
-  <!-- View Header Banner -->
-  <section class="hero-banner">
-    <div class="banner-content">
-      <div class="banner-tag">
-        <span class="material-symbols-rounded icon-small">verified</span>
-        <span>MONITOREO DE COMPROMISOS EN QUITO, ECUADOR</span>
-      </div>
-      <h1 class="hero-title">Tablero de Promesas Municipales</h1>
-      <p class="hero-description">
-        Estado de ejecución en tiempo real de los compromisos asumidos con la ciudadanía en el Distrito Metropolitano de Quito.
-      </p>
-    </div>
-
-    <!-- Promise Status Filters -->
-    <div class="filter-controls">
-      <span class="filter-label">Estado de la promesa:</span>
-      <button 
-        class="filter-btn" 
-        [class.active]="selectedStatus() === 'todas'"
-        (click)="filterByStatus('todas')"
-      >
-        Todas (9)
-      </button>
-      <button 
-        class="filter-btn status-cumplida" 
-        [class.active]="selectedStatus() === 'cumplidas'"
-        (click)="filterByStatus('cumplidas')"
-      >
-        Cumplidas
-      </button>
-      <button 
-        class="filter-btn status-proceso" 
-        [class.active]="selectedStatus() === 'en-proceso'"
-        (click)="filterByStatus('en-proceso')"
-      >
-        En Proceso
-      </button>
-      <button 
-        class="filter-btn status-detenida" 
-        [class.active]="selectedStatus() === 'detenidas'"
-        (click)="filterByStatus('detenidas')"
-      >
-        Detenidas
-      </button>
-      <button 
-        class="filter-btn status-sincomenzar" 
-        [class.active]="selectedStatus() === 'sin-comenzar'"
-        (click)="filterByStatus('sin-comenzar')"
-      >
-        Sin Comenzar
-      </button>
-      <button 
-        class="filter-btn status-incumplida" 
-        [class.active]="selectedStatus() === 'incumplidas'"
-        (click)="filterByStatus('incumplidas')"
-      >
-        Incumplidas / Rotas
-      </button>
-    </div>
-  </section>
-
-  <!-- Interactive Map of Quito Section -->
-  <section class="quito-map-section">
-    <app-mapa-quito [quadrants]="quadrants()" mapHeight="480px"></app-mapa-quito>
-  </section>
-
-  <!-- 3x3 Grid of Promises -->
-  <section class="grid-3x3-container">
-    @for (card of quadrants(); track card.id) {
-      @if (selectedStatus() === 'todas' || selectedStatus() === card.promiseStatus) {
-        <article class="quadrant-card" [attr.data-color]="card.statusColor">
-          <!-- Card Header -->
-          <div class="card-header">
-            <div class="card-icon-box" [attr.data-color]="card.statusColor">
-              <span class="material-symbols-rounded">{{ card.icon }}</span>
+<main class="w-full pt-20 bg-surface min-h-screen">
+  <div class="flex flex-col w-full">
+    
+    <!-- HERO BANNER SECTION (PC & Mobile Responsive) -->
+    <section class="relative w-full bg-primary text-on-primary overflow-hidden pb-space-3xl pt-space-xl">
+      <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-primary-container/60 blur-3xl pointer-events-none"></div>
+      <div class="absolute left-1/3 bottom-0 w-80 h-80 rounded-full bg-secondary/15 blur-2xl pointer-events-none"></div>
+      
+      <div class="max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+          
+          <!-- Left: Statement & Vision -->
+          <div class="lg:col-span-7 flex flex-col gap-space-md">
+            <div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-lowest/10 backdrop-blur-md self-start text-secondary-fixed">
+              <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+              <span class="font-label-sm text-label-sm tracking-wide uppercase">Auditoría Cívica Periódica 2024–2028</span>
             </div>
-            <span class="badge" [attr.data-color]="card.statusColor">
-              {{ card.badgeText }}
-            </span>
+            
+            <h1 class="font-display-hero text-display-hero-mobile lg:text-display-hero tracking-tight text-surface-container-lowest max-w-2xl leading-[1.08]">
+              Hechos, no promesas: <span class="text-secondary-fixed">auditoría abierta</span> al ciudadano.
+            </h1>
+            
+            <p class="font-body-lg text-body-lg text-surface-variant max-w-xl">
+              Monitoreo en tiempo real de los compromisos municipales en Quito con georreferenciación satelital, auditoría de partidas presupuestarias y contratos públicos.
+            </p>
+            
+            <div class="flex flex-wrap items-center gap-space-md pt-space-xs">
+              <a href="#catalogo-obras" class="inline-flex items-center gap-space-xs bg-secondary hover:bg-on-secondary-container text-on-secondary px-space-lg py-space-sm rounded-lg font-label-md text-label-md transition-all shadow-md">
+                <span class="material-symbols-outlined text-[18px]">travel_explore</span>
+                <span>Explorar Compromisos</span>
+              </a>
+              <a routerLink="/impacto" class="inline-flex items-center gap-space-xs bg-secondary-container/20 hover:bg-secondary-container/30 text-secondary-fixed border border-secondary-fixed/40 px-space-lg py-space-sm rounded-lg font-label-md text-label-md backdrop-blur-sm transition-all">
+                <span class="material-symbols-outlined text-[18px]">map</span>
+                <span>Ver Mapa de Impacto (Vista 2)</span>
+              </a>
+            </div>
           </div>
 
-          <!-- Card Body / Center -->
-          <div class="card-body">
-            <h3 class="card-title">{{ card.title }}</h3>
-            <div class="card-metric">{{ card.value }}</div>
-            <p class="card-subtext">{{ card.subtext }}</p>
-
-            <div class="progress-container">
-              <div class="progress-bar-bg">
-                <div 
-                  class="progress-bar-fill" 
-                  [style.width.%]="card.progressPercentage"
-                  [attr.data-color]="card.statusColor"
-                ></div>
+          <!-- Right: Leader Portrait Card -->
+          <div class="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <div class="relative w-full max-w-md bg-surface-container-lowest/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/10">
+              <div class="relative h-[22rem] sm:h-[24rem] w-full rounded-xl overflow-hidden bg-primary-container">
+                <img 
+                  class="w-full h-full object-cover object-top" 
+                  alt="Alcaldía Metropolitana de Quito" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0lxv0K9cl0-tEIYmJ_oNipp6Y6vZ8CXcuUJkWiZdlglyqMuOgktmbW_OYl9ymyrgi0oVft3hG6hSyiUKMMQa3zYR91YcdrSg3GsdMH2x_0YrXMtluyOdekhRxXsqzk6qhGvxzsMPTYUxq6wzZKmFhRql_W52o8F2sBktIUtHcKBUziNcfpYuCrJSg8WFLdlpZE_fk12bisHNaUb5LmHAnI_m8S0U2e7yLKGctqICLlVUzq5FweV2d7w"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent"></div>
+                
+                <div class="absolute bottom-space-md left-space-md right-space-md bg-surface-container-lowest/90 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between">
+                  <div>
+                    <p class="font-label-md text-label-md text-primary leading-tight font-bold">Alcaldía Metropolitana de Quito</p>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Gestión &amp; Presupuesto Participativo</p>
+                  </div>
+                  <div class="flex items-center gap-space-2xs bg-secondary-container/60 text-on-secondary-container px-space-xs py-space-2xs rounded-lg">
+                    <span class="material-symbols-outlined text-[14px]">military_tech</span>
+                    <span class="font-label-sm text-label-sm font-semibold">2024–2028</span>
+                  </div>
+                </div>
               </div>
-              <span class="progress-label">{{ card.progressPercentage }}%</span>
             </div>
           </div>
+        </div>
 
-          <!-- Card Footer Action: Botón "Ver más" -->
-          <div class="card-footer">
-            <a [routerLink]="['/cuadrante', card.id]" class="btn-ver-mas" [attr.data-color]="card.statusColor">
-              <span>Ver más</span>
-              <span class="material-symbols-rounded arrow-icon">arrow_forward</span>
-            </a>
+        <!-- KEY METRICS SCOREBOARD (Bento Row) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-2xl">
+          <!-- Metric 1: Cumplidas -->
+          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
+            <div class="w-2 h-full absolute left-0 top-0 bg-secondary"></div>
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Obras Cumplidas</span>
+              <span class="w-8 h-8 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              </span>
+            </div>
+            <div class="pt-space-md flex items-baseline gap-space-xs">
+              <span class="font-data-metric text-data-metric text-secondary leading-none">54</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">/ 80</span>
+            </div>
+            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+              <span>100% recepción de obra</span>
+            </p>
           </div>
-        </article>
-      }
-    }
-  </section>
+
+          <!-- Metric 2: En Ejecución -->
+          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
+            <div class="w-2 h-full absolute left-0 top-0 bg-primary"></div>
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">En Ejecución</span>
+              <span class="w-8 h-8 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[18px]">pending</span>
+              </span>
+            </div>
+            <div class="pt-space-md flex items-baseline gap-space-xs">
+              <span class="font-data-metric text-data-metric text-primary leading-none">18</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">obras activas</span>
+            </div>
+            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
+              <span>Avance promedio 74%</span>
+            </p>
+          </div>
+
+          <!-- Metric 3: Pendientes -->
+          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
+            <div class="w-2 h-full absolute left-0 top-0 bg-tertiary-fixed-dim"></div>
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Planificadas</span>
+              <span class="w-8 h-8 rounded-full bg-tertiary-fixed/60 flex items-center justify-center text-on-tertiary-container">
+                <span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
+              </span>
+            </div>
+            <div class="pt-space-md flex items-baseline gap-space-xs">
+              <span class="font-data-metric text-data-metric text-on-tertiary-container leading-none">8</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">por iniciar</span>
+            </div>
+            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-on-tertiary-container">event</span>
+              <span>Licitaciones 2026-2027</span>
+            </p>
+          </div>
+
+          <!-- Metric 4: Presupuesto Ejecutado -->
+          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
+            <div class="w-2 h-full absolute left-0 top-0 bg-secondary-fixed-dim"></div>
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Ejecutada</span>
+              <span class="w-8 h-8 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
+                <span class="material-symbols-outlined text-[18px]">payments</span>
+              </span>
+            </div>
+            <div class="pt-space-md flex items-baseline gap-space-xs">
+              <span class="font-data-metric text-data-metric text-secondary leading-none">$1.92M</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">USD</span>
+            </div>
+            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-secondary">account_balance</span>
+              <span>Presupuestos Participativos</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: FILTROS Y GRID DE PROMESAS -->
+    <section id="catalogo-obras" class="max-w-[80rem] mx-auto px-margin-mobile lg:px-margin-desktop py-space-xl w-full flex flex-col gap-space-lg">
+      
+      <!-- Filter Bar Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-xs border-b border-outline-variant/30">
+        <div>
+          <h2 class="font-headline-lg text-headline-lg tracking-tight text-on-surface">Catálogo de Obras &amp; Compromisos</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">Filtra por estado de avance en el Distrito Metropolitano de Quito</p>
+        </div>
+
+        <!-- Filter Buttons Pill Container -->
+        <div class="flex items-center gap-space-xs overflow-x-auto pb-2 sm:pb-0">
+          <button 
+            (click)="filterByStatus('todas')"
+            [class.bg-primary]="selectedStatus() === 'todas'"
+            [class.text-on-primary]="selectedStatus() === 'todas'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'todas'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'todas'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            Todas (9)
+          </button>
+          
+          <button 
+            (click)="filterByStatus('cumplidas')"
+            [class.bg-secondary]="selectedStatus() === 'cumplidas'"
+            [class.text-on-secondary]="selectedStatus() === 'cumplidas'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'cumplidas'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'cumplidas'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            Cumplidas
+          </button>
+          
+          <button 
+            (click)="filterByStatus('en-proceso')"
+            [class.bg-primary]="selectedStatus() === 'en-proceso'"
+            [class.text-on-primary]="selectedStatus() === 'en-proceso'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'en-proceso'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'en-proceso'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            En Proceso
+          </button>
+          
+          <button 
+            (click)="filterByStatus('detenidas')"
+            [class.bg-tertiary-fixed-dim]="selectedStatus() === 'detenidas'"
+            [class.text-on-tertiary-fixed]="selectedStatus() === 'detenidas'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'detenidas'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'detenidas'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            Detenidas
+          </button>
+          
+          <button 
+            (click)="filterByStatus('sin-comenzar')"
+            [class.bg-surface-variant]="selectedStatus() === 'sin-comenzar'"
+            [class.text-on-surface]="selectedStatus() === 'sin-comenzar'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'sin-comenzar'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'sin-comenzar'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            Sin Comenzar
+          </button>
+
+          <button 
+            (click)="filterByStatus('incumplidas')"
+            [class.bg-error]="selectedStatus() === 'incumplidas'"
+            [class.text-on-error]="selectedStatus() === 'incumplidas'"
+            [class.bg-surface-container-low]="selectedStatus() !== 'incumplidas'"
+            [class.text-on-surface-variant]="selectedStatus() !== 'incumplidas'"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+          >
+            Incumplidas
+          </button>
+        </div>
+      </div>
+
+      <!-- GRID 3X3 DE PROMESAS / COMPROMISOS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+        @for (card of quadrants(); track card.id) {
+          @if (selectedStatus() === 'todas' || selectedStatus() === card.promiseStatus) {
+            <article class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden">
+              
+              <!-- Color Indicator Line -->
+              <div 
+                class="h-1.5 w-full absolute top-0 left-0"
+                [class.bg-secondary]="card.statusColor === 'emerald'"
+                [class.bg-primary]="card.statusColor === 'indigo'"
+                [class.bg-secondary]="card.statusColor === 'cyan'"
+                [class.bg-tertiary-fixed-dim]="card.statusColor === 'amber'"
+                [class.bg-error]="card.statusColor === 'rose'"
+                [class.bg-primary-container]="card.statusColor === 'purple'"
+              ></div>
+
+              <!-- Top Card Row -->
+              <div class="flex items-center justify-between gap-space-sm pt-space-2xs">
+                <div class="flex items-center gap-space-xs">
+                  <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">{{ card.icon }}</span>
+                  </div>
+                  <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Quito - {{ card.category }}</span>
+                </div>
+                
+                <span 
+                  class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold"
+                  [class.bg-secondary-container/40]="card.statusColor === 'emerald'"
+                  [class.text-on-secondary-container]="card.statusColor === 'emerald'"
+                  [class.bg-primary-fixed/60]="card.statusColor === 'indigo'"
+                  [class.text-primary]="card.statusColor === 'indigo'"
+                  [class.bg-tertiary-fixed/60]="card.statusColor === 'amber'"
+                  [class.text-on-tertiary-container]="card.statusColor === 'amber'"
+                  [class.bg-error-container]="card.statusColor === 'rose'"
+                  [class.text-on-error-container]="card.statusColor === 'rose'"
+                >
+                  {{ card.badgeText }}
+                </span>
+              </div>
+
+              <!-- Card Content -->
+              <div class="flex flex-col gap-space-xs my-space-md">
+                <h3 class="font-headline-md text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-2">
+                  {{ card.title }}
+                </h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                  {{ card.subtext }}
+                </p>
+                <div class="font-headline-lg text-headline-md font-bold text-primary pt-space-2xs">
+                  {{ card.value }}
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="flex flex-col gap-space-2xs my-space-xs">
+                <div class="flex justify-between items-center font-label-sm text-label-sm">
+                  <span class="text-on-surface-variant">Avance Físico</span>
+                  <span class="font-bold text-on-surface">{{ card.progressPercentage }}%</span>
+                </div>
+                <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                  <div 
+                    class="h-full rounded-full transition-all duration-700"
+                    [style.width.%]="card.progressPercentage"
+                    [class.bg-secondary]="card.statusColor === 'emerald'"
+                    [class.bg-primary]="card.statusColor === 'indigo'"
+                    [class.bg-tertiary-fixed-dim]="card.statusColor === 'amber'"
+                    [class.bg-error]="card.statusColor === 'rose'"
+                    [class.bg-primary-container]="card.statusColor === 'purple'"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Card Footer Action -->
+              <div class="pt-space-md border-t border-outline-variant/30 flex items-center justify-between mt-space-xs">
+                <span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">location_on</span>
+                  <span>{{ card.locationZone }}</span>
+                </span>
+                
+                <a 
+                  [routerLink]="['/cuadrante', card.id]" 
+                  class="inline-flex items-center gap-space-2xs text-primary hover:text-secondary font-label-md text-label-md font-bold transition-colors"
+                >
+                  <span>Ver Ficha</span>
+                  <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </a>
+              </div>
+            </article>
+          }
+        }
+      </div>
+    </section>
+
+  </div>
 </main>

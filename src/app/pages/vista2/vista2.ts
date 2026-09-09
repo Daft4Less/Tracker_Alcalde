@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CuadrantesService, QuadrantDetail } from '../../services/cuadrantes.service';
+import { MapaQuitoComponent } from '../../components/mapa-quito/mapa-quito';
 
 export interface ImpactCategory {
   title: string;
@@ -19,11 +21,18 @@ export interface SectorImpact {
 @Component({
   selector: 'app-vista2',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MapaQuitoComponent],
   templateUrl: './vista2.html',
   styleUrl: './vista2.css'
 })
-export class Vista2Component {
+export class Vista2Component implements OnInit {
+  private cuadrantesService = inject(CuadrantesService);
+  quadrants = signal<QuadrantDetail[]>([]);
+
+  ngOnInit() {
+    this.quadrants.set(this.cuadrantesService.getAllQuadrants());
+  }
+
   impactSummary = signal<ImpactCategory[]>([
     {
       title: 'Mejora en Movilidad Urbana',
@@ -60,14 +69,6 @@ export class Vista2Component {
     { sector: 'Zona Norte (Drenaje e Iluminación)', improvementPercentage: 74, mainWork: 'Colector Pluvial & 3,200 Luminarias', statusText: 'Impacto Alto' },
     { sector: 'Distrito Sur (Salud y Equipamiento)', improvementPercentage: 92, mainWork: 'Hospital Municipal & Módulos Médicos', statusText: 'Impacto Máximo' },
     { sector: 'Zona Oriente (Parques y Recreación)', improvementPercentage: 81, mainWork: 'Pulmón Verde & Senderos Recreativos', statusText: 'Impacto Alto' },
-    { sector: 'Corredor Poniente (Movilidad Sustentable)', improvementPercentage: 68, mainWork: 'Red de Ciclovías & Transito Calmado', statusText: 'Impacto Moderado' }
+    { sector: 'Corredor Poniente (Movilidad Sustentable)', improvementPercentage: 68, mainWork: 'Red de Ciclovías & Tránsito Calmado', statusText: 'Impacto Moderado' }
   ]);
-
-  workTypeBars = [
-    { label: 'Pavimentación y Baches', percentage: 88 },
-    { label: 'Alumbrado LED', percentage: 95 },
-    { label: 'Agua y Drenaje', percentage: 78 },
-    { label: 'Seguridad C4', percentage: 91 },
-    { label: 'Parques y Jardines', percentage: 82 }
-  ];
 }

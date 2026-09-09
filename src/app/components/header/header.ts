@@ -9,10 +9,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './header.css'
 })
 export class HeaderComponent {
+  isMobileMenuOpen = false;
+
   navLinks = [
-    { path: '/promesas', label: 'Promesas', icon: 'verified' },
-    { path: '/vista2', label: 'Estadísticas', icon: 'analytics' },
-    { path: '/agenda', label: 'Agenda', icon: 'calendar_month' },
-    { path: '/nosotros', label: 'Nosotros', icon: 'groups' }
+    { path: '/promesas', label: 'Inicio & Rendición', icon: 'grid_view' },
+    { path: '/vista2', label: 'Mapa de Impacto', icon: 'analytics' },
+    { path: '/agenda', label: 'Agenda Cívica', icon: 'calendar_month' },
+    { path: '/nosotros', label: 'Sobre Nosotros', icon: 'groups' }
   ];
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 }

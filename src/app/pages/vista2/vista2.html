@@ -1,88 +1,87 @@
-<main class="view-container">
-  <!-- Page Header -->
-  <section class="page-header">
-    <div class="header-tag">
-      <span class="material-symbols-rounded icon-small">trending_up</span>
-      <span>IMPACTO Y MEJORAS URBANAS</span>
-    </div>
-    <h1 class="page-title">Impacto de Obras y Porcentaje de Mejoras</h1>
-    <p class="page-subtitle">Medición directa de las mejoras en la calidad de vida, movilidad e infraestructura de la ciudad.</p>
-  </section>
-
-  <!-- Key Impact KPI Cards -->
-  <section class="impact-cards-grid">
-    @for (card of impactSummary(); track card.title) {
-      <div class="impact-card" [attr.data-color]="card.statusColor">
-        <div class="card-top">
-          <div class="icon-box" [attr.data-color]="card.statusColor">
-            <span class="material-symbols-rounded">{{ card.icon }}</span>
-          </div>
-          <span class="impact-badge">+ Mejoras</span>
-        </div>
-
-        <div class="card-center">
-          <span class="impact-value">{{ card.percentage }}</span>
-          <h3 class="impact-title">{{ card.title }}</h3>
-          <p class="impact-subtext">{{ card.changeSubtext }}</p>
-        </div>
+<main class="w-full pt-20 bg-surface min-h-screen">
+  <div class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
+    
+    <!-- PAGE HEADER HERO -->
+    <div class="flex flex-col gap-space-xs">
+      <div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-secondary-container/40 text-on-secondary-container self-start">
+        <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+        <span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Impacto Territorial &amp; Cobertura</span>
       </div>
-    }
-  </section>
-
-  <!-- Detailed Impact per Sector / District -->
-  <section class="sector-impact-section">
-    <div class="section-header">
-      <div class="header-left">
-        <span class="material-symbols-rounded icon-header">domain</span>
-        <h3>Porcentaje de Mejora por Sector y Distrito</h3>
-      </div>
-      <span class="tag-neutral">Evaluación Ciudadana 2026</span>
+      <h1 class="font-display-hero text-headline-lg-mobile md:text-display-hero text-on-surface tracking-tight">
+        Mapa General de Impacto Territorial - Quito
+      </h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+        Evaluación de la distribución de inversiones, obras ejecutadas y porcentaje de mejora en los distritos Norte, Centro, Sur y Parroquias Rurales del DMQ.
+      </p>
     </div>
 
-    <div class="sectors-list">
-      @for (sec of sectorImpacts(); track sec.sector) {
-        <div class="sector-item">
-          <div class="sector-info">
-            <div class="sector-title-row">
-              <h4 class="sector-name">{{ sec.sector }}</h4>
-              <span class="work-tag">{{ sec.mainWork }}</span>
+    <!-- KEY IMPACT SCOREBOARD CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+      @for (card of impactSummary(); track card.title) {
+        <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div class="flex items-center justify-between">
+            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">{{ card.title }}</span>
+            <div class="w-9 h-9 rounded-xl bg-secondary-container/40 text-on-secondary-container flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">{{ card.icon }}</span>
             </div>
-            <div class="sector-progress-row">
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill" [style.width.%]="sec.improvementPercentage"></div>
+          </div>
+          <div class="my-space-sm">
+            <span class="font-data-metric text-headline-lg text-secondary font-bold">{{ card.percentage }}</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant pt-1">{{ card.changeSubtext }}</p>
+          </div>
+          <div class="flex items-center gap-1 text-secondary font-label-sm text-label-sm font-semibold pt-space-xs border-t border-outline-variant/20">
+            <span class="material-symbols-outlined text-[14px]">trending_up</span>
+            <span>Impacto Verificado 2026</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- MAPA INTERACTIVO COMPLETO DE QUITO -->
+    <div class="w-full">
+      <app-mapa-quito [quadrants]="quadrants()" mapHeight="520px"></app-mapa-quito>
+    </div>
+
+    <!-- SECTOR IMPACT BREAKDOWN -->
+    <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-sm flex flex-col gap-space-lg">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs border-b border-outline-variant/30">
+        <div>
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Porcentaje de Mejora por Sector / Distrito</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Evaluación cívica del avance en infraestructura y servicios públicos</p>
+        </div>
+        <span class="font-label-sm text-label-sm px-space-sm py-space-2xs bg-surface-container-low text-on-surface-variant rounded-full font-semibold self-start sm:self-auto">
+          Censo de Ejecución 2024-2025
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-space-md">
+        @for (sec of sectorImpacts(); track sec.sector) {
+          <div class="bg-surface-container-low/60 border border-outline-variant/30 rounded-xl p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+            <div class="flex-1 flex flex-col gap-space-2xs">
+              <div class="flex items-center justify-between">
+                <span class="font-headline-sm text-label-md text-on-surface font-bold">{{ sec.sector }}</span>
+                <span class="font-label-sm text-label-sm text-secondary font-bold">{{ sec.improvementPercentage }}% de mejora</span>
               </div>
-              <span class="percentage-label">{{ sec.improvementPercentage }}% de mejora</span>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">Obra Principal: {{ sec.mainWork }}</p>
+              
+              <!-- Progress Bar -->
+              <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden mt-1">
+                <div 
+                  class="h-full bg-secondary rounded-full transition-all duration-700"
+                  [style.width.%]="sec.improvementPercentage"
+                ></div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-space-sm self-end md:self-center">
+              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-secondary-container/50 text-on-secondary-container font-bold">
+                {{ sec.statusText }}
+              </span>
             </div>
           </div>
-
-          <div class="sector-badge-col">
-            <span class="status-pill">{{ sec.statusText }}</span>
-          </div>
-        </div>
-      }
-    </div>
-  </section>
-
-  <!-- Work Type Comparison Bar Chart -->
-  <section class="chart-section">
-    <div class="chart-header">
-      <div class="chart-title-group">
-        <span class="material-symbols-rounded icon-header">bar_chart</span>
-        <h3>Nivel de Eficiencia y Mejora por Tipo de Obra Publica</h3>
+        }
       </div>
     </div>
 
-    <div class="chart-bars-container">
-      @for (bar of workTypeBars; track bar.label) {
-        <div class="bar-column">
-          <div class="bar-wrapper">
-            <div class="bar-fill" [style.height.%]="bar.percentage">
-              <span class="bar-value-tooltip">{{ bar.percentage }}%</span>
-            </div>
-          </div>
-          <span class="bar-label">{{ bar.label }}</span>
-        </div>
-      }
-    </div>
-  </section>
+  </div>
 </main>
