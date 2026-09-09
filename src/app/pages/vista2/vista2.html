@@ -16,6 +16,18 @@
     </div>
 
     <!-- KEY IMPACT SCOREBOARD CARDS -->
+    @if (loading()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md animate-pulse">
+        @for (s of [1,2,3,4]; track s) { <div class="h-32 bg-surface-container-high rounded-2xl"></div> }
+      </div>
+      <div class="h-[520px] bg-surface-container-high rounded-2xl animate-pulse"></div>
+    } @else if (error()) {
+      <div class="bg-error-container/40 border border-error/20 rounded-2xl p-space-xl text-center flex flex-col items-center gap-space-md">
+        <span class="material-symbols-outlined text-[48px] text-error">cloud_off</span>
+        <h3 class="font-headline-md text-headline-md text-on-surface font-bold">No se pudo conectar con el servidor de datos</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Asegúrate de que la API esté corriendo en localhost:3000 y recarga la página.</p>
+      </div>
+    } @else {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
       @for (card of impactSummary(); track card.title) {
         <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
@@ -82,6 +94,7 @@
         }
       </div>
     </div>
+    }
 
   </div>
 </main>

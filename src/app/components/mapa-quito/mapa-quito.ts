@@ -23,18 +23,36 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
 
   constructor(private router: Router) {}
 
-  // Coordinates mapping for Quito, Ecuador locations
-  private quitoCoordinates: { [key: number]: [number, number] } = {
-    1: [-0.1750, -78.4800], // Av. Amazonas / Norte
-    2: [-0.2200, -78.5120], // Centro Histórico (Palacio Municipal)
-    3: [-0.1400, -78.4750], // Cotocollao / Norte
-    4: [-0.2000, -78.4900], // La Mariscal / Av. Orellana
-    5: [-0.2500, -78.5200], // Villaflora / Sur
-    6: [-0.3000, -78.5500], // Quitumbe / Sur
-    7: [-0.1700, -78.4600], // Parque Metropolitano Guanguiltagua
-    8: [-0.2300, -78.5150], // Río Machángara / Centro Sur
-    9: [-0.1600, -78.4850]  // Carcelén / Norte
-  };
+  private esc(value?: string): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  private photosHtml(q: QuadrantDetail): string {
+    const before = q.imagenAntes;
+    const after = q.imagenDespues;
+    const img = (src: string, label: string) => `
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:0.68rem; color:#6b7280; font-weight:700; margin-bottom:2px;">${label}</div>
+          <img src="${this.esc(src)}" alt="${label}" style="width:100%; height:64px; object-fit:cover; border-radius:6px; display:block;"/>
+        </div>`;
+    const inner = [
+      before ? img(before, 'Antes') : '',
+      after ? img(after, 'Después') : ''
+    ].join('');
+    if (!inner) return `<div style="margin-top:6px; font-size:0.72rem; color:#9ca3af; font-style:italic;">Sin registro fotográfico</div>`;
+    return `<div style="display:flex; gap:6px; margin-top:8px;">${inner}</div>`;
+  }
+
+  private centerOf(item?: QuadrantDetail): [number, number] {
+    if (item && item.lat !== undefined && item.lng !== undefined) {
+      return [item.lat, item.lng];
+    }
+    return [-0.1807, -78.4678];
+  }
 
   ngAfterViewInit() {
     this.initMap();
@@ -59,8 +77,8 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
     let centerLng = -78.4678;
     let zoomLevel = 12;
 
-    if (this.singleQuadrant && this.quitoCoordinates[this.singleQuadrant.id]) {
-      const coords = this.quitoCoordinates[this.singleQuadrant.id];
+    if (this.singleQuadrant) {
+      const coords = this.centerOf(this.singleQuadrant);
       centerLat = coords[0];
       centerLng = coords[1];
       zoomLevel = 14;
@@ -104,36 +122,39 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
 
     // If single quadrant view
     if (this.singleQuadrant) {
-      const coords = this.quitoCoordinates[this.singleQuadrant.id] || [-0.1807, -78.4678];
+      const coords = this.centerOf(this.singleQuadrant);
       const marker = L.marker(coords, {
         icon: createCustomIcon(this.singleQuadrant.statusColor)
       }).addTo(this.map);
 
       marker.bindPopup(`
-        <div style="font-family: sans-serif; padding: 4px;">
-          <strong style="color: #000; font-size: 0.95rem;">${this.singleQuadrant.title}</strong><br/>
-          <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.singleQuadrant.locationZone}</span><br/>
-          <div style="margin-top: 6px; font-weight: bold; color: #059669;">${this.singleQuadrant.value}</div>
+        <div style="font-family: sans-serif; padding: 4px; max-width: 240px;">
+          <strong style="color: #000; font-size: 0.95rem;">${this.esc(this.singleQuadrant.title)}</strong><br/>
+          <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.esc(this.singleQuadrant.locationZone)}</span><br/>
+          <div style="margin-top: 6px; font-weight: bold; color: #059669;">${this.esc(this.singleQuadrant.value)}</div>
+          ${this.photosHtml(this.singleQuadrant)}
         </div>
       `).openPopup();
     } else {
-      // Add all 9 Quito quadrant markers
+      // Add markers for all obras with real coordinates
       this.quadrants.forEach(q => {
-        const coords = this.quitoCoordinates[q.id];
-        if (coords) {
-          const marker = L.marker(coords, {
+        if (q.lat === undefined || q.lng === undefined) return;
+        const coords: [number, number] = [q.lat, q.lng];
+        const marker = L.marker(coords, {
             icon: createCustomIcon(q.statusColor)
           }).addTo(this.map);
 
           const popupContent = document.createElement('div');
           popupContent.style.fontFamily = 'sans-serif';
           popupContent.style.padding = '4px';
+          popupContent.style.maxWidth = '240px';
           popupContent.innerHTML = `
-            <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${q.title}</strong>
-            <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${q.locationZone}</span>
+            <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.esc(q.title)}</strong>
+            <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.esc(q.locationZone)}</span>
             <span style="display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: bold;">
-              ${q.badgeText} (${q.progressPercentage}%)
+              ${this.esc(q.badgeText)} (${q.progressPercentage}%)
             </span>
+            ${this.photosHtml(q)}
             <br/>
             <button id="btn-map-go-${q.id}" style="
               margin-top: 8px;
@@ -160,7 +181,6 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
               };
             }
           });
-        }
       });
     }
   }

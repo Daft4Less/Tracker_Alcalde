@@ -1,8 +1,7 @@
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const url = require('url');
 const dbService = require('./db');
+const authService = require('./auth');
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,7 +14,6 @@ try {
   app.use(cors());
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
-  app.use(express.static(path.join(__dirname, '../public')));
 
   app.get('/api/health', async (req, res) => {
     const health = await dbService.checkHealth();
@@ -25,6 +23,21 @@ try {
       database: health,
       timestamp: new Date().toISOString()
     });
+  });
+
+  // Autenticación JWT
+  app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body || {};
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: 'Debe proporcionar username y password' });
+    }
+    const result = await authService.login(username, password);
+    if (!result.ok) return res.status(401).json({ success: false, message: result.error });
+    res.json({ success: true, message: 'Inicio de sesión exitoso', token: result.token, user: result.user });
+  });
+
+  app.get('/api/auth/me', authService.requireAuth, (req, res) => {
+    res.json({ success: true, user: req.user });
   });
 
   app.get('/api/ejes', async (req, res) => {
@@ -49,7 +62,7 @@ try {
     res.json({ success: true, data: obra });
   });
 
-  app.post('/api/obras', async (req, res) => {
+  app.post('/api/obras', authService.requireAuth, async (req, res) => {
     const { barrio_sector, descripcion } = req.body;
     if (!barrio_sector || !descripcion) {
       return res.status(400).json({ success: false, message: 'Los campos barrio_sector y descripcion son obligatorios' });
@@ -59,7 +72,7 @@ try {
   });
 
   // Editar Obra Existente (PUT)
-  app.put('/api/obras/:id', async (req, res) => {
+  app.put('/api/obras/:id', authService.requireAuth, async (req, res) => {
     try {
       const updatedObra = await dbService.updateObra(req.params.id, req.body);
       if (!updatedObra) {
@@ -72,7 +85,7 @@ try {
   });
 
   // Eliminar Obra (DELETE)
-  app.delete('/api/obras/:id', async (req, res) => {
+  app.delete('/api/obras/:id', authService.requireAuth, async (req, res) => {
     try {
       const deletedObra = await dbService.deleteObra(req.params.id);
       if (!deletedObra) {
@@ -123,13 +136,14 @@ try {
 }
 
 if (expressApp) {
-  expressApp.listen(PORT, '0.0.0.0', () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 API RESTful Express Alcalde Tracker Quito corriendo en:`);
-    console.log(`👉 http://localhost:${PORT}`);
-    console.log(`👉 http://127.0.0.1:${PORT}`);
-    console.log(`👉 Página de Prueba Interactiva: http://localhost:${PORT}/index.html`);
-    console.log(`=======================================================`);
+  authService.ensureDefaultAdmin().then(() => {
+    expressApp.listen(PORT, '0.0.0.0', () => {
+      console.log(`=======================================================`);
+      console.log(`🚀 API RESTful Express Alcalde Tracker Quito corriendo en:`);
+      console.log(`👉 http://localhost:${PORT}`);
+      console.log(`👉 http://127.0.0.1:${PORT}`);
+      console.log(`=======================================================`);
+    });
   });
 } else {
   // Fallback Servidor HTTP Nativo (Zero Dependencies)
@@ -159,6 +173,31 @@ if (expressApp) {
       return sendJson(200, { status: 'online', message: 'API RESTful Nativa Operativa', database: health, timestamp: new Date().toISOString() });
     }
 
+    if (method === 'POST' && pathname === '/api/auth/login') {
+      let bodyStr = '';
+      req.on('data', chunk => { bodyStr += chunk.toString(); });
+      req.on('end', async () => {
+        try {
+          const body = JSON.parse(bodyStr || '{}');
+          if (!body.username || !body.password) {
+            return sendJson(400, { success: false, message: 'Debe proporcionar username y password' });
+          }
+          const result = await authService.login(body.username, body.password);
+          if (!result.ok) return sendJson(401, { success: false, message: result.error });
+          return sendJson(200, { success: true, message: 'Inicio de sesión exitoso', token: result.token, user: result.user });
+        } catch (err) {
+          return sendJson(400, { success: false, error: 'JSON inválido' });
+        }
+      });
+      return;
+    }
+
+    if (method === 'GET' && pathname === '/api/auth/me') {
+      if (!authService.isAuthorized(req)) return sendJson(401, { success: false, message: 'No autorizado' });
+      const token = (req.headers.authorization || '').split(' ')[1];
+      return sendJson(200, { success: true, user: authService.verifyToken(token) });
+    }
+
     if (method === 'GET' && pathname === '/api/ejes') {
       const ejes = await dbService.getEjes();
       return sendJson(200, { success: true, count: ejes.length, data: ejes });
@@ -183,6 +222,7 @@ if (expressApp) {
     }
 
     if (method === 'POST' && pathname === '/api/obras') {
+      if (!authService.isAuthorized(req)) return sendJson(401, { success: false, message: 'No autorizado. Token JWT inválido o expirado.' });
       let bodyStr = '';
       req.on('data', chunk => { bodyStr += chunk.toString(); });
       req.on('end', async () => {
@@ -201,6 +241,7 @@ if (expressApp) {
     }
 
     if (method === 'PUT' && pathname.startsWith('/api/obras/')) {
+      if (!authService.isAuthorized(req)) return sendJson(401, { success: false, message: 'No autorizado. Token JWT inválido o expirado.' });
       const id = pathname.split('/')[3];
       let bodyStr = '';
       req.on('data', chunk => { bodyStr += chunk.toString(); });
@@ -218,6 +259,7 @@ if (expressApp) {
     }
 
     if (method === 'DELETE' && pathname.startsWith('/api/obras/')) {
+      if (!authService.isAuthorized(req)) return sendJson(401, { success: false, message: 'No autorizado. Token JWT inválido o expirado.' });
       const id = pathname.split('/')[3];
       try {
         const deletedObra = await dbService.deleteObra(id);
@@ -228,29 +270,16 @@ if (expressApp) {
       }
     }
 
-    // Servir Archivos Estáticos (index.html)
-    let filePath = path.join(__dirname, '../public', pathname === '/' ? 'index.html' : pathname);
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('404 Not Found');
-      } else {
-        const ext = path.extname(filePath);
-        let contentType = 'text/html';
-        if (ext === '.css') contentType = 'text/css';
-        if (ext === '.js') contentType = 'application/javascript';
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(content);
-      }
-    });
+    // Servir la API REST (sin interfaz web; el panel admin vive en el frontend Angular)
   });
 
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 API RESTful HTTP Nativa Alcalde Tracker Quito corriendo en:`);
-    console.log(`👉 http://localhost:${PORT}`);
-    console.log(`👉 http://127.0.0.1:${PORT}`);
-    console.log(`👉 Página de Prueba Interactiva: http://localhost:${PORT}/index.html`);
-    console.log(`=======================================================`);
+  authService.ensureDefaultAdmin().then(() => {
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`=======================================================`);
+      console.log(`🚀 API RESTful HTTP Nativa Alcalde Tracker Quito corriendo en:`);
+      console.log(`👉 http://localhost:${PORT}`);
+      console.log(`👉 http://127.0.0.1:${PORT}`);
+      console.log(`=======================================================`);
+    });
   });
 }

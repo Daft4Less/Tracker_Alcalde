@@ -1,0 +1,461 @@
+<div class="min-h-screen bg-surface">
+  <!-- Encabezado Institucional -->
+  <header class="bg-primary text-on-primary shadow-md sticky top-0 z-40">
+    <div class="max-w-[80rem] mx-auto px-space-md lg:px-margin-desktop h-16 flex items-center justify-between">
+      <div class="flex items-center gap-space-sm">
+        <span class="w-10 h-10 rounded-lg bg-secondary-container text-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-[24px]">admin_panel_settings</span>
+        </span>
+        <div>
+          <h1 class="font-headline-md text-headline-md text-on-primary leading-tight">Panel de Control &amp; Auditoría</h1>
+          <p class="font-label-sm text-label-sm text-on-primary/60">Alcalde Tracker Quito · Admisiones Restringidas</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-space-sm">
+        <span class="hidden sm:inline-flex items-center gap-1.5 bg-on-primary/10 px-space-sm py-1 rounded-full font-label-sm text-label-sm">
+          <span class="w-2 h-2 rounded-full bg-secondary-container inline-block animate-pulse"></span>
+          <span>API Conectada</span>
+        </span>
+        <button (click)="logout()" class="inline-flex items-center gap-space-xs px-space-sm py-space-xs bg-on-primary/10 hover:bg-on-primary/20 text-on-primary font-label-sm text-label-sm rounded transition-colors">
+          <span class="material-symbols-outlined text-[18px]">logout</span>
+          <span class="hidden sm:inline">Salir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[80rem] mx-auto w-full px-space-md lg:px-margin-desktop py-space-xl">
+
+    <!-- Avisos -->
+    <div *ngIf="successMessage()" class="mb-space-md bg-secondary-container/20 border border-secondary/30 text-on-secondary-container font-label-md text-label-md rounded-lg px-4 py-3 flex items-center gap-2">
+      <span class="material-symbols-outlined text-[20px]">check_circle</span>
+      <span>{{ successMessage() }}</span>
+    </div>
+    <div *ngIf="errorMessage()" class="mb-space-md bg-error-container text-on-error-container font-label-md text-label-md rounded-lg px-4 py-3 flex items-center gap-2">
+      <span class="material-symbols-outlined text-[20px]">error</span>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Top Administrative Status & Quick Action -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-lg pb-space-xl">
+      <div class="flex flex-col gap-space-2xs">
+        <div class="flex items-center gap-space-xs">
+          <span class="inline-flex items-center gap-1 bg-primary-container text-on-primary px-space-sm py-0.5 rounded font-label-sm text-label-sm uppercase tracking-wider">
+            <span class="material-symbols-outlined text-[14px]">verified_user</span>
+            Sesión Autorizada
+          </span>
+          <span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-secondary inline-block animate-pulse"></span>
+            Sistema En Línea
+          </span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Gestión Directa de Obras y Compromisos</h2>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Revisión, alta y fiscalización de obras públicas con georreferenciación precisa.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-space-sm">
+        <button (click)="exportCSV()" class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md rounded shadow-sm transition-colors">
+          <span class="material-symbols-outlined text-[18px]">table_view</span>
+          Exportar CSV
+        </button>
+        <a href="#formulario-alta" class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded shadow-md transition-all">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span>
+          Nuevo Compromiso
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI Metric Streamer -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mb-space-2xl">
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-surface-container-low rounded-full pointer-events-none opacity-50"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Registrados</span>
+        <div class="flex items-baseline justify-between mt-space-xs">
+          <span class="font-data-metric text-data-metric text-primary">{{ kpis().total }}</span>
+          <span class="font-label-sm text-label-sm text-secondary bg-secondary-container/30 px-space-xs py-0.5 rounded">Fichas</span>
+        </div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">Obras catalogadas en el sistema</span>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-tertiary-fixed/20 rounded-full pointer-events-none opacity-50"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Pendientes / Detenidas</span>
+        <div class="flex items-baseline justify-between mt-space-xs">
+          <span class="font-data-metric text-data-metric text-tertiary-container">{{ kpis().pendientes }}</span>
+          <span class="font-label-sm text-label-sm text-tertiary-container bg-tertiary-fixed px-space-xs py-0.5 rounded">En seguimiento</span>
+        </div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">Sin comenzar, detenidas o con alerta</span>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-secondary-container/20 rounded-full pointer-events-none opacity-50"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Fondos Fiscalizados</span>
+        <div class="flex items-baseline justify-between mt-space-xs">
+          <span class="font-data-metric text-data-metric text-primary">{{ formatMoney(kpis().fondos) }}</span>
+          <span class="font-label-sm text-label-sm text-secondary">Total</span>
+        </div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">Presupuesto consolidado en el sistema</span>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-surface-container rounded-full pointer-events-none opacity-50"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Fichas con Evidencias</span>
+        <div class="flex items-baseline justify-between mt-space-xs">
+          <span class="font-data-metric text-data-metric text-primary">{{ kpis().evidencias }}</span>
+          <span class="font-label-sm text-label-sm text-on-primary-container bg-surface-container-high px-space-xs py-0.5 rounded">Fotos</span>
+        </div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">Con fotos antes / después registradas</span>
+      </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-lg lg:p-space-2xl mb-space-3xl" id="formulario-alta">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-space-lg mb-space-xl bg-surface-container-low/50 p-space-md rounded-lg">
+        <div class="flex items-center gap-space-sm">
+          <span class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">assignment_add</span>
+          </span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-primary">
+              {{ editingId() ? 'Editar Compromiso / Obra #' + editingId() : 'Registrar Nuevo Compromiso / Obra' }}
+            </h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">La información registrada quedará sujeta a trazabilidad pública.</p>
+          </div>
+        </div>
+        <button *ngIf="editingId()" (click)="resetForm()" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 mt-2 md:mt-0 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+          Cancelar edición
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-space-xl">
+        <!-- Fila 1: Datos clave -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-space-md">
+          <div class="md:col-span-6 flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Barrio / Sector de la Obra <span class="text-error">*</span></label>
+            <input type="text" name="barrio_sector" [(ngModel)]="form.barrio_sector" placeholder="Ej: Paso a Desnivel Av. Central" class="bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+          <div class="md:col-span-3 flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Eje de Gobierno <span class="text-error">*</span></label>
+            <select name="id_eje" [(ngModel)]="form.id_eje" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+              <option *ngFor="let eje of ejes()" [ngValue]="eje.id_eje">{{ eje.nombre }}</option>
+            </select>
+          </div>
+          <div class="md:col-span-3 flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Estado Inicial <span class="text-error">*</span></label>
+            <select name="estado" [(ngModel)]="form.estado" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+              <option value="en_proceso">En Proceso / Licitación</option>
+              <option value="cumplida">Cumplida / Entregada</option>
+              <option value="detenida">Detenida</option>
+              <option value="sin_comenzar">Sin Comenzar</option>
+              <option value="incumplida">Incumplida</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 2: Presupuesto y ejecución -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Presupuesto Asignado (USD)</label>
+            <div class="relative">
+              <span class="absolute left-space-sm top-1/2 -translate-y-1/2 font-label-md text-label-md text-on-surface-variant">$</span>
+              <input type="number" name="monto_inversion" [(ngModel)]="form.monto_inversion" min="0" step="0.01" placeholder="12,500,000" class="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded pl-space-lg pr-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+            </div>
+          </div>
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Avance Físico (%)</label>
+            <input type="number" name="porcentaje_avance" [(ngModel)]="form.porcentaje_avance" min="0" max="100" placeholder="65" class="bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Unidad Ejecutora Responsable</label>
+            <input type="text" name="entidad_ejecutora" [(ngModel)]="form.entidad_ejecutora" placeholder="EPMMOP / Secretaría" class="bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+        </div>
+
+        <!-- Fila 3: Parroquia + año -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Parroquia DMQ</label>
+            <select name="id_parroquia" [(ngModel)]="form.id_parroquia" (change)="onParroquiaChange($event)" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+              <option *ngFor="let p of parroquias()" [ngValue]="p.id_parroquia">{{ p.nombre }}</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Año de Ejecución</label>
+            <input type="number" name="anio_ejecucion" [(ngModel)]="form.anio_ejecucion" min="2020" max="2030" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+        </div>
+
+        <!-- Fila 4: Geolocalización -->
+        <div class="bg-surface-container-low/60 rounded-xl p-space-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-md">
+            <div>
+              <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary flex items-center gap-1 font-semibold">
+                <span class="material-symbols-outlined text-[16px]">pin_drop</span>
+                Geolocalización Ciudadana
+              </span>
+              <h3 class="font-headline-sm text-headline-sm text-primary">Ubicación Precisa de la Intervención</h3>
+            </div>
+            <span class="font-label-sm text-label-sm text-on-surface-variant">Haz clic en el mapa o arrastra el pin para calibrar coordenadas GPS</span>
+          </div>
+
+          <!-- Parser Google Maps -->
+          <div class="mb-space-md flex flex-col gap-space-xs">
+            <label class="font-label-md text-label-md text-primary flex items-center gap-space-xs">
+              <span class="material-symbols-outlined text-[18px] text-secondary">link</span>
+              Pegar enlace de Google Maps (opcional)
+            </label>
+            <div class="flex flex-col sm:flex-row gap-space-xs">
+              <input type="text" [(ngModel)]="mapsUrlInput" name="mapsUrl" placeholder="https://maps.app.goo.gl/... o @lat,lng" class="flex-1 bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:shadow-[0_0_0_2px_#001428] transition-all">
+              <button type="button" (click)="parseMapsUrl()" class="bg-secondary hover:bg-on-secondary-container text-on-secondary font-label-md text-label-md font-semibold rounded px-space-md py-space-sm transition-colors flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">filter_center_focus</span>
+                Extraer Coordenadas
+              </button>
+            </div>
+            <span class="font-label-sm text-label-sm text-secondary">{{ mapsParserMsg }}</span>
+          </div>
+
+          <!-- Buscador de dirección -->
+          <div class="mb-space-md flex flex-col sm:flex-row gap-space-xs">
+            <div class="flex-1 relative">
+              <span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+              <input type="text" [(ngModel)]="addressSearch" name="addressSearch" (keyup.enter)="searchAddress()" placeholder="Buscar barrio o dirección en Quito..." class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded pl-space-xl pr-space-md py-space-sm outline-none focus:shadow-[0_0_0_2px_#001428] transition-all">
+            </div>
+            <button type="button" (click)="searchAddress()" class="bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md rounded px-space-md py-space-sm transition-colors">
+              Buscar Dirección
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+            <div class="lg:col-span-5 flex flex-col gap-space-sm">
+              <div class="grid grid-cols-2 gap-space-sm">
+                <div class="flex flex-col gap-space-2xs">
+                  <label class="font-label-sm text-label-sm text-on-surface-variant">Latitud</label>
+                  <input type="number" step="0.000001" [(ngModel)]="form.latitud" name="latitud" class="bg-surface-container-lowest font-body-sm text-body-sm text-on-surface rounded px-space-sm py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428]">
+                </div>
+                <div class="flex flex-col gap-space-2xs">
+                  <label class="font-label-sm text-label-sm text-on-surface-variant">Longitud</label>
+                  <input type="number" step="0.000001" [(ngModel)]="form.longitud" name="longitud" class="bg-surface-container-lowest font-body-sm text-body-sm text-on-surface rounded px-space-sm py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428]">
+                </div>
+              </div>
+              <div class="p-space-sm bg-surface-container-lowest rounded flex items-center gap-space-sm text-on-surface-variant text-label-sm font-label-sm">
+                <span class="material-symbols-outlined text-secondary text-[20px]">my_location</span>
+                <span>Pin activo: <span class="text-primary font-bold">{{ mapPinLabel }}</span></span>
+              </div>
+            </div>
+            <div class="lg:col-span-7 relative h-72 rounded-lg overflow-hidden shadow-sm border border-surface-variant">
+              <div #mapContainer class="w-full h-full z-0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 5: Detalle -->
+        <div class="flex flex-col gap-space-2xs">
+          <label class="font-label-md text-label-md text-primary">Detalle del Compromiso, Alcance e Indicadores <span class="text-error">*</span></label>
+          <textarea name="descripcion" [(ngModel)]="form.descripcion" rows="5" placeholder="Describa entregables verificables, beneficiarios directos e indicadores clave..." class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-space-md outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all"></textarea>
+        </div>
+
+        <!-- Fila 6: Evidencias -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+          <div class="flex flex-col gap-space-sm">
+            <label class="font-label-md text-label-md text-primary flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px] text-tertiary-container">photo_camera</span>
+              Foto de Antes
+            </label>
+            <input type="text" [(ngModel)]="form.url_imagen_antes" name="url_imagen_antes" placeholder="URL del registro fotográfico..." class="bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+            <label class="bg-surface-container-low/70 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high/60 transition-all">
+              <span class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm mb-1">
+                <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+              </span>
+              <span class="font-label-sm text-label-sm text-primary">Subir imagen local</span>
+              <input type="file" accept="image/*" (change)="onFileSelected($event, 'antes')" class="hidden">
+            </label>
+            <div *ngIf="imagePreviews.antes" class="relative">
+              <img [src]="imagePreviews.antes" class="w-full h-24 object-cover rounded-lg border border-tertiary-fixed">
+              <button type="button" (click)="removeImage('antes')" title="Quitar foto de antes" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface/90 text-error flex items-center justify-center shadow border border-error/40 hover:bg-error hover:text-on-error transition-colors">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+            <button *ngIf="!imagePreviews.antes && form.url_imagen_antes" type="button" (click)="removeImage('antes')" class="self-start inline-flex items-center gap-1 text-error font-label-sm text-label-sm hover:underline">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+              Quitar foto
+            </button>
+          </div>
+          <div class="flex flex-col gap-space-sm">
+            <label class="font-label-md text-label-md text-primary flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px] text-secondary">photo_library</span>
+              Foto de Después / Actual
+            </label>
+            <input type="text" [(ngModel)]="form.url_imagen_despues" name="url_imagen_despues" placeholder="URL del registro fotográfico..." class="bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+            <label class="bg-surface-container-low/70 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high/60 transition-all">
+              <span class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm mb-1">
+                <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+              </span>
+              <span class="font-label-sm text-label-sm text-primary">Subir imagen local</span>
+              <input type="file" accept="image/*" (change)="onFileSelected($event, 'despues')" class="hidden">
+            </label>
+            <div *ngIf="imagePreviews.despues" class="relative">
+              <img [src]="imagePreviews.despues" class="w-full h-24 object-cover rounded-lg border border-secondary-container">
+              <button type="button" (click)="removeImage('despues')" title="Quitar foto de después" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface/90 text-error flex items-center justify-center shadow border border-error/40 hover:bg-error hover:text-on-error transition-colors">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+            <button *ngIf="!imagePreviews.despues && form.url_imagen_despues" type="button" (click)="removeImage('despues')" class="self-start inline-flex items-center gap-1 text-error font-label-sm text-label-sm hover:underline">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+              Quitar foto
+            </button>
+          </div>
+        </div>
+
+        <!-- Zona de Eliminación -->
+        <div *ngIf="editingId()" class="mt-3 pt-4 border-t-2 border-error/30 flex flex-col gap-space-sm bg-error-container/20 p-space-md rounded-xl">
+          <span class="font-label-md text-label-md text-on-error-container flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">warning</span>
+            Zona de Eliminación de la Obra #{{ editingId() }}
+          </span>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Para confirmar la eliminación permanente, escribe <strong class="text-error font-mono">ELIMINAR</strong>.</p>
+          <div class="flex flex-col sm:flex-row gap-space-xs">
+            <input type="text" [(ngModel)]="confirmDeleteText" name="confirmDelete" placeholder="Escribe ELIMINAR" class="flex-1 border border-error/40 rounded font-body-sm text-body-sm p-space-sm outline-none font-bold uppercase text-error">
+            <button type="button" (click)="deleteCurrentObra()" class="bg-error hover:bg-error-container text-on-error font-label-md text-label-md font-semibold rounded px-space-md py-space-sm transition-colors flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+              Eliminar Definitivamente
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de envío -->
+        <div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container-low/30 p-space-md rounded-xl">
+          <div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+            <span class="material-symbols-outlined text-secondary text-[18px]">lock</span>
+            Los cambios protegidos se autentican con JWT.
+          </div>
+          <div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
+            <button type="submit" [disabled]="saving()" class="w-full sm:w-auto px-space-xl py-space-sm bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60">
+              <span *ngIf="!saving()" class="material-symbols-outlined text-[18px]">publish</span>
+              <span *ngIf="saving()" class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+              {{ saving() ? 'Guardando...' : (editingId() ? 'Actualizar Obra' : 'Guardar y Publicar') }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabla de Gestión -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-lg lg:p-space-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+        <div>
+          <h2 class="font-headline-md text-headline-md text-primary">Gestor de Obras y Compromisos Registrados</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Control centralizado de avance, estado y georreferencia.</p>
+        </div>
+        <div class="flex items-center gap-space-xs">
+          <span class="font-label-sm text-label-sm bg-surface-container text-primary px-space-sm py-space-2xs rounded">
+            Mostrando {{ filteredObras().length }} de {{ allObras().length }} registros
+          </span>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm mb-space-lg bg-surface-container-low/70 p-space-md rounded-lg">
+        <div class="md:col-span-5 relative">
+          <span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+          <input type="text" (ngModelChange)="searchText.set($event)" [ngModel]="searchText()" name="searchText" placeholder="Filtrar por sector, descripción o id..." class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded pl-space-xl pr-space-md py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428] transition-all">
+        </div>
+        <div class="md:col-span-3">
+          <select (ngModelChange)="parroquiaFilter.set($event)" [ngModel]="parroquiaFilter()" name="parroquiaFilter" class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428]">
+            <option value="">Todas las Parroquias</option>
+            <option *ngFor="let p of parroquias()" [value]="p.id_parroquia">{{ p.nombre }}</option>
+          </select>
+        </div>
+        <div class="md:col-span-3">
+          <select (ngModelChange)="estadoFilter.set($event)" [ngModel]="estadoFilter()" name="estadoFilter" class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428]">
+            <option value="">Todos los Estados</option>
+            <option value="cumplida">Cumplida</option>
+            <option value="en_proceso">En Proceso</option>
+            <option value="detenida">Detenida</option>
+            <option value="sin_comenzar">Sin Comenzar</option>
+            <option value="incumplida">Incumplida</option>
+          </select>
+        </div>
+        <div class="md:col-span-1 flex items-center justify-end">
+          <button (click)="searchText.set(''); estadoFilter.set(''); parroquiaFilter.set('')" type="button" class="w-full bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm py-space-xs px-space-sm rounded flex items-center justify-center gap-1" title="Limpiar filtros">
+            <span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-body-sm text-body-sm">
+          <thead>
+            <tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md">
+              <th class="py-space-sm px-space-md rounded-l">Código</th>
+              <th class="py-space-sm px-space-md">Título del Compromiso</th>
+              <th class="py-space-sm px-space-md">Parroquia</th>
+              <th class="py-space-sm px-space-md">Estado</th>
+              <th class="py-space-sm px-space-md">Avance %</th>
+              <th class="py-space-sm px-space-md">Inversión</th>
+              <th class="py-space-sm px-space-md rounded-r text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading()" class="hover:bg-surface-container-low/40 transition-colors">
+              <td colspan="7" class="py-space-lg px-space-md text-center text-on-surface-variant">
+                <span class="inline-flex items-center gap-2">
+                  <span class="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></span>
+                  Cargando obras desde el backend...
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!loading() && filteredObras().length === 0" class="hover:bg-surface-container-low/40 transition-colors">
+              <td colspan="7" class="py-space-lg px-space-md text-center text-on-surface-variant">No se encontraron registros.</td>
+            </tr>
+            <tr *ngFor="let obra of filteredObras()" class="hover:bg-surface-container-low/40 transition-colors border-t border-surface-variant/30">
+              <td class="py-space-md px-space-md font-mono text-label-sm font-semibold text-primary">#OBR-{{ obra.id_obra }}</td>
+              <td class="py-space-md px-space-md">
+                <div class="font-label-md text-label-md text-primary">{{ obra.barrio_sector }}</div>
+                <div class="font-label-sm text-label-sm text-on-surface-variant">
+                  {{ obra.eje_nombre || '' }} <span *ngIf="obra.entidad_ejecutora">· {{ obra.entidad_ejecutora }}</span>
+                </div>
+              </td>
+              <td class="py-space-md px-space-md">
+                <span class="bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-space-xs py-0.5 rounded">{{ obra.parroquia_nombre || '—' }}</span>
+              </td>
+              <td class="py-space-md px-space-md">
+                <span class="font-label-sm text-label-sm font-semibold rounded px-space-xs py-1 inline-block" [style.background]="estadoColor(obra.estado) + '22'" [style.color]="estadoColor(obra.estado)">
+                  {{ estadoLabel(obra.estado) }}
+                </span>
+              </td>
+              <td class="py-space-md px-space-md">
+                <div class="flex items-center gap-space-xs min-w-[7rem]">
+                  <div class="w-20 bg-surface-container rounded-full h-2 overflow-hidden">
+                    <div class="h-2 rounded-full" [style.width.%]="obra.porcentaje_avance || 0" [style.background]="estadoColor(obra.estado)"></div>
+                  </div>
+                  <span class="font-label-sm text-label-sm font-bold" [style.color]="estadoColor(obra.estado)">{{ obra.porcentaje_avance || 0 }}%</span>
+                </div>
+              </td>
+              <td class="py-space-md px-space-md font-label-sm text-label-sm text-primary font-medium">{{ formatMoney(obra.monto_inversion) }}</td>
+              <td class="py-space-md px-space-md text-right">
+                <div class="inline-flex items-center gap-1">
+                  <button (click)="startEdit(obra)" class="p-1 hover:bg-surface-container rounded text-primary" title="Editar Ficha"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+                  <a [href]="'https://www.google.com/maps?q=' + (obra.latitud || -0.22) + ',' + (obra.longitud || -78.51)" target="_blank" class="p-1 hover:bg-surface-container rounded text-secondary" title="Abrir en Maps"><span class="material-symbols-outlined text-[18px]">map</span></a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Banner de sincronización -->
+    <div class="mt-space-xl p-space-lg bg-surface-container-low rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+      <div class="flex items-center gap-space-md">
+        <span class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-[20px]">sync</span>
+        </span>
+        <div>
+          <h4 class="font-label-md text-label-md text-primary">Autenticación JWT Activa</h4>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Las escrituras sobre la base de datos requieren sesión iniciada. La lectura pública permanece abierta.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-space-xs">
+        <span class="font-mono text-label-sm text-label-sm text-on-surface-variant">Modo: {{ editingId() ? 'Edición' : 'Alta' }} · API local</span>
+      </div>
+    </div>
+  </main>
+</div>

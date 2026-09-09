@@ -86,3 +86,14 @@ CREATE TABLE IF NOT EXISTS evento_rendicion (
     tipo_evento VARCHAR(100),
     descripcion TEXT
 );
+
+-- 9. Tabla de Administradores (Autenticación JWT del Panel Admin)
+CREATE TABLE IF NOT EXISTS admin (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,                    -- Hash bcrypt
+    nombre_completo VARCHAR(255),
+    rol VARCHAR(50) DEFAULT 'admin',
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

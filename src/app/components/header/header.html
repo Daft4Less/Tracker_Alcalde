@@ -16,7 +16,7 @@
       <!-- Global Badge -->
       <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container/40 text-on-secondary-container px-space-sm py-space-2xs rounded-full">
         <span class="material-symbols-outlined text-[16px]">verified</span>
-        <span class="font-label-sm text-label-sm font-semibold">78% Cumplimiento Global</span>
+        <span class="font-label-sm text-label-sm font-semibold">{{ globalProgress() !== null ? globalProgress() + '% Cumplimiento Global' : 'Sincronizando datos…' }}</span>
       </div>
     </div>
 

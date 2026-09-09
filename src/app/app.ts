@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
 
@@ -12,4 +12,14 @@ import { FooterComponent } from './components/footer/footer';
 })
 export class App {
   title = 'AlcaldeTracker';
+  isAdminArea = signal(false);
+
+  constructor(router: Router) {
+    router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        const url = event.url.split('#').pop() ?? '';
+        this.isAdminArea.set(url.startsWith('/auth') || url.startsWith('/admin'));
+      }
+    });
+  }
 }

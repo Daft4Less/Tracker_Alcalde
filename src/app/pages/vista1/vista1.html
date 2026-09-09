@@ -29,7 +29,7 @@
                 <span class="material-symbols-outlined text-[18px]">travel_explore</span>
                 <span>Explorar Compromisos</span>
               </a>
-              <a routerLink="/impacto" class="inline-flex items-center gap-space-xs bg-secondary-container/20 hover:bg-secondary-container/30 text-secondary-fixed border border-secondary-fixed/40 px-space-lg py-space-sm rounded-lg font-label-md text-label-md backdrop-blur-sm transition-all">
+              <a routerLink="/vista2" class="inline-flex items-center gap-space-xs bg-secondary-container/20 hover:bg-secondary-container/30 text-secondary-fixed border border-secondary-fixed/40 px-space-lg py-space-sm rounded-lg font-label-md text-label-md backdrop-blur-sm transition-all">
                 <span class="material-symbols-outlined text-[18px]">map</span>
                 <span>Ver Mapa de Impacto (Vista 2)</span>
               </a>
@@ -74,8 +74,8 @@
               </span>
             </div>
             <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-secondary leading-none">54</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">/ 80</span>
+              <span class="font-data-metric text-data-metric text-secondary leading-none">{{ kpiCumplidas() }}</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">/ {{ total() }}</span>
             </div>
             <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
@@ -93,12 +93,12 @@
               </span>
             </div>
             <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-primary leading-none">18</span>
+              <span class="font-data-metric text-data-metric text-primary leading-none">{{ kpiEnProceso() }}</span>
               <span class="font-label-md text-label-md text-on-surface-variant">obras activas</span>
             </div>
             <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
-              <span>Avance promedio 74%</span>
+              <span>Avance promedio {{ kpiPromedioAvance() }}%</span>
             </p>
           </div>
 
@@ -112,7 +112,7 @@
               </span>
             </div>
             <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-on-tertiary-container leading-none">8</span>
+              <span class="font-data-metric text-data-metric text-on-tertiary-container leading-none">{{ kpiPlanificadas() }}</span>
               <span class="font-label-md text-label-md text-on-surface-variant">por iniciar</span>
             </div>
             <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
@@ -125,18 +125,18 @@
           <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
             <div class="w-2 h-full absolute left-0 top-0 bg-secondary-fixed-dim"></div>
             <div class="flex items-center justify-between">
-              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Ejecutada</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Total</span>
               <span class="w-8 h-8 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
                 <span class="material-symbols-outlined text-[18px]">payments</span>
               </span>
             </div>
             <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-secondary leading-none">$1.92M</span>
+              <span class="font-data-metric text-data-metric text-secondary leading-none">{{ kpiInversion() }}</span>
               <span class="font-label-md text-label-md text-on-surface-variant">USD</span>
             </div>
             <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-secondary">account_balance</span>
-              <span>Presupuestos Participativos</span>
+              <span>Base de datos municipal</span>
             </p>
           </div>
         </div>
@@ -163,7 +163,7 @@
             [class.text-on-surface-variant]="selectedStatus() !== 'todas'"
             class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
           >
-            Todas (9)
+            Todas ({{ total() }})
           </button>
           
           <button 
@@ -224,6 +224,37 @@
       </div>
 
       <!-- GRID 3X3 DE PROMESAS / COMPROMISOS -->
+
+      <!-- Estado: cargando -->
+      @if (loading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+          @for (s of [1,2,3,4,5,6]; track s) {
+            <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg flex flex-col gap-space-md animate-pulse h-64">
+              <div class="w-10 h-10 rounded-xl bg-surface-container-high"></div>
+              <div class="h-4 bg-surface-container-high rounded w-3/4"></div>
+              <div class="h-3 bg-surface-container-high rounded w-full"></div>
+              <div class="h-3 bg-surface-container-high rounded w-2/3"></div>
+              <div class="mt-auto h-2 bg-surface-container-high rounded-full"></div>
+            </div>
+          }
+        </div>
+      } @else if (error()) {
+        <div class="bg-error-container/40 border border-error/20 rounded-2xl p-space-xl text-center flex flex-col items-center gap-space-md">
+          <span class="material-symbols-outlined text-[48px] text-error">cloud_off</span>
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">No se pudo conectar con el servidor de datos</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Asegúrate de que la API esté corriendo (node backend/src/server.js) y recarga la página.</p>
+          <a routerLink="/promesas" class="bg-primary text-on-primary px-space-lg py-space-sm rounded-lg font-label-md inline-flex items-center gap-space-xs">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+            <span>Reintentar</span>
+          </a>
+        </div>
+      } @else if (total() === 0) {
+        <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl text-center flex flex-col items-center gap-space-md">
+          <span class="material-symbols-outlined text-[48px] text-on-surface-variant">inbox</span>
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Aún no hay obras registradas</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant">Ingresa obras desde el panel de administración y aparecerán aquí automáticamente.</p>
+        </div>
+      } @else {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
         @for (card of quadrants(); track card.id) {
           @if (selectedStatus() === 'todas' || selectedStatus() === card.promiseStatus) {
@@ -315,6 +346,7 @@
           }
         }
       </div>
+      }
     </section>
 
   </div>

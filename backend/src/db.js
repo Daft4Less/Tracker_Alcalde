@@ -181,9 +181,48 @@ let memoryObras = [
   }
 ];
 
+// Admin en Memoria (Fallback cuando no hay PostgreSQL configurado)
+let memoryAdmins = [];
+
 // Servicio Abstraído de Acceso a Datos
 const dbService = {
   isPostgres: false,
+
+  async getAdminByUsername(username) {
+    if (pool && this.isPostgres) {
+      const res = await pool.query(
+        'SELECT id, username, password_hash, nombre_completo, rol, activo FROM admin WHERE username = $1 LIMIT 1',
+        [username]
+      );
+      return res.rows[0] || null;
+    }
+    return memoryAdmins.find(a => a.username === username) || null;
+  },
+
+  async createAdmin(adminData) {
+    if (pool && this.isPostgres) {
+      const res = await pool.query(
+        `INSERT INTO admin (username, password_hash, nombre_completo, rol)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (username) DO NOTHING
+         RETURNING id, username, nombre_completo, rol, activo`,
+        [adminData.username, adminData.password_hash, adminData.nombre_completo || '', adminData.rol || 'admin']
+      );
+      return res.rows[0] || null;
+    }
+    const existing = memoryAdmins.find(a => a.username === adminData.username);
+    if (existing) return existing;
+    const created = {
+      id: memoryAdmins.length + 1,
+      username: adminData.username,
+      password_hash: adminData.password_hash,
+      nombre_completo: adminData.nombre_completo || '',
+      rol: adminData.rol || 'admin',
+      activo: true
+    };
+    memoryAdmins.push(created);
+    return created;
+  },
 
   async checkHealth() {
     if (pool) {
