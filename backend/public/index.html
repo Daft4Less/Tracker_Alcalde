@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prueba de Consumo API REST & Google Maps - Alcalde Tracker Quito</title>
+  
+  <!-- Tailwind CSS & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- Leaflet Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#001428',
+            secondary: '#006c49',
+            'secondary-container': '#6cf8bb',
+            surface: '#f9f9ff',
+            'surface-card': '#ffffff',
+            'surface-low': '#f0f3ff'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    #map { height: 420px; width: 100%; border-radius: 1rem; z-index: 10; }
+  </style>
+</head>
+<body class="bg-surface font-sans text-slate-800 min-h-screen">
+
+  <!-- Header Institucional -->
+  <header class="bg-primary text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-secondary-container text-3xl">api</span>
+        <div>
+          <h1 class="font-display font-bold text-xl leading-tight">Extractor de Coordenadas Google Maps &amp; API REST</h1>
+          <p class="text-xs text-slate-300">Alcalde Tracker Quito - Servidor Backend &amp; Ubicación Interactiva</p>
+        </div>
+      </div>
+      <div id="healthBadge" class="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full text-xs font-semibold text-emerald-300 border border-white/10">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="healthText">Conectando a la API...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
+    
+    <!-- BANNER SUPERIOR: MAPA DE QUITO + BUSCADOR & EXTRACTOR DE GOOGLE MAPS -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display font-bold text-xl text-primary flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-2xl">pin_drop</span>
+            Geolocalización &amp; Extractor de Enlaces de Google Maps
+          </h2>
+          <p class="text-xs text-slate-500">Puedes pegar un enlace de Google Maps, buscar por dirección o arrastrar el pin en el mapa.</p>
+        </div>
+
+        <!-- Filtros Rápidos de API -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="fetchApi('/api/obras')" class="bg-slate-800 text-white font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-slate-700 transition">
+            Todas (REST API)
+          </button>
+          <button onclick="fetchApi('/api/obras?estado=cumplida')" class="bg-emerald-100 text-emerald-800 font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-200 transition">
+            Cumplidas
+          </button>
+          <button onclick="fetchApi('/api/obras?estado=en_proceso')" class="bg-blue-100 text-blue-800 font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-blue-200 transition">
+            En Proceso
+          </button>
+          <button onclick="fetchApi('/api/obras?estado=detenida')" class="bg-amber-100 text-amber-800 font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-200 transition">
+            Detenidas
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1: EXTRACTOR DIRECTO DE ENLACES DE GOOGLE MAPS -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 flex flex-col gap-2">
+        <label class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-blue-600 text-lg">link</span>
+          Pegar Enlace / Link de Google Maps
+        </label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input 
+            type="text" 
+            id="googleMapsUrl" 
+            placeholder="Pegar link aquí (ej: https://www.google.com/maps/@-0.220164,-78.512327,15z o https://maps.app.goo.gl/...)"
+            class="flex-1 text-xs px-3.5 py-2.5 border border-blue-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+            oninput="parseGoogleMapsUrlInput()"
+          >
+          <button onclick="parseGoogleMapsUrlInput()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-sm">filter_center_focus</span>
+            <span>Extraer Coordenadas</span>
+          </button>
+        </div>
+        <span id="mapsParserFeedback" class="text-[11px] font-semibold text-slate-600 hidden"></span>
+      </div>
+
+      <!-- SECCIÓN 2: BUSCADOR POR DIRECCIÓN O LUGAR -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <div class="md:col-span-7 relative flex items-center">
+          <span class="material-symbols-outlined absolute left-3 text-slate-400 text-xl">search</span>
+          <input 
+            type="text" 
+            id="searchAddress" 
+            placeholder="O escribe un barrio o lugar (ej: San Bartolo, Parque La Carolina, Cumbayá)..."
+            class="w-full text-xs pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-secondary bg-white"
+            onkeypress="if(event.key === 'Enter'){ event.preventDefault(); searchLocation(); }"
+          >
+        </div>
+
+        <button onclick="searchLocation()" class="md:col-span-3 bg-secondary hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">travel_explore</span>
+          <span>Buscar Nombre</span>
+        </button>
+
+        <button onclick="useMyLocation()" class="md:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-sm">my_location</span>
+          <span>Mi GPS</span>
+        </button>
+      </div>
+
+      <!-- Contenedor del Mapa Leaflet -->
+      <div id="map"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- PANEL IZQUIERDO: FORMULARIO POST COMPLETO CON TODOS LOS CAMPOS -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 id="formTitle" class="font-display font-bold text-lg text-primary flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary">post_add</span>
+              Registrar Nueva Obra (POST /api/obras)
+            </h2>
+            <button type="button" id="cancelEditBtn" onclick="cancelEditObra()" class="hidden text-xs text-slate-600 hover:text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md transition">
+              Cancelar Edición
+            </button>
+          </div>
+
+          <form id="createForm" onsubmit="submitNewObra(event)" class="flex flex-col gap-3">
+            
+            <!-- Eje y Parroquia -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Eje de Gobierno</label>
+                <select id="id_eje" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none bg-white">
+                  <option value="1">1. Hábitat &amp; Seguridad</option>
+                  <option value="2">2. Trabajo &amp; Innovación</option>
+                  <option value="3">3. Bienestar &amp; Derechos</option>
+                  <option value="4">4. Movilidad Sostenible</option>
+                  <option value="5">5. Territorio Ecológico</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Parroquia DMQ</label>
+                <select id="id_parroquia" onchange="onParroquiaChange(this.value)" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none bg-white">
+                  <option value="1">Conocoto</option>
+                  <option value="2">Amaguaña</option>
+                  <option value="3">Píntag</option>
+                  <option value="4">La Merced</option>
+                  <option value="5">Alangasí</option>
+                  <option value="6">Guangopolo</option>
+                  <option value="7">Iñaquito</option>
+                  <option value="8">Centro Histórico</option>
+                  <option value="9">Quitumbe</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Barrio y Entidad Ejecutora -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Barrio / Sector *</label>
+                <input type="text" id="barrio_sector" required placeholder="Ej: Barrio San Bartolo" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Entidad Ejecutora</label>
+                <input type="text" id="entidad_ejecutora" placeholder="Ej: EPMMOP / Zonal" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none">
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción de la Obra *</label>
+              <textarea id="descripcion" required rows="2" placeholder="Detalle de trabajos, asfaltado, luminarias o equipamiento..." class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none"></textarea>
+            </div>
+
+            <!-- Fotos de Antes y Después / Estado Actual (Soporta URL o Subida de Archivo Local a Postgres) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <div class="flex flex-col gap-1.5">
+                <label class="block text-[11px] font-semibold text-slate-700 flex items-center justify-between">
+                  <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs text-amber-600">photo_camera</span>
+                    <span>Foto de Antes</span>
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-normal">URL o Archivo</span>
+                </label>
+                <input type="text" id="url_imagen_antes" placeholder="https://... o sube archivo" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none bg-white">
+                <div class="flex items-center justify-between gap-1 text-[10px] text-slate-500">
+                  <span>Subir Local:</span>
+                  <input type="file" accept="image/*" onchange="handleImageFileUpload(event, 'url_imagen_antes', 'preview_antes')" class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                </div>
+                <img id="preview_antes" class="hidden w-full h-20 object-cover rounded-lg border border-amber-200 mt-1" />
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="block text-[11px] font-semibold text-slate-700 flex items-center justify-between">
+                  <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs text-emerald-600">photo_library</span>
+                    <span>Foto de Después / Actual</span>
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-normal">URL o Archivo</span>
+                </label>
+                <input type="text" id="url_imagen_despues" placeholder="https://... o sube archivo" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none bg-white">
+                <div class="flex items-center justify-between gap-1 text-[10px] text-slate-500">
+                  <span>Subir Local:</span>
+                  <input type="file" accept="image/*" onchange="handleImageFileUpload(event, 'url_imagen_despues', 'preview_despues')" class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200">
+                </div>
+                <img id="preview_despues" class="hidden w-full h-20 object-cover rounded-lg border border-emerald-200 mt-1" />
+              </div>
+            </div>
+
+            <!-- Monto, Estado y % Avance -->
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Inversión ($ USD)</label>
+                <input type="number" id="monto_inversion" placeholder="85000" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Estado</label>
+                <select id="estado" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none bg-white">
+                  <option value="en_proceso">En Proceso</option>
+                  <option value="cumplida">Cumplida</option>
+                  <option value="detenida">Detenida</option>
+                  <option value="sin_comenzar">Sin Comenzar</option>
+                  <option value="incumplida">Incumplida</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Avance (%)</label>
+                <input type="number" id="porcentaje_avance" min="0" max="100" placeholder="75" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-secondary outline-none">
+              </div>
+            </div>
+
+            <!-- Coordenadas Geográficas de Selección -->
+            <div class="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200 flex flex-col gap-2">
+              <span class="text-[11px] font-bold text-emerald-900 flex items-center justify-between">
+                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span> Coordenadas Seleccionadas</span>
+                <span class="text-[10px] text-emerald-700 font-normal">Extraídas o seleccionadas</span>
+              </span>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500">Latitud</label>
+                  <input type="number" step="0.000001" id="latitud" readonly placeholder="-0.220164" class="w-full text-xs border border-emerald-300 rounded-lg p-1.5 font-mono bg-white text-slate-800">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-500">Longitud</label>
+                  <input type="number" step="0.000001" id="longitud" readonly placeholder="-78.512327" class="w-full text-xs border border-emerald-300 rounded-lg p-1.5 font-mono bg-white text-slate-800">
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón Principal de Envío/Actualizar -->
+            <button type="submit" class="w-full bg-secondary hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition mt-1 flex items-center justify-center gap-2 shadow-md">
+              <span class="material-symbols-outlined text-lg">send</span>
+              <span id="submitBtnText">Guardar Obra en Base de Datos</span>
+            </button>
+
+            <!-- Zona de Eliminación Protegida DEBAJO del Formulario (Sólo en Edición) -->
+            <div id="dangerDeleteZone" class="hidden mt-3 pt-4 border-t-2 border-red-200 flex flex-col gap-2 bg-red-50 p-4 rounded-xl">
+              <span class="text-xs font-bold text-red-800 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm text-red-600">warning</span>
+                <span>Zona de Eliminación de la Obra #<span id="deleteObraIdBadge"></span></span>
+              </span>
+              <p class="text-[11px] text-slate-600">Para confirmar la eliminación permanente, escribe <strong class="text-red-700 font-mono">ELIMINAR</strong> a continuación:</p>
+              <div class="flex gap-2">
+                <input type="text" id="confirmDeleteInput" placeholder="Escribe ELIMINAR" class="flex-1 text-xs border border-red-300 rounded-lg p-2 outline-none font-bold uppercase text-red-800 bg-white">
+                <button type="button" onclick="deleteCurrentObraWithClause()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs transition flex items-center gap-1 shadow-sm">
+                  <span class="material-symbols-outlined text-sm">delete_forever</span>
+                  <span>Eliminar Definitivamente</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL DERECHO: TARJETAS DE OBRAS CONSUMIDAS Y RESPUESTA JSON -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        
+        <!-- Card: Renderizado de Tarjetas -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="font-display font-bold text-lg text-primary flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary">grid_view</span>
+              Tarjetas Renderizadas desde la API REST
+            </h2>
+            <span id="resultCount" class="text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">0 Obras</span>
+          </div>
+
+          <!-- Rejilla de Tarjetas -->
+          <div id="cardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[420px] overflow-y-auto pr-1">
+            <div class="col-span-2 text-center text-slate-400 py-12">
+              Cargando obras desde la API RESTful...
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Visor de JSON Puro -->
+        <div class="bg-slate-900 text-slate-100 p-6 rounded-2xl shadow-md border border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Respuesta JSON HTTP en Vivo (<span id="currentEndpoint" class="text-emerald-300">/api/obras</span>)
+            </span>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('jsonViewer').innerText)" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300 transition">
+              Copiar JSON
+            </button>
+          </div>
+
+          <pre id="jsonViewer" class="font-mono text-xs overflow-x-auto p-4 bg-slate-950 rounded-xl max-h-64 text-emerald-400 leading-relaxed">Cargando...</pre>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let map = null;
+    let markersGroup = null;
+    let pickerMarker = null;
+
+    const PARROQUIA_COORDS = {
+      1: { lat: -0.300000, lng: -78.480000, name: 'Conocoto' },
+      2: { lat: -0.380000, lng: -78.500000, name: 'Amaguaña' },
+      3: { lat: -0.370000, lng: -78.370000, name: 'Píntag' },
+      4: { lat: -0.320000, lng: -78.420000, name: 'La Merced' },
+      5: { lat: -0.310000, lng: -78.430000, name: 'Alangasí' },
+      6: { lat: -0.290000, lng: -78.440000, name: 'Guangopolo' },
+      7: { lat: -0.180653, lng: -78.467838, name: 'Iñaquito' },
+      8: { lat: -0.220164, lng: -78.512327, name: 'Centro Histórico' },
+      9: { lat: -0.260000, lng: -78.530000, name: 'Quitumbe' }
+    };
+
+    // Inicializar Mapa Leaflet
+    function initMap() {
+      map = L.map('map').setView([-0.220164, -78.512327], 11);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors | Alcalde Tracker Quito'
+      }).addTo(map);
+
+      markersGroup = L.layerGroup().addTo(map);
+
+      pickerMarker = L.marker([-0.220164, -78.512327], {
+        draggable: true,
+        title: 'Arrastra este pin para seleccionar la posición exacta'
+      }).addTo(map);
+
+      pickerMarker.bindTooltip("<b>Pin de Selección de Obra</b><br/>Arrastra para ubicar", { permanent: false, direction: 'top' });
+
+      pickerMarker.on('dragend', function(e) {
+        const latlng = pickerMarker.getLatLng();
+        setFormLocation(latlng.lat, latlng.lng);
+      });
+
+      map.on('click', function(e) {
+        setFormLocation(e.latlng.lat, e.latlng.lng);
+      });
+
+      setFormLocation(-0.220164, -78.512327);
+    }
+
+    // Extractor de enlaces de Google Maps (Regex local + Fallback API)
+    async function parseGoogleMapsUrlInput() {
+      const mapsUrl = document.getElementById('googleMapsUrl').value.trim();
+      const feedback = document.getElementById('mapsParserFeedback');
+      feedback.classList.remove('hidden', 'text-emerald-700', 'text-red-600');
+      
+      if (!mapsUrl) return;
+
+      feedback.innerText = 'Analizando enlace de Google Maps...';
+      feedback.classList.remove('hidden');
+
+      // 1. Patrón Regex Directo: @lat,lng
+      let match = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                  mapsUrl.match(/[?&](?:q|query|ll|center)=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                  mapsUrl.match(/!3d(-?\d+\.\d+).*?!4d(-?\d+\.\d+)/);
+
+      if (match) {
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        map.flyTo([lat, lng], 15);
+        setFormLocation(lat, lng);
+        feedback.innerText = `¡Coordenadas extraídas con éxito de Google Maps!: Lat ${lat}, Lng ${lng}`;
+        feedback.classList.add('text-emerald-700');
+        return;
+      }
+
+      // 2. Si es link acortado (goo.gl / maps.app), enviar a la API backend
+      try {
+        const res = await fetch('/api/parse-maps-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mapsUrl })
+        });
+        const data = await res.json();
+
+        if (data.success && data.lat && data.lng) {
+          map.flyTo([data.lat, data.lng], 15);
+          setFormLocation(data.lat, data.lng);
+          feedback.innerText = `¡Coordenadas extraídas desde link acortado!: Lat ${data.lat}, Lng ${data.lng}`;
+          feedback.classList.add('text-emerald-700');
+        } else {
+          feedback.innerText = 'No se encontraron coordenadas en la URL pegada. Asegúrate de copiar el link completo o con formato de ubicación.';
+          feedback.classList.add('text-red-600');
+        }
+      } catch (err) {
+        feedback.innerText = 'Error al procesar el enlace de Google Maps.';
+        feedback.classList.add('text-red-600');
+      }
+    }
+
+    // Procesar Carga de Archivo de Imagen Local (Convierte a Base64 para almacenar nativamente en Postgres / BD)
+    function handleImageFileUpload(event, targetInputId, previewImgId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        return alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, WEBP, etc.)');
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+        document.getElementById(targetInputId).value = base64Data;
+
+        const previewImg = document.getElementById(previewImgId);
+        if (previewImg) {
+          previewImg.src = base64Data;
+          previewImg.classList.remove('hidden');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Actualizar formulario y mover el Pin (Sólo Latitud y Longitud)
+    function setFormLocation(lat, lng, barrioName = '') {
+      document.getElementById('latitud').value = Number(lat).toFixed(6);
+      document.getElementById('longitud').value = Number(lng).toFixed(6);
+      
+      if (pickerMarker) {
+        pickerMarker.setLatLng([lat, lng]);
+      }
+
+      // Solo llena el barrio si el usuario hizo una búsqueda explícita por nombre (OpenStreetMap)
+      // y la casilla de barrio está vacía. No asigna textos genéricos de Google Maps.
+      if (barrioName && !['Ubicación Google Maps', 'Mi Ubicación GPS'].includes(barrioName) && !document.getElementById('barrio_sector').value) {
+        document.getElementById('barrio_sector').value = barrioName;
+      }
+    }
+
+    function onParroquiaChange(parroquiaId) {
+      const target = PARROQUIA_COORDS[parroquiaId];
+      if (target && map) {
+        map.flyTo([target.lat, target.lng], 13);
+        setFormLocation(target.lat, target.lng, `Sector ${target.name}`);
+      }
+    }
+
+    async function searchLocation() {
+      const query = document.getElementById('searchAddress').value.trim();
+      if (!query) return alert('Por favor escribe un nombre de barrio o lugar en Quito');
+
+      const searchQuery = `${query}, Quito, Ecuador`;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+        const results = await res.json();
+
+        if (results && results.length > 0) {
+          const first = results[0];
+          const lat = parseFloat(first.lat);
+          const lon = parseFloat(first.lon);
+
+          map.flyTo([lat, lon], 14);
+          setFormLocation(lat, lon, first.display_name.split(',')[0]);
+          alert(`Ubicación encontrada: ${first.display_name.split(',')[0]}`);
+        } else {
+          alert(`No se encontraron coordenadas exactas para "${query}". Intenta con otro barrio o haz clic en el mapa.`);
+        }
+      } catch (err) {
+        alert('Error en la búsqueda: ' + err.message);
+      }
+    }
+
+    function useMyLocation() {
+      if (!navigator.geolocation) return alert('Navegador sin soporte GPS.');
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          map.flyTo([lat, lng], 15);
+          setFormLocation(lat, lng, 'Mi Ubicación GPS');
+          alert('¡Ubicación GPS capturada con éxito!');
+        },
+        err => alert('Error GPS: ' + err.message)
+      );
+    }
+
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        document.getElementById('healthText').innerText = data.database.mode || 'API Conectada';
+      } catch (err) {
+        document.getElementById('healthText').innerText = 'Error de Conexión';
+      }
+    }
+
+    async function fetchApi(endpoint) {
+      document.getElementById('currentEndpoint').innerText = endpoint;
+      document.getElementById('jsonViewer').innerText = 'Consultando API...';
+      
+      try {
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        document.getElementById('jsonViewer').innerText = JSON.stringify(data, null, 2);
+        
+        if (data.data) {
+          document.getElementById('resultCount').innerText = `${data.data.length || 1} Registros`;
+          renderCards(data.data);
+          updateMapMarkers(data.data);
+        }
+      } catch (err) {
+        document.getElementById('jsonViewer').innerText = `Error al consumir API: ${err.message}`;
+      }
+    }
+
+    function updateMapMarkers(items) {
+      if (!map || !markersGroup) return;
+      markersGroup.clearLayers();
+
+      if (!Array.isArray(items)) items = [items];
+
+      items.forEach(item => {
+        if (item.latitud && item.longitud) {
+          const statusColors = {
+            cumplida: '#006c49',
+            en_proceso: '#001428',
+            detenida: '#ffb95f',
+            sin_comenzar: '#8b5cf6',
+            incumplida: '#ba1a1a'
+          };
+          const color = statusColors[item.estado] || '#006c49';
+
+          const marker = L.circleMarker([item.latitud, item.longitud], {
+            radius: 9,
+            fillColor: color,
+            color: '#ffffff',
+            weight: 2.5,
+            opacity: 1,
+            fillOpacity: 0.9
+          });
+
+          let imagesPopup = '';
+          if (item.url_imagen_antes || item.url_imagen_despues) {
+            imagesPopup = `<div style="display: flex; gap: 6px; margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 6px;">`;
+            if (item.url_imagen_antes) {
+              imagesPopup += `<div style="text-align:center;"><span style="font-size:10px; font-weight:bold; color:#d97706; display:block;">Antes</span><img src="${item.url_imagen_antes}" style="width:85px; height:55px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1;" onerror="this.parentElement.style.display='none'"/></div>`;
+            }
+            if (item.url_imagen_despues) {
+              imagesPopup += `<div style="text-align:center;"><span style="font-size:10px; font-weight:bold; color:#059669; display:block;">Después / Actual</span><img src="${item.url_imagen_despues}" style="width:85px; height:55px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1;" onerror="this.parentElement.style.display='none'"/></div>`;
+            }
+            imagesPopup += `</div>`;
+          }
+
+          marker.bindPopup(`
+            <div style="font-family: sans-serif; padding: 4px; min-width: 170px;">
+              <strong style="color: #001428; font-size: 13px;">${item.barrio_sector || 'Obra'}</strong><br/>
+              <span style="font-size: 11px; color: #64748b;">${item.parroquia_nombre || 'DMQ Quito'}</span><br/>
+              <span style="font-size: 11px; font-weight: bold; color: ${color};">${item.estado} (${item.porcentaje_avance || 0}%)</span><br/>
+              <span style="font-size: 11px; color: #334155;">Inversión: $${item.monto_inversion ? Number(item.monto_inversion).toLocaleString() : 'N/A'}</span>
+              ${imagesPopup}
+            </div>
+          `);
+
+          markersGroup.addLayer(marker);
+        }
+      });
+    }
+
+    function renderCards(items) {
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+
+      if (!Array.isArray(items)) items = [items];
+
+      if (items.length === 0) {
+        container.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-8">No se encontraron registros en la base de datos.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const isObra = item.barrio_sector;
+        const card = document.createElement('div');
+        card.className = "bg-surface-low border border-slate-200 p-4 rounded-xl flex flex-col justify-between gap-3 shadow-xs hover:border-secondary transition";
+        
+        if (isObra) {
+          const statusBadge = {
+            cumplida: 'bg-emerald-100 text-emerald-800',
+            en_proceso: 'bg-blue-100 text-blue-800',
+            detenida: 'bg-amber-100 text-amber-800',
+            sin_comenzar: 'bg-purple-100 text-purple-800',
+            incumplida: 'bg-red-100 text-red-800'
+          };
+          const badgeClass = statusBadge[item.estado] || 'bg-slate-100 text-slate-800';
+
+          let imgContainer = '';
+          if (item.url_imagen_antes || item.url_imagen_despues) {
+            imgContainer = `<div class="grid grid-cols-2 gap-2 mt-1 pt-2 border-t border-slate-200/70">`;
+            if (item.url_imagen_antes) {
+              imgContainer += `
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[9px] font-bold text-amber-700 uppercase">Foto Antes</span>
+                  <img src="${item.url_imagen_antes}" class="w-full h-20 object-cover rounded-lg border border-amber-200 shadow-xs" onerror="this.parentElement.style.display='none'" />
+                </div>`;
+            }
+            if (item.url_imagen_despues) {
+              imgContainer += `
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[9px] font-bold text-emerald-700 uppercase">Foto Después</span>
+                  <img src="${item.url_imagen_despues}" class="w-full h-20 object-cover rounded-lg border border-emerald-200 shadow-xs" onerror="this.parentElement.style.display='none'" />
+                </div>`;
+            }
+            imgContainer += `</div>`;
+          }
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wide bg-slate-200 text-slate-800 px-2 py-0.5 rounded-md">${item.parroquia_nombre || 'Quito DMQ'}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${badgeClass}">${item.estado}</span>
+            </div>
+            
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 leading-snug">${item.barrio_sector}</h4>
+              <p class="text-xs text-slate-600 mt-1 line-clamp-2">${item.descripcion}</p>
+            </div>
+
+            ${imgContainer}
+
+            <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/70 text-xs">
+              <div class="flex justify-between items-center text-slate-700">
+                <span>Inversión: <strong>$${item.monto_inversion ? Number(item.monto_inversion).toLocaleString() : 'N/A'}</strong></span>
+                <span class="font-bold text-secondary">${item.porcentaje_avance || 0}% Avance</span>
+              </div>
+              <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-secondary h-full rounded-full" style="width: ${item.porcentaje_avance || 0}%"></div>
+              </div>
+              <div class="flex justify-between items-center text-[11px] text-slate-500 pt-1">
+                <span>Ejecuta: ${item.entidad_ejecutora || 'Municipio'}</span>
+                <button onclick="startEditObra(${item.id_obra})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-md text-[11px] transition flex items-center gap-1 shadow-xs">
+                  <span class="material-symbols-outlined text-xs">edit</span>
+                  <span>Editar</span>
+                </button>
+              </div>
+            </div>
+          `;
+        } else if (item.nombre) {
+          card.innerHTML = `
+            <h4 class="font-bold text-sm text-slate-900">${item.nombre}</h4>
+            <p class="text-xs text-slate-500 mt-1">${item.descripcion || item.tipo || 'Registro Institucional'}</p>
+          `;
+        }
+        container.appendChild(card);
+      });
+    }
+
+    let editingObraId = null;
+
+    // Iniciar edición de una obra
+    async function startEditObra(id) {
+      try {
+        const res = await fetch(`/api/obras/${id}`);
+        const data = await res.json();
+        if (!data.success || !data.data) return alert('No se pudo cargar la obra para editar');
+
+        const obra = data.data;
+        editingObraId = obra.id_obra;
+
+        // Cargar datos en el formulario
+        document.getElementById('id_eje').value = obra.id_eje || '1';
+        document.getElementById('id_parroquia').value = obra.id_parroquia || '1';
+        document.getElementById('barrio_sector').value = obra.barrio_sector || '';
+        document.getElementById('entidad_ejecutora').value = obra.entidad_ejecutora || '';
+        document.getElementById('descripcion').value = obra.descripcion || '';
+        document.getElementById('monto_inversion').value = obra.monto_inversion || '';
+        document.getElementById('estado').value = obra.estado || 'en_proceso';
+        document.getElementById('porcentaje_avance').value = obra.porcentaje_avance || 0;
+        document.getElementById('url_imagen_antes').value = obra.url_imagen_antes || '';
+        document.getElementById('url_imagen_despues').value = obra.url_imagen_despues || '';
+        
+        const previewAntes = document.getElementById('preview_antes');
+        if (obra.url_imagen_antes) {
+          previewAntes.src = obra.url_imagen_antes;
+          previewAntes.classList.remove('hidden');
+        } else {
+          previewAntes.classList.add('hidden');
+        }
+
+        const previewDespues = document.getElementById('preview_despues');
+        if (obra.url_imagen_despues) {
+          previewDespues.src = obra.url_imagen_despues;
+          previewDespues.classList.remove('hidden');
+        } else {
+          previewDespues.classList.add('hidden');
+        }
+        
+        if (obra.latitud && obra.longitud) {
+          setFormLocation(obra.latitud, obra.longitud);
+          map.flyTo([obra.latitud, obra.longitud], 15);
+        }
+
+        // Cambiar títulos y botones a modo Edición
+        document.getElementById('formTitle').innerText = `Editar Obra #${obra.id_obra} (PUT /api/obras/${obra.id_obra})`;
+        document.getElementById('submitBtnText').innerText = `Actualizar Datos de Obra #${obra.id_obra}`;
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        
+        // Activar Zona de Eliminación Protegida DEBAJO del formulario
+        document.getElementById('deleteObraIdBadge').innerText = obra.id_obra;
+        document.getElementById('confirmDeleteInput').value = '';
+        document.getElementById('dangerDeleteZone').classList.remove('hidden');
+
+        document.getElementById('createForm').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        alert('Error al obtener datos para edición: ' + err.message);
+      }
+    }
+
+    // Cancelar Edición y volver a modo Creación
+    function cancelEditObra() {
+      editingObraId = null;
+      document.getElementById('createForm').reset();
+      document.getElementById('formTitle').innerText = 'Registrar Nueva Obra (POST /api/obras)';
+      document.getElementById('submitBtnText').innerText = 'Guardar Obra en Base de Datos';
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+      document.getElementById('dangerDeleteZone').classList.add('hidden');
+      document.getElementById('confirmDeleteInput').value = '';
+      document.getElementById('preview_antes').classList.add('hidden');
+      document.getElementById('preview_despues').classList.add('hidden');
+    }
+
+    // Eliminar Obra actual verificando la cláusula de confirmación
+    async function deleteCurrentObraWithClause() {
+      if (!editingObraId) return;
+
+      const confirmVal = document.getElementById('confirmDeleteInput').value.trim();
+      if (confirmVal.toUpperCase() !== 'ELIMINAR') {
+        return alert('Para confirmar la eliminación permanente, debes escribir exactamente la palabra "ELIMINAR" en el campo de texto.');
+      }
+
+      const barrio = document.getElementById('barrio_sector').value || 'esta obra';
+      const confirmMsg = `¿Estás completamente seguro de eliminar permanentemente la Obra #${editingObraId} (${barrio}) de la base de datos?`;
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`/api/obras/${editingObraId}`, { method: 'DELETE' });
+        const data = await res.json();
+        
+        if (data.success) {
+          alert(`¡Obra #${editingObraId} eliminada exitosamente!`);
+          cancelEditObra();
+          fetchApi('/api/obras');
+        } else {
+          alert('Error al eliminar obra: ' + (data.message || 'Error desconocido'));
+        }
+      } catch (err) {
+        alert('Error al enviar solicitud DELETE: ' + err.message);
+      }
+    }
+
+    // Enviar Formulario (Crear POST o Actualizar PUT)
+    async function submitNewObra(e) {
+      e.preventDefault();
+      const body = {
+        id_eje: document.getElementById('id_eje').value,
+        id_parroquia: document.getElementById('id_parroquia').value,
+        barrio_sector: document.getElementById('barrio_sector').value,
+        descripcion: document.getElementById('descripcion').value,
+        entidad_ejecutora: document.getElementById('entidad_ejecutora').value,
+        monto_inversion: document.getElementById('monto_inversion').value,
+        estado: document.getElementById('estado').value,
+        porcentaje_avance: document.getElementById('porcentaje_avance').value,
+        url_imagen_antes: document.getElementById('url_imagen_antes').value,
+        url_imagen_despues: document.getElementById('url_imagen_despues').value,
+        latitud: document.getElementById('latitud').value,
+        longitud: document.getElementById('longitud').value
+      };
+
+      const isEdit = editingObraId !== null;
+      const url = isEdit ? `/api/obras/${editingObraId}` : '/api/obras';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        
+        alert(isEdit ? '¡Obra actualizada exitosamente (PUT)!' : '¡Obra registrada exitosamente (POST)!');
+        cancelEditObra();
+        fetchApi('/api/obras');
+      } catch (err) {
+        alert('Error al procesar la solicitud: ' + err.message);
+      }
+    }
+
+    window.onload = function() {
+      initMap();
+      checkHealth();
+      fetchApi('/api/obras');
+    };
+  </script>
+</body>
+</html>
