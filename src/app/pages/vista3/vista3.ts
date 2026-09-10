@@ -1,10 +1,13 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+export type SentidoRecorrido = 'sur-norte' | 'norte-sur';
 
 export interface StationMovementLog {
   id: string;
   time: string;
   stationName: string;
+  sentido: string;
   unboarded: number; // 7 a 10 pasajeros
   boarded: number;   // 12 pasajeros
   netChange: number; // +2 a +5 (media +3.5)
@@ -19,7 +22,8 @@ export interface MetroStation {
 }
 
 export interface StationWithIndex extends MetroStation {
-  index: number;
+  stepIndex: number;
+  stepNumber: number;
 }
 
 @Component({
@@ -30,8 +34,8 @@ export interface StationWithIndex extends MetroStation {
   styleUrl: './vista3.css'
 })
 export class Vista3Component implements OnInit, OnDestroy {
-  // Official 15 Stations of Metro de Quito
-  stations: MetroStation[] = [
+  // Official 15 Stations of Metro de Quito in geographical order (South to North)
+  readonly stations: MetroStation[] = [
     { id: 1, name: 'Quitumbe', zone: 'Sur', isTerminal: true },
     { id: 2, name: 'Morán Valverde', zone: 'Sur' },
     { id: 3, name: 'Solanda', zone: 'Sur' },
@@ -49,10 +53,35 @@ export class Vista3Component implements OnInit, OnDestroy {
     { id: 15, name: 'El Labrador', zone: 'Norte', isTerminal: true }
   ];
 
+  // Active Direction Signal: 'sur-norte' (Quitumbe -> Labrador) or 'norte-sur' (Labrador -> Quitumbe)
+  sentidoActual = signal<SentidoRecorrido>('sur-norte');
+
+  // Active Route Stations (Reactive according to selected direction)
+  activeRouteStations = computed<StationWithIndex[]>(() => {
+    const isSurNorte = this.sentidoActual() === 'sur-norte';
+    const list = isSurNorte ? this.stations : [...this.stations].reverse();
+    return list.map((st, idx) => ({
+      ...st,
+      stepIndex: idx,
+      stepNumber: idx + 1
+    }));
+  });
+
   // S-Curve Rows for Clear Visualization (Row 1: 0..4 L->R, Row 2: 9..5 R->L, Row 3: 10..14 L->R)
-  row1Stations: StationWithIndex[] = [];
-  row2Stations: StationWithIndex[] = [];
-  row3Stations: StationWithIndex[] = [];
+  row1Stations = computed<StationWithIndex[]>(() => {
+    const route = this.activeRouteStations();
+    return [0, 1, 2, 3, 4].map(idx => route[idx]);
+  });
+
+  row2Stations = computed<StationWithIndex[]>(() => {
+    const route = this.activeRouteStations();
+    return [9, 8, 7, 6, 5].map(idx => route[idx]);
+  });
+
+  row3Stations = computed<StationWithIndex[]>(() => {
+    const route = this.activeRouteStations();
+    return [10, 11, 12, 13, 14].map(idx => route[idx]);
+  });
 
   // Simulator Signals
   activePassengers = signal<number>(1420);
@@ -64,6 +93,7 @@ export class Vista3Component implements OnInit, OnDestroy {
     id: 'init-1',
     time: this.getFormattedTime(),
     stationName: 'Quitumbe',
+    sentido: 'Sur → Norte',
     unboarded: 8,
     boarded: 12,
     netChange: 4,
@@ -74,7 +104,6 @@ export class Vista3Component implements OnInit, OnDestroy {
   private timerRef: any = null;
 
   ngOnInit() {
-    this.buildSRowStructures();
     this.initInitialLogs();
     this.startTimer();
   }
@@ -83,16 +112,28 @@ export class Vista3Component implements OnInit, OnDestroy {
     this.stopTimer();
   }
 
-  private buildSRowStructures() {
-    // Row 1: Left -> Right (Indices 0 to 4: Quitumbe to El Recreo)
-    this.row1Stations = [0, 1, 2, 3, 4].map(idx => ({ index: idx, ...this.stations[idx] }));
+  setSentido(sentido: SentidoRecorrido) {
+    if (this.sentidoActual() === sentido) return;
+    this.sentidoActual.set(sentido);
+    this.currentStationIndex.set(0);
 
-    // Row 2: Right -> Left (Indices 5 to 9: La Magdalena to Univ. Central)
-    // Ordered right-to-left: [9: Univ. Central, 8: Ejido, 7: Alameda, 6: San Francisco, 5: La Magdalena]
-    this.row2Stations = [9, 8, 7, 6, 5].map(idx => ({ index: idx, ...this.stations[idx] }));
+    const startStation = this.activeRouteStations()[0];
+    const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur';
 
-    // Row 3: Left -> Right (Indices 10 to 14: Pradera to El Labrador)
-    this.row3Stations = [10, 11, 12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
+    const newLog: StationMovementLog = {
+      id: `sentido-change-${Date.now()}`,
+      time: this.getFormattedTime(),
+      stationName: startStation.name,
+      sentido: sentidoLabel,
+      unboarded: 0,
+      boarded: 15,
+      netChange: 15,
+      activePassengersAfter: this.activePassengers()
+    };
+
+    this.lastMovement.set(newLog);
+    this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
+    this.startTimer();
   }
 
   startTimer() {
@@ -110,10 +151,11 @@ export class Vista3Component implements OnInit, OnDestroy {
   }
 
   simulateStationStop() {
-    const nextIdx = (this.currentStationIndex() + 1) % this.stations.length;
+    const route = this.activeRouteStations();
+    const nextIdx = (this.currentStationIndex() + 1) % route.length;
     this.currentStationIndex.set(nextIdx);
 
-    const station = this.stations[nextIdx];
+    const station = route[nextIdx];
 
     const unboarded = Math.floor(Math.random() * 4) + 7; // 7 to 10
     const boarded = 12;                                  // 12
@@ -129,6 +171,7 @@ export class Vista3Component implements OnInit, OnDestroy {
       id: `log-${Date.now()}`,
       time: this.getFormattedTime(),
       stationName: station.name,
+      sentido: this.sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
       unboarded,
       boarded,
       netChange,
@@ -139,17 +182,19 @@ export class Vista3Component implements OnInit, OnDestroy {
     this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
   }
 
-  get currentStation(): MetroStation {
-    return this.stations[this.currentStationIndex()];
+  get currentStation(): StationWithIndex {
+    const route = this.activeRouteStations();
+    return route[this.currentStationIndex()] || route[0];
   }
 
   private initInitialLogs() {
     const initialLogs: StationMovementLog[] = [];
     let tempPassengers = 1400;
     const now = new Date();
+    const route = this.activeRouteStations();
 
     for (let i = 0; i < 5; i++) {
-      const station = this.stations[i % this.stations.length];
+      const station = route[i % route.length];
       const unboarded = Math.floor(Math.random() * 4) + 7;
       const boarded = 12;
       const netChange = boarded - unboarded;
@@ -160,6 +205,7 @@ export class Vista3Component implements OnInit, OnDestroy {
         id: `log-${Date.now()}-${i}`,
         time: logTime.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         stationName: station.name,
+        sentido: this.sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
         unboarded,
         boarded,
         netChange,
