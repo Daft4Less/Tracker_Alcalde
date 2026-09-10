@@ -4,19 +4,19 @@ const src = 'docs/browser';
 const dest = 'docs';
 
 for (const entry of readdirSync(src)) {
+  // Copiar a la carpeta docs/
   cpSync(`${src}/${entry}`, `${dest}/${entry}`, { recursive: true, force: true });
+  // Copiar también a la raíz / para compatibilidad completa si GitHub Pages sirve desde / (root)
+  cpSync(`${src}/${entry}`, `./${entry}`, { recursive: true, force: true });
 }
 rmSync(src, { recursive: true, force: true });
 
-// Copiar index.html a 404.html para soporte de rutas SPA en GitHub Pages
+// Copiar index.html a 404.html para rutas Angular SPA en ambas ubicaciones
 copyFileSync(`${dest}/index.html`, `${dest}/404.html`);
+copyFileSync(`${dest}/index.html`, `./404.html`);
 
-// Crear .nojekyll en docs para evitar que GitHub Pages ignore carpetas
+// Crear .nojekyll en ambas ubicaciones
 writeFileSync(`${dest}/.nojekyll`, '');
-
-// Copiar también a la raíz del repositorio para compatibilidad total con la opción / (root) de GitHub Pages
-copyFileSync(`${dest}/index.html`, `index.html`);
-copyFileSync(`${dest}/404.html`, `404.html`);
 writeFileSync(`.nojekyll`, '');
 
-console.log('Contenido de docs/browser copiado a docs/ y a la raíz (index.html, 404.html y .nojekyll) para compatibilidad total de GitHub Pages.');
+console.log('Contenido compilado desplegado en docs/ y en la raíz (JS, CSS, HTML, 404.html y .nojekyll) para despliegue perfecto en GitHub Pages.');
