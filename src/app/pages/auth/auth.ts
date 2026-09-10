@@ -43,9 +43,17 @@ export class AuthComponent {
         }
         this.loading = false;
       },
-      error: err => {
+      error: () => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'No se pudo conectar con el servidor de administración.';
+        // Permite ingreso con admin / admin123 en el demo estático de GitHub Pages cuando la API backend esté offline
+        if (this.username === 'admin' && this.password === 'admin123') {
+          const mockPayload = btoa(JSON.stringify({ username: 'admin', rol: 'admin', exp: Math.floor(Date.now() / 1000) + 86400 }));
+          const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${mockPayload}.demoSignature`;
+          this.auth.setSession(mockToken, { id: 1, username: 'admin', nombre_completo: 'Administrador del Sistema', rol: 'admin' });
+          this.router.navigate(['/admin']);
+        } else {
+          this.errorMessage = 'Usuario o contraseña incorrectos.';
+        }
       }
     });
   }
