@@ -1,10 +1,10 @@
 <main class="w-full pt-20 bg-surface min-h-screen">
-      <div class="flex flex-col w-full">
-
-      <!-- Franja inmediata debajo del header -->
-      <div class="franja-trama my-0 w-full" style="height: 8px; background-image: url('assets/images/FRANJA_TRAMA_02.png'); background-repeat: repeat-x; background-size: auto 100%; background-position: center; display: block;"></div>
-      
-      <!-- HERO BANNER SECTION (PC & Mobile Responsive) -->
+  <div class="flex flex-col w-full">
+    
+    <!-- Franja inmediata debajo del header -->
+    <div class="franja-trama my-0 w-full" style="height: 8px; background-image: url('assets/images/FRANJA_TRAMA_02.png'); background-repeat: repeat-x; background-size: auto 100%; background-position: center; display: block;"></div>
+    
+    <!-- HERO BANNER SECTION (PC & Mobile Responsive) -->
     <section class="relative w-full bg-primary text-on-primary overflow-hidden pb-space-3xl pt-space-xl">
       <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-primary-container/60 blur-3xl pointer-events-none"></div>
       <div class="absolute left-1/3 bottom-0 w-80 h-80 rounded-full bg-secondary/15 blur-2xl pointer-events-none"></div>
@@ -38,7 +38,7 @@
               </a>
             </div>
           </div>
-
+          
           <!-- Right: Leader Portrait Card -->
           <div class="lg:col-span-5 relative flex justify-center lg:justify-end">
             <div class="relative w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/20">
@@ -60,7 +60,7 @@
             </div>
           </div>
         </div>
-
+        
         <!-- KEY METRICS SCOREBOARD (Bento Row) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-2xl">
           <!-- Metric 1: Cumplidas -->
@@ -81,7 +81,7 @@
               <span>100% recepción de obra</span>
             </p>
           </div>
-
+          
           <!-- Metric 2: En Ejecución -->
           <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
@@ -98,9 +98,9 @@
             <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
               <span>Avance promedio {{ kpiPromedioAvance() }}%</span>
-            </div>
+            </p>
           </div>
-
+          
           <!-- Metric 3: Pendientes -->
           <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
@@ -119,7 +119,7 @@
               <span>Licitaciones activas</span>
             </p>
           </div>
-
+          
           <!-- Metric 4: Presupuesto Ejecutado -->
           <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
@@ -141,6 +141,9 @@
         </div>
       </div>
     </section>
+
+    <!-- Franja remate inferior de sección azul -->
+    <div class="franja-trama my-0 w-full" style="height: 8px; background-image: url('assets/images/FRANJA_TRAMA_02.png'); background-repeat: repeat-x; background-size: auto 100%; background-position: center; display: block;"></div>
 
     <!-- SECTION: FILTROS Y GRID DE PROMESAS -->
     <section id="catalogo-obras" class="max-w-[80rem] mx-auto px-margin-mobile lg:px-margin-desktop py-space-xl w-full flex flex-col gap-space-lg">
@@ -325,10 +328,5 @@
       }
     </section>
 
-  </div>
-
-  
-  <!-- Franja remate inferior de sección azul -->
-<div class="franja-trama my-0 w-full" style="height: 8px; background-image: url('assets/images/FRANJA_TRAMA_02.png'); background-repeat: repeat-x; background-size: auto 100%; background-position: center; display: block;"></div>
   </div>
 </main>
