@@ -13,7 +13,7 @@
           <div class="lg:col-span-7 flex flex-col gap-space-md">
             <div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-lowest/10 backdrop-blur-md self-start text-secondary-fixed">
               <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-              <span class="font-label-sm text-label-sm tracking-wide uppercase">Auditoría Cívica Periódica 2024–2028</span>
+              <span class="font-label-sm text-label-sm tracking-wide uppercase">Auditoría Cívica Periódica</span>
             </div>
             
             <h1 class="font-display-hero text-display-hero-mobile lg:text-display-hero tracking-tight text-surface-container-lowest max-w-2xl leading-[1.08]">
@@ -25,11 +25,11 @@
             </p>
             
             <div class="flex flex-wrap items-center gap-space-md pt-space-xs">
-              <a href="#catalogo-obras" class="inline-flex items-center gap-space-xs bg-secondary hover:bg-on-secondary-container text-on-secondary px-space-lg py-space-sm rounded-lg font-label-md text-label-md transition-all shadow-md">
+              <a href="#catalogo-obras" class="inline-flex items-center gap-space-xs bg-white text-primary hover:bg-secondary-container px-space-lg py-space-sm rounded-xl font-label-md text-label-md font-extrabold transition-all shadow-md">
                 <span class="material-symbols-outlined text-[18px]">travel_explore</span>
                 <span>Explorar Compromisos</span>
               </a>
-              <a routerLink="/vista2" class="inline-flex items-center gap-space-xs bg-secondary-container/20 hover:bg-secondary-container/30 text-secondary-fixed border border-secondary-fixed/40 px-space-lg py-space-sm rounded-lg font-label-md text-label-md backdrop-blur-sm transition-all">
+              <a routerLink="/vista2" class="inline-flex items-center gap-space-xs bg-white/10 hover:bg-white/20 text-white border border-white/30 px-space-lg py-space-sm rounded-xl font-label-md text-label-md backdrop-blur-sm transition-all font-bold">
                 <span class="material-symbols-outlined text-[18px]">map</span>
                 <span>Ver Mapa de Impacto</span>
               </a>
@@ -38,7 +38,7 @@
 
           <!-- Right: Leader Portrait Card -->
           <div class="lg:col-span-5 relative flex justify-center lg:justify-end">
-            <div class="relative w-full max-w-md bg-surface-container-lowest/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/10">
+            <div class="relative w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/20">
               <div class="relative h-[22rem] sm:h-[24rem] w-full rounded-xl overflow-hidden bg-primary-container">
                 <img 
                   class="w-full h-full object-cover object-top" 
@@ -47,14 +47,10 @@
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent"></div>
                 
-                <div class="absolute bottom-space-md left-space-md right-space-md bg-surface-container-lowest/90 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between">
+                <div class="absolute bottom-space-md left-space-md right-space-md bg-white/95 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between">
                   <div>
                     <p class="font-label-md text-label-md text-primary leading-tight font-bold">Alcaldía Metropolitana de Quito</p>
                     <p class="font-label-sm text-label-sm text-on-surface-variant">Gestión &amp; Presupuesto Participativo</p>
-                  </div>
-                  <div class="flex items-center gap-space-2xs bg-secondary-container/60 text-on-secondary-container px-space-xs py-space-2xs rounded-lg">
-                    <span class="material-symbols-outlined text-[14px]">military_tech</span>
-                    <span class="font-label-sm text-label-sm font-semibold">2024–2028</span>
                   </div>
                 </div>
               </div>
@@ -65,77 +61,77 @@
         <!-- KEY METRICS SCOREBOARD (Bento Row) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-2xl">
           <!-- Metric 1: Cumplidas -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
-            <div class="w-2 h-full absolute left-0 top-0 bg-secondary"></div>
-            <div class="flex items-center justify-between">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+            <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
+            <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Obras Cumplidas</span>
-              <span class="w-8 h-8 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
-                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[16px]">check_circle</span>
               </span>
             </div>
-            <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-secondary leading-none">{{ kpiCumplidas() }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">/ {{ total() }}</span>
+            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
+              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiCumplidas() }}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">/ {{ total() }}</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-primary">verified</span>
               <span>100% recepción de obra</span>
             </p>
           </div>
 
           <!-- Metric 2: En Ejecución -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
-            <div class="w-2 h-full absolute left-0 top-0 bg-primary"></div>
-            <div class="flex items-center justify-between">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+            <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
+            <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">En Ejecución</span>
-              <span class="w-8 h-8 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-[18px]">pending</span>
+              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[16px]">pending</span>
               </span>
             </div>
-            <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-primary leading-none">{{ kpiEnProceso() }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">obras activas</span>
+            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
+              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiEnProceso() }}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">obras activas</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
+            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
               <span>Avance promedio {{ kpiPromedioAvance() }}%</span>
             </p>
           </div>
 
           <!-- Metric 3: Pendientes -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
-            <div class="w-2 h-full absolute left-0 top-0 bg-tertiary-fixed-dim"></div>
-            <div class="flex items-center justify-between">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+            <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
+            <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Planificadas</span>
-              <span class="w-8 h-8 rounded-full bg-tertiary-fixed/60 flex items-center justify-center text-on-tertiary-container">
-                <span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
+              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[16px]">hourglass_empty</span>
               </span>
             </div>
-            <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-on-tertiary-container leading-none">{{ kpiPlanificadas() }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">por iniciar</span>
+            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
+              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiPlanificadas() }}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">por iniciar</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-on-tertiary-container">event</span>
-              <span>Licitaciones 2026-2027</span>
+            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-primary">event</span>
+              <span>Licitaciones activas</span>
             </p>
           </div>
 
           <!-- Metric 4: Presupuesto Ejecutado -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all border border-outline-variant/30">
-            <div class="w-2 h-full absolute left-0 top-0 bg-secondary-fixed-dim"></div>
-            <div class="flex items-center justify-between">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+            <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
+            <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Total</span>
-              <span class="w-8 h-8 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
-                <span class="material-symbols-outlined text-[18px]">payments</span>
+              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[16px]">payments</span>
               </span>
             </div>
-            <div class="pt-space-md flex items-baseline gap-space-xs">
-              <span class="font-data-metric text-data-metric text-secondary leading-none">{{ kpiInversion() }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">USD</span>
+            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
+              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiInversion() }}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">USD</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant pt-space-xs flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-secondary">account_balance</span>
+            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
+              <span class="material-symbols-outlined text-[14px] text-primary">account_balance</span>
               <span>Base de datos municipal</span>
             </p>
           </div>
@@ -158,21 +154,21 @@
           <button 
             (click)="filterByStatus('todas')"
             [class.bg-primary]="selectedStatus() === 'todas'"
-            [class.text-on-primary]="selectedStatus() === 'todas'"
+            [class.text-white]="selectedStatus() === 'todas'"
             [class.bg-surface-container-low]="selectedStatus() !== 'todas'"
             [class.text-on-surface-variant]="selectedStatus() !== 'todas'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             Todas ({{ total() }})
           </button>
           
           <button 
             (click)="filterByStatus('cumplidas')"
-            [class.bg-secondary]="selectedStatus() === 'cumplidas'"
-            [class.text-on-secondary]="selectedStatus() === 'cumplidas'"
+            [class.bg-primary]="selectedStatus() === 'cumplidas'"
+            [class.text-white]="selectedStatus() === 'cumplidas'"
             [class.bg-surface-container-low]="selectedStatus() !== 'cumplidas'"
             [class.text-on-surface-variant]="selectedStatus() !== 'cumplidas'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             Cumplidas
           </button>
@@ -180,43 +176,43 @@
           <button 
             (click)="filterByStatus('en-proceso')"
             [class.bg-primary]="selectedStatus() === 'en-proceso'"
-            [class.text-on-primary]="selectedStatus() === 'en-proceso'"
+            [class.text-white]="selectedStatus() === 'en-proceso'"
             [class.bg-surface-container-low]="selectedStatus() !== 'en-proceso'"
             [class.text-on-surface-variant]="selectedStatus() !== 'en-proceso'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             En Proceso
           </button>
           
           <button 
             (click)="filterByStatus('detenidas')"
-            [class.bg-tertiary-fixed-dim]="selectedStatus() === 'detenidas'"
-            [class.text-on-tertiary-fixed]="selectedStatus() === 'detenidas'"
+            [class.bg-primary]="selectedStatus() === 'detenidas'"
+            [class.text-white]="selectedStatus() === 'detenidas'"
             [class.bg-surface-container-low]="selectedStatus() !== 'detenidas'"
             [class.text-on-surface-variant]="selectedStatus() !== 'detenidas'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             Detenidas
           </button>
           
           <button 
             (click)="filterByStatus('sin-comenzar')"
-            [class.bg-surface-variant]="selectedStatus() === 'sin-comenzar'"
-            [class.text-on-surface]="selectedStatus() === 'sin-comenzar'"
+            [class.bg-primary]="selectedStatus() === 'sin-comenzar'"
+            [class.text-white]="selectedStatus() === 'sin-comenzar'"
             [class.bg-surface-container-low]="selectedStatus() !== 'sin-comenzar'"
             [class.text-on-surface-variant]="selectedStatus() !== 'sin-comenzar'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             Sin Comenzar
           </button>
 
           <button 
             (click)="filterByStatus('incumplidas')"
-            [class.bg-error]="selectedStatus() === 'incumplidas'"
-            [class.text-on-error]="selectedStatus() === 'incumplidas'"
+            [class.bg-primary]="selectedStatus() === 'incumplidas'"
+            [class.text-white]="selectedStatus() === 'incumplidas'"
             [class.bg-surface-container-low]="selectedStatus() !== 'incumplidas'"
             [class.text-on-surface-variant]="selectedStatus() !== 'incumplidas'"
-            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm"
+            class="font-label-md text-label-md px-space-md py-space-xs rounded-full whitespace-nowrap transition-all shadow-sm font-bold"
           >
             Incumplidas
           </button>
@@ -261,36 +257,18 @@
             <article class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden">
               
               <!-- Color Indicator Line -->
-              <div 
-                class="h-1.5 w-full absolute top-0 left-0"
-                [class.bg-secondary]="card.statusColor === 'emerald'"
-                [class.bg-primary]="card.statusColor === 'indigo'"
-                [class.bg-secondary]="card.statusColor === 'cyan'"
-                [class.bg-tertiary-fixed-dim]="card.statusColor === 'amber'"
-                [class.bg-error]="card.statusColor === 'rose'"
-                [class.bg-primary-container]="card.statusColor === 'purple'"
-              ></div>
+              <div class="h-1.5 w-full absolute top-0 left-0 bg-primary"></div>
 
               <!-- Top Card Row -->
               <div class="flex items-center justify-between gap-space-sm pt-space-2xs">
                 <div class="flex items-center gap-space-xs">
-                  <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                  <div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                     <span class="material-symbols-outlined text-[20px]">{{ card.icon }}</span>
                   </div>
                   <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Quito - {{ card.category }}</span>
                 </div>
                 
-                <span 
-                  class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold"
-                  [class.bg-secondary-container/40]="card.statusColor === 'emerald'"
-                  [class.text-on-secondary-container]="card.statusColor === 'emerald'"
-                  [class.bg-primary-fixed/60]="card.statusColor === 'indigo'"
-                  [class.text-primary]="card.statusColor === 'indigo'"
-                  [class.bg-tertiary-fixed/60]="card.statusColor === 'amber'"
-                  [class.text-on-tertiary-container]="card.statusColor === 'amber'"
-                  [class.bg-error-container]="card.statusColor === 'rose'"
-                  [class.text-on-error-container]="card.statusColor === 'rose'"
-                >
+                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold bg-secondary-container text-primary border border-red-200">
                   {{ card.badgeText }}
                 </span>
               </div>
@@ -312,17 +290,12 @@
               <div class="flex flex-col gap-space-2xs my-space-xs">
                 <div class="flex justify-between items-center font-label-sm text-label-sm">
                   <span class="text-on-surface-variant">Avance Físico</span>
-                  <span class="font-bold text-on-surface">{{ card.progressPercentage }}%</span>
+                  <span class="font-bold text-primary">{{ card.progressPercentage }}%</span>
                 </div>
                 <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
                   <div 
-                    class="h-full rounded-full transition-all duration-700"
+                    class="h-full bg-primary rounded-full transition-all duration-700"
                     [style.width.%]="card.progressPercentage"
-                    [class.bg-secondary]="card.statusColor === 'emerald'"
-                    [class.bg-primary]="card.statusColor === 'indigo'"
-                    [class.bg-tertiary-fixed-dim]="card.statusColor === 'amber'"
-                    [class.bg-error]="card.statusColor === 'rose'"
-                    [class.bg-primary-container]="card.statusColor === 'purple'"
                   ></div>
                 </div>
               </div>

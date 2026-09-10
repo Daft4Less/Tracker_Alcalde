@@ -96,27 +96,27 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
       maxZoom: 19
     }).addTo(this.map);
 
-    // Custom Icon Generator for Leaflet Markers
+    // Custom Icon Generator for Leaflet Markers (Quito Red Palette)
     const createCustomIcon = (statusColor: string) => {
-      let colorHex = '#6366f1';
-      if (statusColor === 'emerald') colorHex = '#10b981';
-      if (statusColor === 'cyan') colorHex = '#06b6d4';
-      if (statusColor === 'amber') colorHex = '#f59e0b';
-      if (statusColor === 'rose') colorHex = '#f43f5e';
-      if (statusColor === 'purple') colorHex = '#8b5cf6';
+      let colorHex = '#C8102E'; // Quito Red (Default Primary)
+      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#C8102E';
+      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#E53935';
+      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#D32F2F';
+      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#9B0A20';
+      if (statusColor === 'purple') colorHex = '#B71C1C';
 
       return L.divIcon({
         className: 'custom-map-pin',
         html: `<div style="
           background-color: ${colorHex};
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
-          border: 3px solid #090d16;
-          box-shadow: 0 0 12px ${colorHex};
+          border: 3px solid #FFFFFF;
+          box-shadow: 0 2px 8px rgba(200, 16, 46, 0.4), 0 0 10px ${colorHex};
         "></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
     };
 
@@ -131,7 +131,6 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
         <div style="font-family: sans-serif; padding: 4px; max-width: 240px;">
           <strong style="color: #000; font-size: 0.95rem;">${this.esc(this.singleQuadrant.title)}</strong><br/>
           <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.esc(this.singleQuadrant.locationZone)}</span><br/>
-          <div style="margin-top: 6px; font-weight: bold; color: #059669;">${this.esc(this.singleQuadrant.value)}</div>
           ${this.photosHtml(this.singleQuadrant)}
         </div>
       `).openPopup();
@@ -151,17 +150,14 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
           popupContent.innerHTML = `
             <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.esc(q.title)}</strong>
             <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.esc(q.locationZone)}</span>
-            <span style="display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: bold;">
-              ${this.esc(q.badgeText)} (${q.progressPercentage}%)
-            </span>
             ${this.photosHtml(q)}
             <br/>
             <button id="btn-map-go-${q.id}" style="
               margin-top: 8px;
-              background: #6366f1;
+              background: #C8102E;
               color: #ffffff;
               border: none;
-              padding: 4px 10px;
+              padding: 6px 10px;
               border-radius: 6px;
               cursor: pointer;
               font-size: 0.78rem;

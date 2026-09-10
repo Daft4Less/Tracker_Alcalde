@@ -14,19 +14,19 @@
       </a>
 
       <!-- Global Badge -->
-      <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container/40 text-on-secondary-container px-space-sm py-space-2xs rounded-full">
-        <span class="material-symbols-outlined text-[16px]">verified</span>
-        <span class="font-label-sm text-label-sm font-semibold">{{ globalProgress() !== null ? globalProgress() + '% Cumplimiento Global' : 'Sincronizando datos…' }}</span>
+      <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container text-on-secondary-container border border-red-200 px-space-sm py-space-2xs rounded-full">
+        <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+        <span class="font-label-sm text-label-sm font-bold">{{ globalProgress() !== null ? globalProgress() + '% Cumplimiento Global' : 'Sincronizando datos…' }}</span>
       </div>
     </div>
 
     <!-- PC Navigation Bar -->
-    <nav class="hidden md:flex items-center gap-space-lg">
+    <nav class="hidden md:flex items-center gap-space-sm">
       @for (link of navLinks; track link.path) {
         <a 
           [routerLink]="link.path" 
-          routerLinkActive="text-primary font-bold border-b-2 border-primary" 
-          class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all py-2"
+          routerLinkActive="bg-secondary-container text-primary font-bold border border-red-200 shadow-sm" 
+          class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all px-space-md py-space-xs rounded-xl"
         >
           {{ link.label }}
         </a>
