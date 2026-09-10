@@ -14,4 +14,9 @@ copyFileSync(`${dest}/index.html`, `${dest}/404.html`);
 // Crear .nojekyll en docs para evitar que GitHub Pages ignore carpetas
 writeFileSync(`${dest}/.nojekyll`, '');
 
-console.log('Contenido de docs/browser copiado a docs/, 404.html y .nojekyll generados para GitHub Pages.');
+// Copiar también a la raíz del repositorio para compatibilidad total con la opción / (root) de GitHub Pages
+copyFileSync(`${dest}/index.html`, `index.html`);
+copyFileSync(`${dest}/404.html`, `404.html`);
+writeFileSync(`.nojekyll`, '');
+
+console.log('Contenido de docs/browser copiado a docs/ y a la raíz (index.html, 404.html y .nojekyll) para compatibilidad total de GitHub Pages.');
