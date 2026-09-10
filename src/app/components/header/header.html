@@ -14,7 +14,7 @@
       </a>
 
       <!-- Global Badge -->
-      <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container text-on-secondary-container border border-red-200 px-space-sm py-space-2xs rounded-full">
+      <div class="hidden xl:flex items-center gap-space-xs bg-secondary-container text-on-secondary-container border border-[var(--color-secondary)] px-space-sm py-space-2xs rounded-full">
         <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
         <span class="font-label-sm text-label-sm font-bold">{{ globalProgress() !== null ? globalProgress() + '% Cumplimiento Global' : 'Sincronizando datos…' }}</span>
       </div>
@@ -47,7 +47,7 @@
 
   <!-- Mobile Dropdown Navigation -->
   @if (isMobileMenuOpen) {
-    <div class="md:hidden bg-surface-container-lowest border-b border-outline-variant px-space-md py-space-sm flex flex-col gap-space-xs shadow-lg">
+    <div class="md:hidden bg-surface-container-lowest border-b border-[var(--color-secondary)] px-space-md py-space-sm flex flex-col gap-space-xs shadow-lg">
       @for (link of navLinks; track link.path) {
         <a 
           [routerLink]="link.path" 

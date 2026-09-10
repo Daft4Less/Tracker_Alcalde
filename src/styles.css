@@ -1,17 +1,17 @@
 /* Quito Institutional Color Palette */
 :root {
-  /* Azul Marino Institucional (Primario dominante) */
-  --color-primary: #002B49;
+  --color-primary: #0B2545;
   --color-primary-container: #D0E7F5;
   --color-on-primary-container: #0F172A;
   
-  /* Rojo Quito (Acento de acción, alertas y contraste) */
-  --color-secondary: #D9232E;
+  --color-secondary: #E30613;
   --color-secondary-container: #FFF0F0;
   --color-on-secondary-container: #1A0E0F;
   --color-secondary-fixed: #FDE8E8;
   
-  /* Superficie limpia y neutra */
+  --color-accent: #00A3E0;
+  --color-blue-quito: #005696;
+  
   --color-surface: #FFFFFF;
   --color-surface-variant: #F8FAFC;
   --color-surface-container-lowest: #FFFFFF;
@@ -20,15 +20,12 @@
   --color-surface-container-high: #EDF0F4;
   --color-surface-container-highest: #E2E6EA;
   
-  /* Texto sobre superficies (alto contraste) */
   --color-on-surface: #0F172A;
   --color-on-surface-variant: #475467;
   
-  /* Ámbar suave como acento terciario */
   --color-tertiary-fixed-dim: #D97706;
   --color-on-tertiary-container: #1A0E08;
   
-  /* Rojo para errores de alto contraste */
   --color-error: #DC2626;
   --color-error-container: #FEF2F2;
   --color-on-error-container: #991B1B;
@@ -41,6 +38,16 @@
   /* Typography Families */
   --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.franja-trama {
+  width: 100%;
+  height: 10px;
+  background-image: url('assets/images/FRANJA_TRAMA_02.png');
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: center;
+  overflow: hidden;
 }
 
 * {

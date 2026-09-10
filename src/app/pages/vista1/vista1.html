@@ -61,7 +61,7 @@
         <!-- KEY METRICS SCOREBOARD (Bento Row) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-2xl">
           <!-- Metric 1: Cumplidas -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Obras Cumplidas</span>
@@ -80,7 +80,7 @@
           </div>
 
           <!-- Metric 2: En Ejecución -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">En Ejecución</span>
@@ -95,11 +95,11 @@
             <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
               <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
               <span>Avance promedio {{ kpiPromedioAvance() }}%</span>
-            </p>
+            </div>
           </div>
 
           <!-- Metric 3: Pendientes -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Planificadas</span>
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Metric 4: Presupuesto Ejecutado -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-red-100">
+          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Total</span>
@@ -257,7 +257,7 @@
             <article class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden">
               
               <!-- Color Indicator Line -->
-              <div class="h-1.5 w-full absolute top-0 left-0 bg-primary"></div>
+              <div class="h-1.5 w-full absolute top-0 left-0 bg-[var(--color-secondary)]"></div>
 
               <!-- Top Card Row -->
               <div class="flex items-center justify-between gap-space-sm pt-space-2xs">
@@ -268,7 +268,7 @@
                   <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Quito - {{ card.category }}</span>
                 </div>
                 
-                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold bg-secondary-container text-primary border border-red-200">
+                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold bg-secondary-container text-primary border border-[var(--color-secondary)]">
                   {{ card.badgeText }}
                 </span>
               </div>
@@ -292,9 +292,9 @@
                   <span class="text-on-surface-variant">Avance Físico</span>
                   <span class="font-bold text-primary">{{ card.progressPercentage }}%</span>
                 </div>
-                <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                <div class="w-full h-2 bg-[var(--color-blue-quito)] rounded-full overflow-hidden">
                   <div 
-                    class="h-full bg-primary rounded-full transition-all duration-700"
+                    class="h-full transition-all duration-700"
                     [style.width.%]="card.progressPercentage"
                   ></div>
                 </div>
@@ -323,4 +323,7 @@
     </section>
 
   </div>
+
+  <!-- Franja decorativa institucional: separador horizontal bajo el header -->
+  <div class="franja-trama my-8"></div>
 </main>
