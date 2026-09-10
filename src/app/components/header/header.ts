@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
   navLinks = [
     { path: '/promesas', label: 'Inicio & Rendición', icon: 'grid_view' },
     { path: '/vista2', label: 'Mapa de Impacto', icon: 'analytics' },
-    { path: '/agenda', label: 'Agenda Cívica', icon: 'calendar_month' },
+    { path: '/agenda', label: 'El ritmo de Quito', icon: 'calendar_month' },
     { path: '/nosotros', label: 'Sobre Nosotros', icon: 'groups' }
   ];
 
