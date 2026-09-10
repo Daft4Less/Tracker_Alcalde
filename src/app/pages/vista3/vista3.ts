@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type SentidoRecorrido = 'sur-norte' | 'norte-sur';
@@ -22,8 +22,7 @@ export interface MetroStation {
 }
 
 export interface StationWithIndex extends MetroStation {
-  stepIndex: number;
-  stepNumber: number;
+  index: number;
 }
 
 @Component({
@@ -53,35 +52,18 @@ export class Vista3Component implements OnInit, OnDestroy {
     { id: 15, name: 'El Labrador', zone: 'Norte', isTerminal: true }
   ];
 
-  // Active Direction Signal: 'sur-norte' (Quitumbe -> Labrador) or 'norte-sur' (Labrador -> Quitumbe)
+  // Fixed Geographical S-Curve Rows
+  // Row 1 (Sur: Quitumbe -> El Recreo, Left to Right, Indices 0..4)
+  readonly row1Stations: StationWithIndex[] = [0, 1, 2, 3, 4].map(idx => ({ index: idx, ...this.stations[idx] }));
+
+  // Row 2 (Centro: Univ. Central <- La Magdalena, Right to Left, Indices 9..5)
+  readonly row2Stations: StationWithIndex[] = [9, 8, 7, 6, 5].map(idx => ({ index: idx, ...this.stations[idx] }));
+
+  // Row 3 (Norte: Pradera -> El Labrador, Left to Right, Indices 10..14)
+  readonly row3Stations: StationWithIndex[] = [10, 11, 12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
+
+  // Active Direction Signal: 'sur-norte' (avanzando al Norte) or 'norte-sur' (regresando al Sur)
   sentidoActual = signal<SentidoRecorrido>('sur-norte');
-
-  // Active Route Stations (Reactive according to selected direction)
-  activeRouteStations = computed<StationWithIndex[]>(() => {
-    const isSurNorte = this.sentidoActual() === 'sur-norte';
-    const list = isSurNorte ? this.stations : [...this.stations].reverse();
-    return list.map((st, idx) => ({
-      ...st,
-      stepIndex: idx,
-      stepNumber: idx + 1
-    }));
-  });
-
-  // S-Curve Rows for Clear Visualization (Row 1: 0..4 L->R, Row 2: 9..5 R->L, Row 3: 10..14 L->R)
-  row1Stations = computed<StationWithIndex[]>(() => {
-    const route = this.activeRouteStations();
-    return [0, 1, 2, 3, 4].map(idx => route[idx]);
-  });
-
-  row2Stations = computed<StationWithIndex[]>(() => {
-    const route = this.activeRouteStations();
-    return [9, 8, 7, 6, 5].map(idx => route[idx]);
-  });
-
-  row3Stations = computed<StationWithIndex[]>(() => {
-    const route = this.activeRouteStations();
-    return [10, 11, 12, 13, 14].map(idx => route[idx]);
-  });
 
   // Simulator Signals
   activePassengers = signal<number>(1420);
@@ -115,25 +97,50 @@ export class Vista3Component implements OnInit, OnDestroy {
   setSentido(sentido: SentidoRecorrido) {
     if (this.sentidoActual() === sentido) return;
     this.sentidoActual.set(sentido);
-    this.currentStationIndex.set(0);
 
-    const startStation = this.activeRouteStations()[0];
-    const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur';
+    const station = this.currentStation;
+    const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte (Hacia El Labrador)' : 'Norte → Sur (Hacia Quitumbe)';
 
     const newLog: StationMovementLog = {
       id: `sentido-change-${Date.now()}`,
       time: this.getFormattedTime(),
-      stationName: startStation.name,
-      sentido: sentidoLabel,
+      stationName: station.name,
+      sentido: sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
       unboarded: 0,
-      boarded: 15,
-      netChange: 15,
+      boarded: 10,
+      netChange: 10,
       activePassengersAfter: this.activePassengers()
     };
 
     this.lastMovement.set(newLog);
     this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
     this.startTimer();
+  }
+
+  setStation(index: number) {
+    this.currentStationIndex.set(index);
+    const station = this.stations[index];
+    const unboarded = Math.floor(Math.random() * 4) + 7;
+    const boarded = 12;
+    const netChange = boarded - unboarded;
+    const updatedActive = Math.max(100, this.activePassengers() + netChange);
+
+    this.activePassengers.set(updatedActive);
+    this.totalDailyPassengers.update(v => v + boarded);
+
+    const newLog: StationMovementLog = {
+      id: `manual-${Date.now()}`,
+      time: this.getFormattedTime(),
+      stationName: station.name,
+      sentido: this.sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
+      unboarded,
+      boarded,
+      netChange,
+      activePassengersAfter: updatedActive
+    };
+
+    this.lastMovement.set(newLog);
+    this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
   }
 
   startTimer() {
@@ -151,15 +158,38 @@ export class Vista3Component implements OnInit, OnDestroy {
   }
 
   simulateStationStop() {
-    const route = this.activeRouteStations();
-    const nextIdx = (this.currentStationIndex() + 1) % route.length;
-    this.currentStationIndex.set(nextIdx);
+    let sentido = this.sentidoActual();
+    let currentIdx = this.currentStationIndex();
 
-    const station = route[nextIdx];
+    // Reversible trajectory on the same physical line (Ida y Vuelta por el mismo camino)
+    if (sentido === 'sur-norte') {
+      if (currentIdx >= 14) {
+        // Reached El Labrador (Terminal Norte): Turn around and start returning south!
+        sentido = 'norte-sur';
+        this.sentidoActual.set('norte-sur');
+        currentIdx = 13; // Step back to Jipijapa
+      } else {
+        currentIdx = currentIdx + 1;
+      }
+    } else {
+      // Sentido is 'norte-sur' (returning south)
+      if (currentIdx <= 0) {
+        // Reached Quitumbe (Terminal Sur): Turn around and start heading north!
+        sentido = 'sur-norte';
+        this.sentidoActual.set('sur-norte');
+        currentIdx = 1; // Step forward to Morán Valverde
+      } else {
+        currentIdx = currentIdx - 1;
+      }
+    }
 
-    const unboarded = Math.floor(Math.random() * 4) + 7; // 7 to 10
-    const boarded = 12;                                  // 12
-    const netChange = boarded - unboarded;               // +2 to +5
+    this.currentStationIndex.set(currentIdx);
+    const station = this.stations[currentIdx];
+
+    const isTerminal = station.isTerminal;
+    const unboarded = isTerminal ? Math.floor(Math.random() * 5) + 12 : Math.floor(Math.random() * 4) + 7;
+    const boarded = isTerminal ? Math.floor(Math.random() * 6) + 14 : 12;
+    const netChange = boarded - unboarded;
 
     const updatedActive = Math.max(100, this.activePassengers() + netChange);
 
@@ -167,11 +197,13 @@ export class Vista3Component implements OnInit, OnDestroy {
     this.totalDailyPassengers.update(v => v + boarded);
     this.co2SavedTons.update(v => Number((v + 0.015).toFixed(2)));
 
+    const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur';
+
     const newLog: StationMovementLog = {
       id: `log-${Date.now()}`,
       time: this.getFormattedTime(),
       stationName: station.name,
-      sentido: this.sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
+      sentido: sentidoLabel,
       unboarded,
       boarded,
       netChange,
@@ -182,19 +214,25 @@ export class Vista3Component implements OnInit, OnDestroy {
     this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
   }
 
-  get currentStation(): StationWithIndex {
-    const route = this.activeRouteStations();
-    return route[this.currentStationIndex()] || route[0];
+  get currentStation(): MetroStation {
+    return this.stations[this.currentStationIndex()];
+  }
+
+  get isAtTerminal(): boolean {
+    return this.currentStationIndex() === 0 || this.currentStationIndex() === 14;
+  }
+
+  get progressNumber(): number {
+    return this.sentidoActual() === 'sur-norte' ? this.currentStationIndex() + 1 : 15 - this.currentStationIndex();
   }
 
   private initInitialLogs() {
     const initialLogs: StationMovementLog[] = [];
     let tempPassengers = 1400;
     const now = new Date();
-    const route = this.activeRouteStations();
 
     for (let i = 0; i < 5; i++) {
-      const station = route[i % route.length];
+      const station = this.stations[i % this.stations.length];
       const unboarded = Math.floor(Math.random() * 4) + 7;
       const boarded = 12;
       const netChange = boarded - unboarded;
@@ -205,7 +243,7 @@ export class Vista3Component implements OnInit, OnDestroy {
         id: `log-${Date.now()}-${i}`,
         time: logTime.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         stationName: station.name,
-        sentido: this.sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
+        sentido: 'Sur → Norte',
         unboarded,
         boarded,
         netChange,

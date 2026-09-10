@@ -39,6 +39,12 @@
           <div class="lg:col-span-5 relative flex justify-center lg:justify-end">
             <div class="relative w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/20">
               <div class="relative h-[22rem] sm:h-[24rem] w-full rounded-xl overflow-hidden bg-primary-container">
+                <!-- Franja decorativa institucional en todo el borde (superior, inferior, izquierdo, derecho) -->
+                <div class="franja-trama absolute top-0 left-0 right-0 z-20"></div>
+                <div class="franja-trama absolute bottom-0 left-0 right-0 z-20"></div>
+                <div class="franja-trama-vertical left-0"></div>
+                <div class="franja-trama-vertical right-0"></div>
+
                 <img 
                   class="w-full h-full object-cover object-top" 
                   alt="Alcaldía Metropolitana de Quito" 
@@ -46,7 +52,7 @@
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent"></div>
                 
-                <div class="absolute bottom-space-md left-space-md right-space-md bg-white/95 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between">
+                <div class="absolute bottom-space-md left-space-md right-space-md bg-white/95 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between z-10">
                   <div>
                     <p class="font-label-md text-label-md text-primary leading-tight font-bold">Alcaldía Metropolitana de Quito</p>
                     <p class="font-label-sm text-label-sm text-on-surface-variant">Gestión &amp; Presupuesto Participativo</p>

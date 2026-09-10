@@ -120,16 +120,25 @@
       
       <!-- Station Focus Info -->
       <div class="flex flex-col gap-space-xs text-center lg:text-left flex-1">
-        <div class="inline-flex items-center gap-space-2xs px-space-sm py-space-2xs rounded-full bg-secondary-container text-on-secondary-container self-center lg:self-start">
-          <span class="material-symbols-outlined text-[16px]">pin_drop</span>
-          <span class="font-label-sm text-label-sm font-bold uppercase">Parada en Estación Actual</span>
+        <div class="flex flex-wrap items-center gap-space-2xs justify-center lg:justify-start">
+          <div class="inline-flex items-center gap-space-2xs px-space-sm py-space-2xs rounded-full bg-secondary-container text-on-secondary-container self-center lg:self-start">
+            <span class="material-symbols-outlined text-[16px]">pin_drop</span>
+            <span class="font-label-sm text-label-sm font-bold uppercase">Parada en Estación Actual</span>
+          </div>
+
+          @if (isAtTerminal) {
+            <div class="inline-flex items-center gap-space-2xs px-space-sm py-space-2xs rounded-full bg-amber-100 text-amber-900 border border-amber-300 animate-pulse font-bold text-xs">
+              <span class="material-symbols-outlined text-[16px]">sync</span>
+              <span>TERMINAL • Cambio de sentido próximo</span>
+            </div>
+          }
         </div>
         
         <h2 class="font-display text-[2rem] md:text-[2.4rem] text-primary font-black tracking-tight pt-space-xs">
           Estación {{ currentStation.name }}
         </h2>
         <p class="font-body-md text-body-md text-on-surface-variant">
-          Zona {{ currentStation.zone }} • Sentido {{ sentidoActual() === 'sur-norte' ? 'Sur a Norte (Hacia El Labrador)' : 'Norte a Sur (Hacia Quitumbe)' }} • Parada {{ currentStation.stepNumber }} de 15
+          Zona {{ currentStation.zone }} • Sentido {{ sentidoActual() === 'sur-norte' ? 'Sur a Norte (Hacia El Labrador)' : 'Norte a Sur (Hacia Quitumbe)' }} • Estación {{ currentStation.id }} de 15
         </p>
       </div>
 
@@ -176,45 +185,26 @@
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md border-b border-outline-variant/30 pb-space-sm">
         <div class="flex items-center gap-space-xs">
           <span class="material-symbols-outlined text-primary text-[24px]">route</span>
-          <h3 class="font-headline-md text-headline-sm font-bold text-on-surface">Mapa en 'S' — Recorrido Completo Línea 1</h3>
+          <h3 class="font-headline-md text-headline-sm font-bold text-on-surface">Mapa en 'S' — Circuito Continuo Línea 1</h3>
         </div>
 
-        <!-- Direction Selector & Badge Controls -->
+        <!-- Status Badges -->
         <div class="flex flex-wrap items-center gap-space-xs">
-          <!-- Direction Toggle Switcher -->
-          <div class="inline-flex p-1 bg-surface-container-low rounded-xl border border-outline-variant/30 gap-1 shadow-inner">
-            <button 
-              type="button"
-              (click)="setSentido('sur-norte')"
-              [class.bg-primary]="sentidoActual() === 'sur-norte'"
-              [class.text-white]="sentidoActual() === 'sur-norte'"
-              [class.shadow-md]="sentidoActual() === 'sur-norte'"
-              [class.text-on-surface-variant]="sentidoActual() !== 'sur-norte'"
-              [class.hover:text-primary]="sentidoActual() !== 'sur-norte'"
-              class="px-space-sm py-1.5 rounded-lg font-label-sm text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span class="material-symbols-outlined text-[16px]">north</span>
-              <span>Quitumbe → El Labrador (Sur - Norte)</span>
-            </button>
-
-            <button 
-              type="button"
-              (click)="setSentido('norte-sur')"
-              [class.bg-primary]="sentidoActual() === 'norte-sur'"
-              [class.text-white]="sentidoActual() === 'norte-sur'"
-              [class.shadow-md]="sentidoActual() === 'norte-sur'"
-              [class.text-on-surface-variant]="sentidoActual() !== 'norte-sur'"
-              [class.hover:text-primary]="sentidoActual() !== 'norte-sur'"
-              class="px-space-sm py-1.5 rounded-lg font-label-sm text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span class="material-symbols-outlined text-[16px]">south</span>
-              <span>El Labrador → Quitumbe (Norte - Sur)</span>
-            </button>
+          <!-- Continuous Loop Indicator -->
+          <div class="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>Circuito Continuo (Ida y Vuelta)</span>
           </div>
 
-          <span class="font-label-sm text-label-sm text-primary font-bold px-space-sm py-space-2xs bg-primary-container/20 rounded-full hidden xl:inline-flex items-center gap-1">
+          <!-- Current Trajectory Dynamic Badge -->
+          <div class="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-xl bg-primary-container/30 border border-primary-container text-primary text-xs font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[14px]">sync_alt</span>
+            <span>Sentido actual: {{ sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur' }}</span>
+          </div>
+
+          <span class="font-label-sm text-label-sm text-primary font-bold px-space-sm py-space-2xs bg-primary-container/20 rounded-full hidden sm:inline-flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px]">pin</span>
-            15 Estaciones en Circuito S
+            15 Estaciones
           </span>
         </div>
       </div>
@@ -222,37 +212,37 @@
       <!-- S-CURVE TRACK CONTAINER -->
       <div class="flex flex-col gap-space-xl relative py-space-md">
         
-        <!-- ================= ROW 1 (Left to Right) ================= -->
+        <!-- ================= ROW 1 (Left to Right: Quitumbe -> El Recreo) ================= -->
         <div class="relative w-full">
           <!-- Line background -->
           <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
           
           <div class="grid grid-cols-5 gap-space-xs relative z-10">
-            @for (st of row1Stations(); track st.name) {
-              <div class="flex flex-col items-center cursor-pointer group" (click)="currentStationIndex.set(st.stepIndex)">
+            @for (st of row1Stations; track st.id) {
+              <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
                 
                 <!-- Station Node Circle -->
                 <div 
-                  [class.bg-primary]="currentStationIndex() === st.stepIndex"
-                  [class.ring-4]="currentStationIndex() === st.stepIndex"
-                  [class.ring-red-200]="currentStationIndex() === st.stepIndex"
-                  [class.scale-125]="currentStationIndex() === st.stepIndex"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.stepIndex"
+                  [class.bg-primary]="currentStationIndex() === st.index"
+                  [class.ring-4]="currentStationIndex() === st.index"
+                  [class.ring-red-200]="currentStationIndex() === st.index"
+                  [class.scale-125]="currentStationIndex() === st.index"
+                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
                   class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
                 >
-                  @if (currentStationIndex() === st.stepIndex) {
+                  @if (currentStationIndex() === st.index) {
                     <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.stepNumber }}</span>
+                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
 
                 <!-- Station Label -->
                 <div class="flex flex-col items-center text-center pt-space-xs">
                   <span 
-                    [class.text-primary]="currentStationIndex() === st.stepIndex"
-                    [class.font-black]="currentStationIndex() === st.stepIndex"
-                    [class.text-on-surface]="currentStationIndex() !== st.stepIndex"
+                    [class.text-primary]="currentStationIndex() === st.index"
+                    [class.font-black]="currentStationIndex() === st.index"
+                    [class.text-on-surface]="currentStationIndex() !== st.index"
                     class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
                   >
                     {{ st.name }}
@@ -272,37 +262,37 @@
           </div>
         </div>
 
-        <!-- ================= ROW 2 (Right to Left) ================= -->
+        <!-- ================= ROW 2 (Right to Left: Univ. Central <- La Magdalena) ================= -->
         <div class="relative w-full my-space-xs">
           <!-- Line background -->
           <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
 
           <div class="grid grid-cols-5 gap-space-xs relative z-10">
-            @for (st of row2Stations(); track st.name) {
-              <div class="flex flex-col items-center cursor-pointer group" (click)="currentStationIndex.set(st.stepIndex)">
+            @for (st of row2Stations; track st.id) {
+              <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
                 
                 <!-- Station Node Circle -->
                 <div 
-                  [class.bg-primary]="currentStationIndex() === st.stepIndex"
-                  [class.ring-4]="currentStationIndex() === st.stepIndex"
-                  [class.ring-red-200]="currentStationIndex() === st.stepIndex"
-                  [class.scale-125]="currentStationIndex() === st.stepIndex"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.stepIndex"
+                  [class.bg-primary]="currentStationIndex() === st.index"
+                  [class.ring-4]="currentStationIndex() === st.index"
+                  [class.ring-red-200]="currentStationIndex() === st.index"
+                  [class.scale-125]="currentStationIndex() === st.index"
+                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
                   class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
                 >
-                  @if (currentStationIndex() === st.stepIndex) {
+                  @if (currentStationIndex() === st.index) {
                     <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.stepNumber }}</span>
+                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
 
                 <!-- Station Label -->
                 <div class="flex flex-col items-center text-center pt-space-xs">
                   <span 
-                    [class.text-primary]="currentStationIndex() === st.stepIndex"
-                    [class.font-black]="currentStationIndex() === st.stepIndex"
-                    [class.text-on-surface]="currentStationIndex() !== st.stepIndex"
+                    [class.text-primary]="currentStationIndex() === st.index"
+                    [class.font-black]="currentStationIndex() === st.index"
+                    [class.text-on-surface]="currentStationIndex() !== st.index"
                     class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
                   >
                     {{ st.name }}
@@ -322,37 +312,37 @@
           </div>
         </div>
 
-        <!-- ================= ROW 3 (Left to Right) ================= -->
+        <!-- ================= ROW 3 (Left to Right: Pradera -> El Labrador) ================= -->
         <div class="relative w-full">
           <!-- Line background -->
           <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
 
           <div class="grid grid-cols-5 gap-space-xs relative z-10">
-            @for (st of row3Stations(); track st.name) {
-              <div class="flex flex-col items-center cursor-pointer group" (click)="currentStationIndex.set(st.stepIndex)">
+            @for (st of row3Stations; track st.id) {
+              <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
                 
                 <!-- Station Node Circle -->
                 <div 
-                  [class.bg-primary]="currentStationIndex() === st.stepIndex"
-                  [class.ring-4]="currentStationIndex() === st.stepIndex"
-                  [class.ring-red-200]="currentStationIndex() === st.stepIndex"
-                  [class.scale-125]="currentStationIndex() === st.stepIndex"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.stepIndex"
+                  [class.bg-primary]="currentStationIndex() === st.index"
+                  [class.ring-4]="currentStationIndex() === st.index"
+                  [class.ring-red-200]="currentStationIndex() === st.index"
+                  [class.scale-125]="currentStationIndex() === st.index"
+                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
                   class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
                 >
-                  @if (currentStationIndex() === st.stepIndex) {
+                  @if (currentStationIndex() === st.index) {
                     <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.stepNumber }}</span>
+                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
 
                 <!-- Station Label -->
                 <div class="flex flex-col items-center text-center pt-space-xs">
                   <span 
-                    [class.text-primary]="currentStationIndex() === st.stepIndex"
-                    [class.font-black]="currentStationIndex() === st.stepIndex"
-                    [class.text-on-surface]="currentStationIndex() !== st.stepIndex"
+                    [class.text-primary]="currentStationIndex() === st.index"
+                    [class.font-black]="currentStationIndex() === st.index"
+                    [class.text-on-surface]="currentStationIndex() !== st.index"
                     class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
                   >
                     {{ st.name }}

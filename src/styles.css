@@ -51,6 +51,32 @@
   display: block;
 }
 
+.franja-trama-vertical {
+  width: 8px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.franja-trama-vertical::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8px;
+  width: 1000px;
+  height: 8px;
+  background-image: url('assets/images/FRANJA_TRAMA_02.png');
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: center;
+  transform-origin: top left;
+  transform: rotate(90deg);
+}
+
 * {
   margin: 0;
   padding: 0;
