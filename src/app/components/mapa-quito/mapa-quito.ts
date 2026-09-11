@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, Input, ElementRef, ViewChild, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { QuadrantDetail } from '../../services/cuadrantes.service';
@@ -12,16 +12,29 @@ declare let L: any;
   templateUrl: './mapa-quito.html',
   styleUrl: './mapa-quito.css'
 })
-export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
-  @Input() quadrants: QuadrantDetail[] = [];
+export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
+  private _quadrants: QuadrantDetail[] = [];
+  @Input() set quadrants(value: QuadrantDetail[]) {
+    this._quadrants = value || [];
+  }
+  get quadrants(): QuadrantDetail[] {
+    return this._quadrants;
+  }
   @Input() singleQuadrant?: QuadrantDetail;
   @Input() mapHeight: string = '450px';
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
   private map: any;
+  private markerLayer: any;
 
   constructor(private router: Router) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.map && (changes['quadrants'] || changes['singleQuadrant'])) {
+      this.renderMarkers();
+    }
+  }
 
   private esc(value?: string): string {
     return String(value ?? '')
@@ -32,19 +45,9 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
   }
 
   private photosHtml(q: QuadrantDetail): string {
-    const before = q.imagenAntes;
-    const after = q.imagenDespues;
-    const img = (src: string, label: string) => `
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:0.68rem; color:#6b7280; font-weight:700; margin-bottom:2px;">${label}</div>
-          <img src="${this.esc(src)}" alt="${label}" style="width:100%; height:64px; object-fit:cover; border-radius:6px; display:block;"/>
-        </div>`;
-    const inner = [
-      before ? img(before, 'Antes') : '',
-      after ? img(after, 'Después') : ''
-    ].join('');
-    if (!inner) return `<div style="margin-top:6px; font-size:0.72rem; color:#9ca3af; font-style:italic;">Sin registro fotográfico</div>`;
-    return `<div style="display:flex; gap:6px; margin-top:8px;">${inner}</div>`;
+    const photo = q.imagen;
+    if (!photo) return `<div style="margin-top:6px; font-size:0.72rem; color:#9ca3af; font-style:italic;">Sin registro fotográfico</div>`;
+    return `<img src="${this.esc(photo)}" alt="Registro fotográfico de la obra" style="width:100%; height:120px; object-fit:cover; border-radius:6px; display:block; margin-top:8px;"/>`;
   }
 
   private centerOf(item?: QuadrantDetail): [number, number] {
@@ -64,14 +67,14 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private initMap() {
+private initMap() {
     if (typeof L === 'undefined') {
       console.warn('Leaflet (L) no se ha cargado aún.');
       return;
     }
 
     const container = this.mapContainer.nativeElement;
-    
+
     // Default center: Quito, Ecuador [-0.1807, -78.4678]
     let centerLat = -0.1807;
     let centerLng = -78.4678;
@@ -89,6 +92,8 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
       zoom: zoomLevel,
       zoomControl: true
     });
+
+    this.markerLayer = L.layerGroup().addTo(this.map);
 
     // Standard OpenStreetMap tiles (100% libre, sin requerir API Key ni marcas de agua)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -134,50 +139,86 @@ export class MapaQuitoComponent implements AfterViewInit, OnDestroy {
           ${this.photosHtml(this.singleQuadrant)}
         </div>
       `).openPopup();
-    } else {
-      // Add markers for all obras with real coordinates
-      this.quadrants.forEach(q => {
-        if (q.lat === undefined || q.lng === undefined) return;
-        const coords: [number, number] = [q.lat, q.lng];
-        const marker = L.marker(coords, {
-            icon: createCustomIcon(q.statusColor)
-          }).addTo(this.map);
+      return;
+    }
 
-          const popupContent = document.createElement('div');
-          popupContent.style.fontFamily = 'sans-serif';
-          popupContent.style.padding = '4px';
-          popupContent.style.maxWidth = '240px';
-          popupContent.innerHTML = `
-            <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.esc(q.title)}</strong>
-            <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.esc(q.locationZone)}</span>
-            ${this.photosHtml(q)}
-            <br/>
-            <button id="btn-map-go-${q.id}" style="
-              margin-top: 8px;
-              background: #C8102E;
-              color: #ffffff;
-              border: none;
-              padding: 6px 10px;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 0.78rem;
-              font-weight: 600;
-              width: 100%;
-            ">Ver detalles de la obra</button>
-          `;
+    this.renderMarkers();
+  }
 
-          marker.bindPopup(popupContent);
+  private renderMarkers() {
+    if (!this.map || !this.markerLayer) return;
 
-          // Add listener to navigate to quadrant details on button click
-          marker.on('popupopen', () => {
-            const btn = document.getElementById(`btn-map-go-${q.id}`);
-            if (btn) {
-              btn.onclick = () => {
-                this.router.navigate(['/cuadrante', q.id]);
-              };
-            }
-          });
+    this.markerLayer.clearLayers();
+
+    const createCustomIcon = (statusColor: string) => {
+      let colorHex = '#C8102E';
+      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#22c55e';
+      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#0ea5e9';
+      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#f59e0b';
+      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#f43f5e';
+      if (statusColor === 'purple') colorHex = '#a855f7';
+
+      return L.divIcon({
+        className: 'custom-map-pin',
+        html: `<div style="
+          background-color: ${colorHex};
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 3px solid #FFFFFF;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        "></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
+    };
+
+    const bounds: [number, number][] = [];
+    this._quadrants.forEach(q => {
+      if (q.lat === undefined || q.lng === undefined) return;
+      bounds.push([q.lat, q.lng]);
+      const coords: [number, number] = [q.lat, q.lng];
+      const marker = L.marker(coords, {
+          icon: createCustomIcon(q.statusColor)
+        }).addTo(this.markerLayer);
+
+        const popupContent = document.createElement('div');
+        popupContent.style.fontFamily = 'sans-serif';
+        popupContent.style.padding = '4px';
+        popupContent.style.maxWidth = '240px';
+        popupContent.innerHTML = `
+          <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.esc(q.title)}</strong>
+          <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.esc(q.locationZone)}</span>
+          ${this.photosHtml(q)}
+          <br/>
+          <button id="btn-map-go-${q.id}" style="
+            margin-top: 8px;
+            background: #C8102E;
+            color: #ffffff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            width: 100%;
+          ">Ver detalles de la obra</button>
+        `;
+
+        marker.bindPopup(popupContent);
+
+        marker.on('popupopen', () => {
+          const btn = document.getElementById(`btn-map-go-${q.id}`);
+          if (btn) {
+            btn.onclick = () => {
+              this.router.navigate(['/cuadrante', q.id]);
+            };
+          }
+        });
+    });
+
+    if (bounds.length) {
+      this.map.fitBounds(L.latLngBounds(bounds), { padding: [40, 40], maxZoom: 14 });
     }
   }
 }

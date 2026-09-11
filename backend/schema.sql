@@ -10,6 +10,17 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Estados adicionales usados por la matriz del GTD Los Chillos
+DO $$ BEGIN
+    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'entregada';
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN
+    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'concluida';
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN
+    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'suspendida';
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
 -- 2. Tabla de Ejes de Gobierno
 CREATE TABLE IF NOT EXISTS eje_gobierno (
     id_eje SERIAL PRIMARY KEY,
@@ -38,7 +49,8 @@ CREATE TABLE IF NOT EXISTS parroquia (
 -- 5. Tabla Principal de Obras y Compromisos
 CREATE TABLE IF NOT EXISTS obra (
     id_obra SERIAL PRIMARY KEY,
-    id_programa INTEGER NOT NULL REFERENCES programa(id_programa) ON DELETE CASCADE,
+    id_programa INTEGER REFERENCES programa(id_programa) ON DELETE CASCADE,
+    id_eje INTEGER REFERENCES eje_gobierno(id_eje) ON DELETE SET NULL,
     id_parroquia INTEGER NOT NULL REFERENCES parroquia(id_parroquia) ON DELETE RESTRICT,
     barrio_sector VARCHAR(255) NOT NULL,
     descripcion TEXT NOT NULL,
@@ -48,14 +60,37 @@ CREATE TABLE IF NOT EXISTS obra (
     latitud NUMERIC(10, 8) NULL,                    -- Georreferenciación Leaflet
     longitud NUMERIC(11, 8) NULL,                   -- Georreferenciación Leaflet
     entidad_ejecutora VARCHAR(150),                 -- Ej: EPMMOP, EPMAPS
-    url_imagen_antes TEXT,                          -- Opción A: Base64 Data URI o URL (Foto Antes)
-    url_imagen_despues TEXT,                        -- Opción A: Base64 Data URI o URL (Foto Después / Actual)
+    url_mapa TEXT,
+    fuente_financiamiento VARCHAR(50),
+    estado_pago VARCHAR(30),                        -- enviado_pago | devengado | arrastre_2025
+    url_imagen TEXT,                                -- URL de la foto de la obra (desde la matriz xlsx)
     codigo_contrato VARCHAR(100),
     beneficiarios_directos INTEGER,
     fecha_inicio DATE,
     fecha_fin_estimada DATE,
     anio_ejecucion INTEGER
 );
+
+-- Seeds de catálogos necesarios para la matriz del GTD Los Chillos
+INSERT INTO eje_gobierno (id_eje, nombre, descripcion, icono, color_hex) VALUES
+    (1, 'Hábitat, Seguridad y Convivencia Ciudadana', 'Vialidad, alumbrado LED, espacios públicos y patrullaje barrial.', 'policy', '#006c49'),
+    (2, 'Trabajo, Economía, Producción e Innovación', 'Fomento a emprendimientos, reactivación comercial y atracción de inversiones.', 'work', '#001428'),
+    (3, 'Bienestar, Derechos y Protección Social', 'Salud municipal, Guagua Centros, inclusión social y adultos mayores.', 'health_and_safety', '#00714d'),
+    (4, 'Movilidad Sostenible', 'Metro de Quito, corredores BTR, ciclovías y señalización inteligente.', 'directions_bus', '#0f2942'),
+    (5, 'Territorio Intercultural, Ecológico y Activo', 'Reserva Chocó Andino, parques metropolitanos y biocorredores.', 'park', '#6cf8bb')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO parroquia (id_parroquia, nombre, tipo, zona_administrativa) VALUES
+    (1, 'Conocoto', 'rural', 'Los Chillos'),
+    (2, 'Amaguaña', 'rural', 'Los Chillos'),
+    (3, 'Píntag', 'rural', 'Los Chillos'),
+    (4, 'La Merced', 'rural', 'Los Chillos'),
+    (5, 'Alangasí', 'rural', 'Los Chillos'),
+    (6, 'Guangopolo', 'rural', 'Los Chillos'),
+    (7, 'Iñaquito', 'urbana', 'Eugenio Espejo'),
+    (8, 'Centro Histórico', 'urbana', 'Manuela Sáenz'),
+    (9, 'Quitumbe', 'urbana', 'Quitumbe')
+ON CONFLICT DO NOTHING;
 
 -- 6. Tabla de Evidencias y Galerías
 CREATE TABLE IF NOT EXISTS evidencia_obra (

@@ -141,7 +141,9 @@
             <label class="font-label-md text-label-md text-primary">Estado Inicial <span class="text-error">*</span></label>
             <select name="estado" [(ngModel)]="form.estado" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
               <option value="en_proceso">En Proceso / Licitación</option>
-              <option value="cumplida">Cumplida / Entregada</option>
+              <option value="cumplida">Cumplida</option>
+              <option value="entregada">Entregada (Matriz GTD)</option>
+              <option value="concluida">Concluida (Matriz GTD)</option>
               <option value="detenida">Detenida</option>
               <option value="sin_comenzar">Sin Comenzar</option>
               <option value="incumplida">Incumplida</option>
@@ -150,7 +152,7 @@
         </div>
 
         <!-- Fila 2: Presupuesto y ejecución -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
           <div class="flex flex-col gap-space-2xs">
             <label class="font-label-md text-label-md text-primary">Presupuesto Asignado (USD)</label>
             <div class="relative">
@@ -165,6 +167,19 @@
           <div class="flex flex-col gap-space-2xs">
             <label class="font-label-md text-label-md text-primary">Unidad Ejecutora Responsable</label>
             <input type="text" name="entidad_ejecutora" [(ngModel)]="form.entidad_ejecutora" placeholder="EPMMOP / Secretaría" class="bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Fuente de Financiamiento</label>
+            <input type="text" name="fuente_financiamiento" [(ngModel)]="form.fuente_financiamiento" placeholder="PP / IC" class="bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+          <div class="flex flex-col gap-space-2xs">
+            <label class="font-label-md text-label-md text-primary">Estado de Pago</label>
+            <select name="estado_pago" [(ngModel)]="form.estado_pago" class="bg-surface-container-low text-on-surface font-body-md text-body-md rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+              <option value="">Sin definir</option>
+              <option value="enviado_pago">Enviado para el pago</option>
+              <option value="devengado">Devengado</option>
+              <option value="arrastre_2025">Arrastre a 2025</option>
+            </select>
           </div>
         </div>
 
@@ -211,6 +226,14 @@
             <span class="font-label-sm text-label-sm text-secondary">{{ mapsParserMsg }}</span>
           </div>
 
+          <div class="mb-space-md flex flex-col gap-space-xs">
+            <label class="font-label-md text-label-md text-primary flex items-center gap-space-xs">
+              <span class="material-symbols-outlined text-[18px] text-secondary">map</span>
+              Enlace del reporte en Google Maps
+            </label>
+            <input type="text" name="url_mapa" [(ngModel)]="form.url_mapa" placeholder="https://maps.app.goo.gl/..." class="bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:shadow-[0_0_0_2px_#001428] transition-all">
+          </div>
+
           <!-- Buscador de dirección -->
           <div class="mb-space-md flex flex-col sm:flex-row gap-space-xs">
             <div class="flex-1 relative">
@@ -252,55 +275,29 @@
         </div>
 
         <!-- Fila 6: Evidencias -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
-          <div class="flex flex-col gap-space-sm">
-            <label class="font-label-md text-label-md text-primary flex items-center gap-1">
-              <span class="material-symbols-outlined text-[18px] text-tertiary-container">photo_camera</span>
-              Foto de Antes
-            </label>
-            <input type="text" [(ngModel)]="form.url_imagen_antes" name="url_imagen_antes" placeholder="URL del registro fotográfico..." class="bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
-            <label class="bg-surface-container-low/70 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high/60 transition-all">
-              <span class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm mb-1">
-                <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
-              </span>
-              <span class="font-label-sm text-label-sm text-primary">Subir imagen local</span>
-              <input type="file" accept="image/*" (change)="onFileSelected($event, 'antes')" class="hidden">
-            </label>
-            <div *ngIf="imagePreviews.antes" class="relative">
-              <img [src]="imagePreviews.antes" class="w-full h-24 object-cover rounded-lg border border-tertiary-fixed">
-              <button type="button" (click)="removeImage('antes')" title="Quitar foto de antes" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface/90 text-error flex items-center justify-center shadow border border-error/40 hover:bg-error hover:text-on-error transition-colors">
-                <span class="material-symbols-outlined text-[16px]">close</span>
-              </button>
-            </div>
-            <button *ngIf="!imagePreviews.antes && form.url_imagen_antes" type="button" (click)="removeImage('antes')" class="self-start inline-flex items-center gap-1 text-error font-label-sm text-label-sm hover:underline">
-              <span class="material-symbols-outlined text-[16px]">delete</span>
-              Quitar foto
+        <div class="flex flex-col gap-space-sm">
+          <label class="font-label-md text-label-md text-primary flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px] text-tertiary-container">photo_camera</span>
+            Foto de la Obra (Registro Fotográfico)
+          </label>
+          <input type="text" [(ngModel)]="form.url_imagen" name="url_imagen" placeholder="URL del registro fotográfico..." class="bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
+          <label class="bg-surface-container-low/70 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high/60 transition-all">
+            <span class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm mb-1">
+              <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+            </span>
+            <span class="font-label-sm text-label-sm text-primary">Subir imagen local</span>
+            <input type="file" accept="image/*" (change)="onFileSelected($event, 'imagen')" class="hidden">
+          </label>
+          <div *ngIf="imagePreviews.imagen" class="relative">
+            <img [src]="imagePreviews.imagen" class="w-full h-24 object-cover rounded-lg border border-tertiary-fixed">
+            <button type="button" (click)="removeImage('imagen')" title="Quitar foto" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface/90 text-error flex items-center justify-center shadow border border-error/40 hover:bg-error hover:text-on-error transition-colors">
+              <span class="material-symbols-outlined text-[16px]">close</span>
             </button>
           </div>
-          <div class="flex flex-col gap-space-sm">
-            <label class="font-label-md text-label-md text-primary flex items-center gap-1">
-              <span class="material-symbols-outlined text-[18px] text-secondary">photo_library</span>
-              Foto de Después / Actual
-            </label>
-            <input type="text" [(ngModel)]="form.url_imagen_despues" name="url_imagen_despues" placeholder="URL del registro fotográfico..." class="bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#001428] transition-all">
-            <label class="bg-surface-container-low/70 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high/60 transition-all">
-              <span class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm mb-1">
-                <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
-              </span>
-              <span class="font-label-sm text-label-sm text-primary">Subir imagen local</span>
-              <input type="file" accept="image/*" (change)="onFileSelected($event, 'despues')" class="hidden">
-            </label>
-            <div *ngIf="imagePreviews.despues" class="relative">
-              <img [src]="imagePreviews.despues" class="w-full h-24 object-cover rounded-lg border border-secondary-container">
-              <button type="button" (click)="removeImage('despues')" title="Quitar foto de después" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface/90 text-error flex items-center justify-center shadow border border-error/40 hover:bg-error hover:text-on-error transition-colors">
-                <span class="material-symbols-outlined text-[16px]">close</span>
-              </button>
-            </div>
-            <button *ngIf="!imagePreviews.despues && form.url_imagen_despues" type="button" (click)="removeImage('despues')" class="self-start inline-flex items-center gap-1 text-error font-label-sm text-label-sm hover:underline">
-              <span class="material-symbols-outlined text-[16px]">delete</span>
-              Quitar foto
-            </button>
-          </div>
+          <button *ngIf="!imagePreviews.imagen && form.url_imagen" type="button" (click)="removeImage('imagen')" class="self-start inline-flex items-center gap-1 text-error font-label-sm text-label-sm hover:underline">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+            Quitar foto
+          </button>
         </div>
 
         <!-- Zona de Eliminación -->
@@ -341,7 +338,7 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
         <div>
           <h2 class="font-headline-md text-headline-md text-primary">Gestor de Obras y Compromisos Registrados</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">Control centralizado de avance, estado y georreferencia.</p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Control centralizado de avance, estado, pago y georreferencia.</p>
         </div>
         <div class="flex items-center gap-space-xs">
           <span class="font-label-sm text-label-sm bg-surface-container text-primary px-space-sm py-space-2xs rounded">
@@ -365,9 +362,12 @@
         <div class="md:col-span-3">
           <select (ngModelChange)="estadoFilter.set($event)" [ngModel]="estadoFilter()" name="estadoFilter" class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded px-space-md py-space-xs outline-none focus:shadow-[0_0_0_2px_#001428]">
             <option value="">Todos los Estados</option>
+            <option value="entregada">Entregada (Matriz GTD)</option>
+            <option value="concluida">Concluida (Matriz GTD)</option>
             <option value="cumplida">Cumplida</option>
             <option value="en_proceso">En Proceso</option>
             <option value="detenida">Detenida</option>
+            <option value="suspendida">Suspendida</option>
             <option value="sin_comenzar">Sin Comenzar</option>
             <option value="incumplida">Incumplida</option>
           </select>
@@ -389,13 +389,14 @@
               <th class="py-space-sm px-space-md">Parroquia</th>
               <th class="py-space-sm px-space-md">Estado</th>
               <th class="py-space-sm px-space-md">Avance %</th>
+              <th class="py-space-sm px-space-md">Pago</th>
               <th class="py-space-sm px-space-md">Inversión</th>
               <th class="py-space-sm px-space-md rounded-r text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="loading()" class="hover:bg-surface-container-low/40 transition-colors">
-              <td colspan="7" class="py-space-lg px-space-md text-center text-on-surface-variant">
+              <td colspan="8" class="py-space-lg px-space-md text-center text-on-surface-variant">
                 <span class="inline-flex items-center gap-2">
                   <span class="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></span>
                   Cargando obras desde el backend...
@@ -403,7 +404,7 @@
               </td>
             </tr>
             <tr *ngIf="!loading() && filteredObras().length === 0" class="hover:bg-surface-container-low/40 transition-colors">
-              <td colspan="7" class="py-space-lg px-space-md text-center text-on-surface-variant">No se encontraron registros.</td>
+              <td colspan="8" class="py-space-lg px-space-md text-center text-on-surface-variant">No se encontraron registros.</td>
             </tr>
             <tr *ngFor="let obra of filteredObras()" class="hover:bg-surface-container-low/40 transition-colors border-t border-surface-variant/30">
               <td class="py-space-md px-space-md font-mono text-label-sm font-semibold text-primary">#OBR-{{ obra.id_obra }}</td>
@@ -428,6 +429,12 @@
                   </div>
                   <span class="font-label-sm text-label-sm font-bold" [style.color]="estadoColor(obra.estado)">{{ obra.porcentaje_avance || 0 }}%</span>
                 </div>
+              </td>
+              <td class="py-space-md px-space-md">
+                <span *ngIf="obra.estado_pago" class="font-label-sm text-label-sm font-semibold rounded px-space-xs py-1 inline-block bg-secondary/20 text-secondary">
+                  {{ estadoPagoLabel(obra.estado_pago) }}
+                </span>
+                <span *ngIf="!obra.estado_pago" class="font-label-sm text-label-sm text-on-surface-variant">—</span>
               </td>
               <td class="py-space-md px-space-md font-label-sm text-label-sm text-primary font-medium">{{ formatMoney(obra.monto_inversion) }}</td>
               <td class="py-space-md px-space-md text-right">

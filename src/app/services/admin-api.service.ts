@@ -20,8 +20,10 @@ export interface Obra {
   latitud?: number;
   longitud?: number;
   entidad_ejecutora?: string;
-  url_imagen_antes?: string;
-  url_imagen_despues?: string;
+  url_imagen?: string;
+  url_mapa?: string;
+  fuente_financiamiento?: string;
+  estado_pago?: string;
   codigo_contrato?: string;
   beneficiarios_directos?: number;
   anio_ejecucion?: number;
@@ -74,10 +76,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Paso a desnivel de 4 carriles para desahogar el tráfico del hipercentro de Quito.',
     monto_inversion: 3500000.00,
     estado: 'en_proceso',
-    porcentaje_avance: 78,
     latitud: -0.180653,
     longitud: -78.467838,
-    entidad_ejecutora: 'EPMMOP',
     codigo_contrato: 'EPMMOP-OB-2024-089',
     beneficiarios_directos: 45000,
     anio_ejecucion: 2024
@@ -93,10 +93,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Ventanilla digital para la realización del 100% de los trámites municipales sin filas.',
     monto_inversion: 1200000.00,
     estado: 'cumplida',
-    porcentaje_avance: 100,
     latitud: -0.220164,
     longitud: -78.512327,
-    entidad_ejecutora: 'Secretaría de Innovación',
     codigo_contrato: 'SI-DIG-2024-003',
     beneficiarios_directos: 2500000,
     anio_ejecucion: 2024
@@ -112,10 +110,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Reconstrucción total de la casa comunal y equipamiento multiusos (Presupuestos Participativos).',
     monto_inversion: 78879.80,
     estado: 'cumplida',
-    porcentaje_avance: 100,
     latitud: -0.300000,
     longitud: -78.480000,
-    entidad_ejecutora: 'Administración Zonal Los Chillos',
     codigo_contrato: 'AZCH-PP-2024-012',
     beneficiarios_directos: 6500,
     anio_ejecucion: 2025
@@ -131,10 +127,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Construcción del área comunal recreativa y deportiva con juegos infantiles inclusivos.',
     monto_inversion: 39329.88,
     estado: 'en_proceso',
-    porcentaje_avance: 65,
     latitud: -0.380000,
     longitud: -78.500000,
-    entidad_ejecutora: 'Administración Zonal Los Chillos',
     codigo_contrato: 'AZCH-PP-2024-015',
     beneficiarios_directos: 3200,
     anio_ejecucion: 2025
@@ -150,10 +144,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Ampliación de ciclovías segregadas urbanas con conectividad a terminales BTR.',
     monto_inversion: 450000.00,
     estado: 'detenida',
-    porcentaje_avance: 40,
     latitud: -0.260000,
     longitud: -78.530000,
-    entidad_ejecutora: 'Secretaría de Movilidad',
     codigo_contrato: 'SM-CIC-2024-007',
     beneficiarios_directos: 18000,
     anio_ejecucion: 2024
@@ -169,10 +161,8 @@ const MOCK_OBRAS_API: Obra[] = [
     descripcion: 'Construcción del nuevo Hospital Municipal del Sur con 60 camas de hospitalización.',
     monto_inversion: 8500000.00,
     estado: 'sin_comenzar',
-    porcentaje_avance: 5,
     latitud: -0.310000,
     longitud: -78.550000,
-    entidad_ejecutora: 'Secretaría de Salud',
     codigo_contrato: 'SS-HOSP-2026-001',
     beneficiarios_directos: 120000,
     anio_ejecucion: 2026
@@ -231,7 +221,6 @@ export class AdminApiService {
         const newObra: Obra = {
           ...obra,
           id_obra: obra.id_obra || Date.now(),
-          eje_nombre: obra.eje_nombre || 'Eje Municipal',
           parroquia_nombre: obra.parroquia_nombre || 'Quito'
         };
         MOCK_OBRAS_API.unshift(newObra);

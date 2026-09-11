@@ -276,7 +276,10 @@
                   <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Quito - {{ card.category }}</span>
                 </div>
                 
-                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold bg-secondary-container text-primary border border-[var(--color-secondary)]">
+                <span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full font-bold"
+                      [style.background]="card.statusHex + '22'"
+                      [style.color]="card.statusHex"
+                      [style.border]="'1px solid ' + card.statusHex + '55'">
                   {{ card.badgeText }}
                 </span>
               </div>

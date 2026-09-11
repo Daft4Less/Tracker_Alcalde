@@ -54,7 +54,10 @@
         <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-space-lg relative z-10">
           <div class="flex flex-col gap-space-xs flex-1">
             <div class="flex flex-wrap items-center gap-space-xs">
-              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-secondary-container text-primary font-bold border border-red-200">
+              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full font-bold"
+                    [style.background]="item.statusHex + '22'"
+                    [style.color]="item.statusHex"
+                    [style.border]="'1px solid ' + item.statusHex + '55'">
                 {{ item.badgeText }}
               </span>
               <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-surface-container-lowest/10 text-surface-container-lowest border border-white/10 font-semibold">

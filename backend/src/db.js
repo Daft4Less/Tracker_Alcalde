@@ -11,6 +11,9 @@ try {
   // dotenv module not installed
 }
 
+const fs = require('fs');
+const path = require('path');
+
 // Configuración de conexión a PostgreSQL
 const isPgConfigured = Pool && (process.env.DATABASE_URL || (process.env.PGHOST && process.env.PGDATABASE));
 
@@ -31,14 +34,19 @@ if (isPgConfigured) {
   }
 }
 
-// Dataset en Memoria Extraído de los PDFs (Fallback In-Memory para Pruebas Inmediatas)
-const seedEjes = [
-  { id_eje: 1, nombre: 'Hábitat, Seguridad y Convivencia Ciudadana', icono: 'policy', color_hex: '#006c49', descripcion: 'Vialidad, alumbrado LED, espacios públicos y patrullaje barrial.' },
-  { id_eje: 2, nombre: 'Trabajo, Economía, Producción e Innovación', icono: 'work', color_hex: '#001428', descripcion: 'Fomento a emprendimientos, reactivación comercial y atracción de inversiones.' },
-  { id_eje: 3, nombre: 'Bienestar, Derechos y Protección Social', icono: 'health_and_safety', color_hex: '#00714d', descripcion: 'Salud municipal, Guagua Centros, inclusión social y adultos mayores.' },
-  { id_eje: 4, nombre: 'Movilidad Sostenible', icono: 'directions_bus', color_hex: '#0f2942', descripcion: 'Metro de Quito, corredores BTR, ciclovías y señalización inteligente.' },
-  { id_eje: 5, nombre: 'Territorio Intercultural, Ecológico y Activo', icono: 'park', color_hex: '#6cf8bb', descripcion: 'Reserva Chocó Andino, parques metropolitanos y biocorredores.' }
-];
+// --------------------------------------------------------------------
+// Seed In-Memory proveniente de la MATRIZ REAL de obras del
+// Gabinete Territorial Los Chillos (backend/seed/obras_matriz.json,
+// generado por backend/scripts/extract_matriz.py desde el xlsx).
+// --------------------------------------------------------------------
+
+const seedObrasPath = path.join(__dirname, '..', 'seed', 'obras_matriz.json');
+let seedObras = [];
+try {
+  seedObras = JSON.parse(fs.readFileSync(seedObrasPath, 'utf-8'));
+} catch (e) {
+  console.warn('No se pudo cargar seed/obras_matriz.json:', e.message);
+}
 
 const seedParroquias = [
   { id_parroquia: 1, nombre: 'Conocoto', tipo: 'rural', zona_administrativa: 'Los Chillos' },
@@ -52,134 +60,16 @@ const seedParroquias = [
   { id_parroquia: 9, nombre: 'Quitumbe', tipo: 'urbana', zona_administrativa: 'Quitumbe' }
 ];
 
-const seedProgramas = [
-  { id_programa: 1, id_eje: 1, nombre: 'Paso a Desnivel & Repavimentación LED' },
-  { id_programa: 2, id_eje: 2, nombre: 'Ventanilla Única Digital de Trámites' },
-  { id_programa: 3, id_eje: 1, nombre: 'Red de Alumbrado Público LED' },
-  { id_programa: 4, id_eje: 4, nombre: 'Ciclovías Segregadas Urbanas' },
-  { id_programa: 5, id_eje: 3, nombre: 'Casas Somos & Becas Escolares' },
-  { id_programa: 6, id_eje: 3, nombre: 'Hospital Municipal del Sur' },
-  { id_programa: 7, id_eje: 5, nombre: 'Senderos Ecológicos y Parques' },
-  { id_programa: 8, id_eje: 5, nombre: 'Saneamiento del Río Machángara' },
-  { id_programa: 9, id_eje: 1, nombre: 'Cámaras C4 e Inteligencia Artificial' }
+const seedEjes = [
+  { id_eje: 1, nombre: 'Hábitat, Seguridad y Convivencia Ciudadana', icono: 'policy', color_hex: '#006c49', descripcion: 'Vialidad, alumbrado LED, espacios públicos y patrullaje barrial.' },
+  { id_eje: 2, nombre: 'Trabajo, Economía, Producción e Innovación', icono: 'work', color_hex: '#001428', descripcion: 'Fomento a emprendimientos, reactivación comercial y atracción de inversiones.' },
+  { id_eje: 3, nombre: 'Bienestar, Derechos y Protección Social', icono: 'health_and_safety', color_hex: '#00714d', descripcion: 'Salud municipal, Guagua Centros, inclusión social y adultos mayores.' },
+  { id_eje: 4, nombre: 'Movilidad Sostenible', icono: 'directions_bus', color_hex: '#0f2942', descripcion: 'Metro de Quito, corredores BTR, ciclovías y señalización inteligente.' },
+  { id_eje: 5, nombre: 'Territorio Intercultural, Ecológico y Activo', icono: 'park', color_hex: '#6cf8bb', descripcion: 'Reserva Chocó Andino, parques metropolitanos y biocorredores.' }
 ];
 
-let memoryObras = [
-  {
-    id_obra: 1,
-    id_programa: 1,
-    id_eje: 1,
-    eje_nombre: 'Hábitat, Seguridad y Convivencia Ciudadana',
-    id_parroquia: 7,
-    parroquia_nombre: 'Iñaquito',
-    barrio_sector: 'Av. Central y Calle 8 (Mariscal)',
-    descripcion: 'Paso a desnivel de 4 carriles para desahogar el tráfico del hipercentro de Quito.',
-    monto_inversion: 3500000.00,
-    estado: 'en_proceso',
-    porcentaje_avance: 78,
-    latitud: -0.180653,
-    longitud: -78.467838,
-    entidad_ejecutora: 'EPMMOP',
-    codigo_contrato: 'EPMMOP-OB-2024-089',
-    beneficiarios_directos: 45000,
-    anio_ejecucion: 2024
-  },
-  {
-    id_obra: 2,
-    id_programa: 2,
-    id_eje: 2,
-    eje_nombre: 'Trabajo, Economía, Producción e Innovación',
-    id_parroquia: 8,
-    parroquia_nombre: 'Centro Histórico',
-    barrio_sector: 'Portal Web y App Móvil (Municipio)',
-    descripcion: 'Ventanilla digital para la realización del 100% de los trámites municipales sin filas.',
-    monto_inversion: 1200000.00,
-    estado: 'cumplida',
-    porcentaje_avance: 100,
-    latitud: -0.220164,
-    longitud: -78.512327,
-    entidad_ejecutora: 'Secretaría de Innovación',
-    codigo_contrato: 'SI-DIG-2024-003',
-    beneficiarios_directos: 2500000,
-    anio_ejecucion: 2024
-  },
-  {
-    id_obra: 3,
-    id_programa: 3,
-    id_eje: 1,
-    eje_nombre: 'Hábitat, Seguridad y Convivencia Ciudadana',
-    id_parroquia: 1,
-    parroquia_nombre: 'Conocoto',
-    barrio_sector: 'Barrio Paraíso de los Pinos',
-    descripcion: 'Reconstrucción total de la casa comunal y equipamiento multiusos (Presupuestos Participativos).',
-    monto_inversion: 78879.80,
-    estado: 'cumplida',
-    porcentaje_avance: 100,
-    latitud: -0.300000,
-    longitud: -78.480000,
-    entidad_ejecutora: 'Administración Zonal Los Chillos',
-    codigo_contrato: 'AZCH-PP-2024-012',
-    beneficiarios_directos: 6500,
-    anio_ejecucion: 2025
-  },
-  {
-    id_obra: 4,
-    id_programa: 1,
-    id_eje: 1,
-    eje_nombre: 'Hábitat, Seguridad y Convivencia Ciudadana',
-    id_parroquia: 2,
-    parroquia_nombre: 'Amaguaña',
-    barrio_sector: 'Barrio El Blanqueado',
-    descripcion: 'Construcción del área comunal recreativa y deportiva con juegos infantiles inclusivos.',
-    monto_inversion: 39329.88,
-    estado: 'en_proceso',
-    porcentaje_avance: 65,
-    latitud: -0.380000,
-    longitud: -78.500000,
-    entidad_ejecutora: 'Administración Zonal Los Chillos',
-    codigo_contrato: 'AZCH-PP-2024-015',
-    beneficiarios_directos: 3200,
-    anio_ejecucion: 2025
-  },
-  {
-    id_obra: 5,
-    id_programa: 4,
-    id_eje: 4,
-    eje_nombre: 'Movilidad Sostenible',
-    id_parroquia: 9,
-    parroquia_nombre: 'Quitumbe',
-    barrio_sector: 'Corredor Sur Quitumbe - Guamaní',
-    descripcion: 'Ampliación de ciclovías segregadas urbanas con conectividad a terminales BTR.',
-    monto_inversion: 450000.00,
-    estado: 'detenida',
-    porcentaje_avance: 40,
-    latitud: -0.260000,
-    longitud: -78.530000,
-    entidad_ejecutora: 'Secretaría de Movilidad',
-    codigo_contrato: 'SM-CIC-2024-007',
-    beneficiarios_directos: 18000,
-    anio_ejecucion: 2024
-  },
-  {
-    id_obra: 6,
-    id_programa: 6,
-    id_eje: 3,
-    eje_nombre: 'Bienestar, Derechos y Protección Social',
-    id_parroquia: 9,
-    parroquia_nombre: 'Quitumbe',
-    barrio_sector: 'Distrito Sur (Guamaní)',
-    descripcion: 'Construcción del nuevo Hospital Municipal del Sur con 60 camas de hospitalización.',
-    monto_inversion: 8500000.00,
-    estado: 'sin_comenzar',
-    porcentaje_avance: 5,
-    latitud: -0.310000,
-    longitud: -78.550000,
-    entidad_ejecutora: 'Secretaría de Salud',
-    codigo_contrato: 'SS-HOSP-2026-001',
-    beneficiarios_directos: 120000,
-    anio_ejecucion: 2026
-  }
-];
+let memoryObras = seedObras.map((o, i) => ({ ...o, id_obra: o.id_obra || i + 1 }));
+let memoryAdmin = null;
 
 // Admin en Memoria (Fallback cuando no hay PostgreSQL configurado)
 let memoryAdmins = [];
@@ -234,9 +124,10 @@ const dbService = {
         return { mode: 'In-Memory Fallback (PostgreSQL sin conexión act.)', error: err.message };
       }
     }
-    return { mode: 'In-Memory Fallback (Plan de Gobierno & Presupuestos Participativos Quito)' };
+    return { mode: 'In-Memory Fallback (Matriz Obras Valle de los Chillos)' };
   },
 
+  // Catálogo de ejes de gobierno (plan de trabajo municipal).
   async getEjes() {
     if (pool && this.isPostgres) {
       const res = await pool.query('SELECT * FROM eje_gobierno ORDER BY id_eje');
@@ -256,10 +147,8 @@ const dbService = {
   async getObras(filters = {}) {
     if (pool && this.isPostgres) {
       let query = `
-        SELECT o.*, e.nombre as eje_nombre, p.nombre as parroquia_nombre 
+        SELECT o.*, p.nombre as parroquia_nombre
         FROM obra o
-        JOIN programa pr ON o.id_programa = pr.id_programa
-        JOIN eje_gobierno e ON pr.id_eje = e.id_eje
         JOIN parroquia p ON o.id_parroquia = p.id_parroquia
         WHERE 1=1
       `;
@@ -272,7 +161,7 @@ const dbService = {
         params.push(filters.id_parroquia);
         query += ` AND o.id_parroquia = $${params.length}`;
       }
-      query += ` ORDER BY o.id_obra DESC`;
+      query += ` ORDER BY o.id_obra ASC`;
       const res = await pool.query(query, params);
       return res.rows;
     }
@@ -288,10 +177,8 @@ const dbService = {
   async getObraById(id) {
     if (pool && this.isPostgres) {
       const res = await pool.query(`
-        SELECT o.*, e.nombre as eje_nombre, p.nombre as parroquia_nombre 
+        SELECT o.*, p.nombre as parroquia_nombre
         FROM obra o
-        JOIN programa pr ON o.id_programa = pr.id_programa
-        JOIN eje_gobierno e ON pr.id_eje = e.id_eje
         JOIN parroquia p ON o.id_parroquia = p.id_parroquia
         WHERE o.id_obra = $1
       `, [id]);
@@ -302,98 +189,134 @@ const dbService = {
 
   async createObra(newObraData) {
     if (pool && this.isPostgres) {
-      const { id_programa, id_parroquia, barrio_sector, descripcion, monto_inversion, estado, porcentaje_avance, latitud, longitud, entidad_ejecutora, url_imagen_antes, url_imagen_despues } = newObraData;
       const res = await pool.query(`
-        INSERT INTO obra (id_programa, id_parroquia, barrio_sector, descripcion, monto_inversion, estado, porcentaje_avance, latitud, longitud, entidad_ejecutora, url_imagen_antes, url_imagen_despues, anio_ejecucion)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 2025)
+        INSERT INTO obra (id_eje, id_parroquia, barrio_sector, descripcion, monto_inversion, estado, porcentaje_avance, anio_ejecucion, entidad_ejecutora, fuente_financiamiento, estado_pago, url_mapa, url_imagen, latitud, longitud, codigo_contrato)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *
-      `, [id_programa || 1, id_parroquia || 1, barrio_sector, descripcion, monto_inversion || 0, estado || 'sin_comenzar', porcentaje_avance || 0, latitud || -0.22, longitud || -78.51, entidad_ejecutora || 'Municipio de Quito', url_imagen_antes || '', url_imagen_despues || '']);
+      `, [
+        newObraData.id_eje || null,
+        newObraData.id_parroquia || 1,
+        newObraData.barrio_sector,
+        newObraData.descripcion,
+        newObraData.monto_inversion ?? null,
+        newObraData.estado || 'sin_comenzar',
+        newObraData.porcentaje_avance ?? 0,
+        newObraData.anio_ejecucion || null,
+        newObraData.entidad_ejecutora || null,
+        newObraData.fuente_financiamiento || null,
+        newObraData.estado_pago || null,
+        newObraData.url_mapa || null,
+        newObraData.url_imagen || null,
+        newObraData.latitud ?? null,
+        newObraData.longitud ?? null,
+        newObraData.codigo_contrato || `API-OB-${Date.now().toString().slice(-4)}`
+      ]);
       return res.rows[0];
     }
 
+    memoryObras = memoryObras.map((o, i) => ({ ...o, id_obra: i + 1 }));
     const parroquiaObj = seedParroquias.find(p => p.id_parroquia === parseInt(newObraData.id_parroquia)) || seedParroquias[0];
-    const programaObj = seedProgramas.find(pr => pr.id_programa === parseInt(newObraData.id_programa)) || seedProgramas[0];
-    const ejeObj = seedEjes.find(e => e.id_eje === programaObj.id_eje);
-
+    const ejeObj = seedEjes.find(e => e.id_eje === parseInt(newObraData.id_eje)) || seedEjes[0];
     const createdObra = {
       id_obra: memoryObras.length + 1,
-      id_programa: programaObj.id_programa,
-      id_eje: ejeObj.id_eje,
-      eje_nombre: ejeObj.nombre,
+      id_eje: newObraData.id_eje ? ejeObj.id_eje : null,
+      eje_nombre: newObraData.id_eje ? ejeObj.nombre : null,
       id_parroquia: parroquiaObj.id_parroquia,
       parroquia_nombre: parroquiaObj.nombre,
       barrio_sector: newObraData.barrio_sector || 'Sector Quito DMQ',
       descripcion: newObraData.descripcion || 'Obra ingresada vía API',
-      monto_inversion: parseFloat(newObraData.monto_inversion) || 50000.00,
+      monto_inversion: parseFloat(newObraData.monto_inversion ?? 0) || null,
       estado: newObraData.estado || 'sin_comenzar',
-      porcentaje_avance: parseInt(newObraData.porcentaje_avance) || 0,
-      latitud: parseFloat(newObraData.latitud) || -0.220164,
-      longitud: parseFloat(newObraData.longitud) || -78.512327,
-      entidad_ejecutora: newObraData.entidad_ejecutora || 'Alcaldía de Quito',
-      url_imagen_antes: newObraData.url_imagen_antes || '',
-      url_imagen_despues: newObraData.url_imagen_despues || '',
-      codigo_contrato: `API-OB-${Date.now().toString().slice(-4)}`,
-      beneficiarios_directos: 15000,
-      anio_ejecucion: 2025
+      porcentaje_avance: newObraData.porcentaje_avance ?? 0,
+      entidad_ejecutora: newObraData.entidad_ejecutora || null,
+      anio_ejecucion: newObraData.anio_ejecucion ? parseInt(newObraData.anio_ejecucion) : null,
+      fuente_financiamiento: newObraData.fuente_financiamiento || null,
+      estado_pago: newObraData.estado_pago || null,
+      url_mapa: newObraData.url_mapa || null,
+      url_imagen: newObraData.url_imagen || null,
+      latitud: newObraData.latitud ? parseFloat(newObraData.latitud) : null,
+      longitud: newObraData.longitud ? parseFloat(newObraData.longitud) : null,
+      codigo_contrato: newObraData.codigo_contrato || `API-OB-${Date.now().toString().slice(-4)}`
     };
-
-    memoryObras.unshift(createdObra);
+    memoryObras.push(createdObra);
     return createdObra;
   },
 
   async updateObra(id, updateData) {
     const numericId = parseInt(id);
     if (pool && this.isPostgres) {
-      const { id_programa, id_parroquia, barrio_sector, descripcion, monto_inversion, estado, porcentaje_avance, latitud, longitud, entidad_ejecutora, url_imagen_antes, url_imagen_despues } = updateData;
       const res = await pool.query(`
-        UPDATE obra 
-        SET id_programa = COALESCE($1, id_programa),
+        UPDATE obra
+        SET id_eje = COALESCE($1, id_eje),
             id_parroquia = COALESCE($2, id_parroquia),
             barrio_sector = COALESCE($3, barrio_sector),
             descripcion = COALESCE($4, descripcion),
             monto_inversion = COALESCE($5, monto_inversion),
             estado = COALESCE($6, estado),
             porcentaje_avance = COALESCE($7, porcentaje_avance),
-            latitud = COALESCE($8, latitud),
-            longitud = COALESCE($9, longitud),
-            entidad_ejecutora = COALESCE($10, entidad_ejecutora),
-            url_imagen_antes = COALESCE($11, url_imagen_antes),
-            url_imagen_despues = COALESCE($12, url_imagen_despues)
-        WHERE id_obra = $13
+            anio_ejecucion = COALESCE($8, anio_ejecucion),
+            entidad_ejecutora = COALESCE($9, entidad_ejecutora),
+            fuente_financiamiento = COALESCE($10, fuente_financiamiento),
+            estado_pago = COALESCE($11, estado_pago),
+            url_mapa = COALESCE($12, url_mapa),
+            url_imagen = COALESCE($13, url_imagen),
+            latitud = COALESCE($14, latitud),
+            longitud = COALESCE($15, longitud),
+            codigo_contrato = COALESCE($16, codigo_contrato)
+        WHERE id_obra = $17
         RETURNING *
-      `, [id_programa, id_parroquia, barrio_sector, descripcion, monto_inversion, estado, porcentaje_avance, latitud, longitud, entidad_ejecutora, url_imagen_antes, url_imagen_despues, numericId]);
+      `, [
+        updateData.id_eje ?? null,
+        updateData.id_parroquia ?? null,
+        updateData.barrio_sector ?? null,
+        updateData.descripcion ?? null,
+        updateData.monto_inversion ?? null,
+        updateData.estado ?? null,
+        updateData.porcentaje_avance ?? null,
+        updateData.anio_ejecucion ?? null,
+        updateData.entidad_ejecutora ?? null,
+        updateData.fuente_financiamiento ?? null,
+        updateData.estado_pago ?? null,
+        updateData.url_mapa ?? null,
+        updateData.url_imagen ?? null,
+        updateData.latitud ?? null,
+        updateData.longitud ?? null,
+        updateData.codigo_contrato ?? null,
+        numericId
+      ]);
       return res.rows[0] || null;
     }
 
     const index = memoryObras.findIndex(o => o.id_obra === numericId);
     if (index === -1) return null;
 
-    const current = memoryObras[index];
-    const parroquiaObj = updateData.id_parroquia ? (seedParroquias.find(p => p.id_parroquia === parseInt(updateData.id_parroquia)) || seedParroquias[0]) : null;
-    const programaObj = updateData.id_programa ? (seedProgramas.find(pr => pr.id_programa === parseInt(updateData.id_programa)) || seedProgramas[0]) : null;
-    const ejeObj = programaObj ? seedEjes.find(e => e.id_eje === programaObj.id_eje) : null;
+    const parroquiaObj = updateData.id_parroquia
+      ? (seedParroquias.find(p => p.id_parroquia === parseInt(updateData.id_parroquia)) || seedParroquias[0])
+      : null;
 
-    const updatedObra = {
-      ...current,
-      id_programa: programaObj ? programaObj.id_programa : current.id_programa,
-      id_eje: ejeObj ? ejeObj.id_eje : current.id_eje,
-      eje_nombre: ejeObj ? ejeObj.nombre : current.eje_nombre,
-      id_parroquia: parroquiaObj ? parroquiaObj.id_parroquia : current.id_parroquia,
-      parroquia_nombre: parroquiaObj ? parroquiaObj.nombre : current.parroquia_nombre,
-      barrio_sector: updateData.barrio_sector !== undefined ? updateData.barrio_sector : current.barrio_sector,
-      descripcion: updateData.descripcion !== undefined ? updateData.descripcion : current.descripcion,
-      monto_inversion: updateData.monto_inversion !== undefined ? parseFloat(updateData.monto_inversion) : current.monto_inversion,
-      estado: updateData.estado !== undefined ? updateData.estado : current.estado,
-      porcentaje_avance: updateData.porcentaje_avance !== undefined ? parseInt(updateData.porcentaje_avance) : current.porcentaje_avance,
-      latitud: updateData.latitud !== undefined ? parseFloat(updateData.latitud) : current.latitud,
-      longitud: updateData.longitud !== undefined ? parseFloat(updateData.longitud) : current.longitud,
-      entidad_ejecutora: updateData.entidad_ejecutora !== undefined ? updateData.entidad_ejecutora : current.entidad_ejecutora,
-      url_imagen_antes: updateData.url_imagen_antes !== undefined ? updateData.url_imagen_antes : current.url_imagen_antes,
-      url_imagen_despues: updateData.url_imagen_despues !== undefined ? updateData.url_imagen_despues : current.url_imagen_despues
+    const updated = {
+      ...memoryObras[index],
+      id_eje: updateData.id_eje !== undefined ? parseInt(updateData.id_eje) || null : memoryObras[index].id_eje,
+      eje_nombre: updateData.id_eje !== undefined ? (seedEjes.find(e => e.id_eje === parseInt(updateData.id_eje)) || { nombre: null }).nombre : memoryObras[index].eje_nombre,
+      id_parroquia: parroquiaObj ? parroquiaObj.id_parroquia : memoryObras[index].id_parroquia,
+      parroquia_nombre: parroquiaObj ? parroquiaObj.nombre : memoryObras[index].parroquia_nombre,
+      barrio_sector: updateData.barrio_sector !== undefined ? updateData.barrio_sector : memoryObras[index].barrio_sector,
+      descripcion: updateData.descripcion !== undefined ? updateData.descripcion : memoryObras[index].descripcion,
+      monto_inversion: updateData.monto_inversion !== undefined ? parseFloat(updateData.monto_inversion) : memoryObras[index].monto_inversion,
+      estado: updateData.estado !== undefined ? updateData.estado : memoryObras[index].estado,
+      porcentaje_avance: updateData.porcentaje_avance !== undefined ? parseInt(updateData.porcentaje_avance) : memoryObras[index].porcentaje_avance,
+      anio_ejecucion: updateData.anio_ejecucion !== undefined ? parseInt(updateData.anio_ejecucion) : memoryObras[index].anio_ejecucion,
+      entidad_ejecutora: updateData.entidad_ejecutora !== undefined ? updateData.entidad_ejecutora : memoryObras[index].entidad_ejecutora,
+      fuente_financiamiento: updateData.fuente_financiamiento !== undefined ? updateData.fuente_financiamiento : memoryObras[index].fuente_financiamiento,
+      estado_pago: updateData.estado_pago !== undefined ? updateData.estado_pago : memoryObras[index].estado_pago,
+      url_mapa: updateData.url_mapa !== undefined ? updateData.url_mapa : memoryObras[index].url_mapa,
+      url_imagen: updateData.url_imagen !== undefined ? updateData.url_imagen : memoryObras[index].url_imagen,
+      latitud: updateData.latitud !== undefined ? parseFloat(updateData.latitud) : memoryObras[index].latitud,
+      longitud: updateData.longitud !== undefined ? parseFloat(updateData.longitud) : memoryObras[index].longitud,
+      codigo_contrato: updateData.codigo_contrato !== undefined ? updateData.codigo_contrato : memoryObras[index].codigo_contrato
     };
-
-    memoryObras[index] = updatedObra;
-    return updatedObra;
+    memoryObras[index] = updated;
+    return updated;
   },
 
   async deleteObra(id) {
@@ -402,11 +325,10 @@ const dbService = {
       const res = await pool.query('DELETE FROM obra WHERE id_obra = $1 RETURNING *', [numericId]);
       return res.rows[0] || null;
     }
-
     const index = memoryObras.findIndex(o => o.id_obra === numericId);
     if (index === -1) return null;
-
     const deletedObra = memoryObras.splice(index, 1)[0];
+    memoryObras = memoryObras.map((o, i) => ({ ...o, id_obra: i + 1 }));
     return deletedObra;
   }
 };

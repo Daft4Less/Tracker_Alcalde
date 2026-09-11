@@ -21,11 +21,14 @@ const PARROQUIA_COORDS: { [key: number]: [number, number] } = {
 
 const ESTADO_COLORS: { [key: string]: string } = {
   cumplida: '#006c49',
+  entregada: '#006c49',
+  concluida: '#006c49',
   en_proceso: '#49607c',
   detenida: '#ffb95f',
+  suspendida: '#ffb95f',
   sin_comenzar: '#8b5cf6',
-  incumplida: '#ba1a1a',
-  pendiente: '#ffb95f'
+  pendiente: '#8b5cf6',
+  incumplida: '#ba1a1a'
 };
 
 @Component({
@@ -63,16 +66,18 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
     id_eje: 1,
     id_parroquia: 7,
     barrio_sector: '',
-    entidad_ejecutora: '',
     descripcion: '',
     monto_inversion: null as number | null,
     estado: 'en_proceso',
     porcentaje_avance: 0,
+    entidad_ejecutora: '',
+    fuente_financiamiento: '',
+    estado_pago: '',
     anio_ejecucion: new Date().getFullYear(),
     latitud: -0.220164,
     longitud: -78.512327,
-    url_imagen_antes: '',
-    url_imagen_despues: ''
+    url_mapa: '',
+    url_imagen: ''
   };
 
   mapsUrlInput = '';
@@ -82,14 +87,14 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private map: any;
   private pickerMarker: any;
-  imagePreviews = { antes: '', despues: '' };
+  imagePreviews = { imagen: '' };
 
   kpis = computed(() => {
     const obras = this.allObras();
     const total = obras.length;
     const pendientes = obras.filter(o => ['sin_comenzar', 'pendiente', 'detenida'].includes(o.estado || '')).length;
     const fondos = obras.reduce((acc, o) => acc + (o.monto_inversion || 0), 0);
-    const evidencias = obras.filter(o => o.url_imagen_antes || o.url_imagen_despues).length;
+    const evidencias = obras.filter(o => o.url_imagen).length;
     return { total, pendientes, fondos, evidencias };
   });
 
@@ -160,13 +165,25 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   estadoLabel(estado?: string): string {
     const map: { [key: string]: string } = {
       cumplida: 'Cumplida',
+      entregada: 'Entregada',
+      concluida: 'Concluida',
       en_proceso: 'En Proceso',
       detenida: 'Detenida',
+      suspendida: 'Suspendida',
       sin_comenzar: 'Sin Comenzar',
       incumplida: 'Incumplida',
       pendiente: 'Pendiente'
     };
     return map[estado || ''] || estado || '—';
+  }
+
+  estadoPagoLabel(estadoPago?: string): string {
+    const map: { [key: string]: string } = {
+      enviado_pago: 'Enviado para el pago',
+      devengado: 'Devengado',
+      arrastre_2025: 'Arrastre a 2025'
+    };
+    return map[estadoPago || ''] || (estadoPago ? estadoPago : '—');
   }
 
   // ---------- MAPA ----------
@@ -250,7 +267,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // ---------- EVIDENCIAS ----------
-  onFileSelected(event: Event, field: 'antes' | 'despues') {
+  onFileSelected(event: Event, field: 'imagen') {
     const input = event.target as HTMLInputElement;
     const file = input.files && input.files[0];
     if (!file) return;
@@ -261,25 +278,15 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const base64 = e.target.result;
-      if (field === 'antes') {
-        this.form.url_imagen_antes = base64;
-        this.imagePreviews.antes = base64;
-      } else {
-        this.form.url_imagen_despues = base64;
-        this.imagePreviews.despues = base64;
-      }
+      this.form.url_imagen = base64;
+      this.imagePreviews.imagen = base64;
     };
     reader.readAsDataURL(file);
   }
 
-  removeImage(field: 'antes' | 'despues') {
-    if (field === 'antes') {
-      this.form.url_imagen_antes = '';
-      this.imagePreviews.antes = '';
-    } else {
-      this.form.url_imagen_despues = '';
-      this.imagePreviews.despues = '';
-    }
+  removeImage(field: 'imagen') {
+    this.form.url_imagen = '';
+    this.imagePreviews.imagen = '';
   }
 
   // ---------- CRUD ----------
@@ -288,18 +295,20 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       id_eje: this.ejes()[0]?.id_eje || 1,
       id_parroquia: 7,
       barrio_sector: '',
-      entidad_ejecutora: '',
       descripcion: '',
       monto_inversion: null,
       estado: 'en_proceso',
       porcentaje_avance: 0,
+      entidad_ejecutora: '',
+      fuente_financiamiento: '',
+      estado_pago: '',
       anio_ejecucion: new Date().getFullYear(),
       latitud: -0.220164,
       longitud: -78.512327,
-      url_imagen_antes: '',
-      url_imagen_despues: ''
+      url_mapa: '',
+      url_imagen: ''
     };
-    this.imagePreviews = { antes: '', despues: '' };
+    this.imagePreviews = { imagen: '' };
     this.confirmDeleteText = '';
     this.editingId.set(null);
     this.errorMessage.set('');
@@ -311,18 +320,20 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       id_eje: obra.id_eje || 1,
       id_parroquia: obra.id_parroquia || 7,
       barrio_sector: obra.barrio_sector || '',
-      entidad_ejecutora: obra.entidad_ejecutora || '',
       descripcion: obra.descripcion || '',
       monto_inversion: obra.monto_inversion ?? null,
       estado: obra.estado || 'en_proceso',
       porcentaje_avance: obra.porcentaje_avance || 0,
+      entidad_ejecutora: obra.entidad_ejecutora || '',
+      fuente_financiamiento: obra.fuente_financiamiento || '',
+      estado_pago: obra.estado_pago || '',
       anio_ejecucion: obra.anio_ejecucion || new Date().getFullYear(),
       latitud: obra.latitud ?? -0.220164,
       longitud: obra.longitud ?? -78.512327,
-      url_imagen_antes: obra.url_imagen_antes || '',
-      url_imagen_despues: obra.url_imagen_despues || ''
+      url_mapa: obra.url_mapa || '',
+      url_imagen: obra.url_imagen || ''
     };
-    this.imagePreviews = { antes: obra.url_imagen_antes || '', despues: obra.url_imagen_despues || '' };
+    this.imagePreviews = { imagen: obra.url_imagen || '' };
     this.setLocation(this.form.latitud, this.form.longitud);
     if (this.map) this.map.flyTo([this.form.latitud, this.form.longitud], 13);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -389,11 +400,12 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
 
   exportCSV() {
     const rows = this.filteredObras();
-    const header = ['ID', 'Barrio/Sector', 'Parroquia', 'Descripcion', 'Estado', 'Avance %', 'Inversion USD', 'Lat', 'Lng', 'Ejecutora'];
+    const header = ['ID', 'Barrio/Sector', 'Parroquia', 'Descripcion', 'Estado', 'Eje', 'Avance %', 'Pago', 'Fuente', 'Inversion USD', 'Lat', 'Lng', 'URL Maps', 'Ejecutora'];
     const escape = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
     const lines = rows.map(o => [
       o.id_obra, o.barrio_sector, o.parroquia_nombre, o.descripcion, o.estado,
-      o.porcentaje_avance, o.monto_inversion, o.latitud, o.longitud, o.entidad_ejecutora
+      o.eje_nombre, o.porcentaje_avance, o.estado_pago, o.fuente_financiamiento,
+      o.monto_inversion, o.latitud, o.longitud, o.url_mapa, o.entidad_ejecutora
     ].map(escape).join(','));
     const csv = [header.map(escape).join(','), ...lines].join('\r\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
