@@ -242,160 +242,134 @@
           </div>
         </div>
 
-        <!-- VIEW 2: ESQUEMA DIAGRAMÁTICO EN 'S' (3 FILAS) -->
+        <!-- VIEW 2: ESQUEMA DIAGRAMÁTICO EN 'S' (5 FILAS DE 3 ESTACIONES) -->
         <div [class.hidden]="activeView() !== 'scurve'" class="flex flex-col gap-space-sm w-full bg-surface-container-low/40 p-space-md rounded-xl border border-outline-variant/20">
           <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface font-bold pb-2">
             <span>Esquema Diagramático en 'S'</span>
             <span class="text-primary font-semibold text-xs">Sentido {{ sentidoActual() === 'sur-norte' ? 'Sur ➔ Norte' : 'Norte ➔ Sur' }}</span>
           </div>
 
-      <!-- S-CURVE TRACK CONTAINER -->
-      <div class="flex flex-col gap-space-xl relative py-space-md">
-        
-        <!-- ================= ROW 1 (Left to Right: Quitumbe -> El Recreo) ================= -->
+      <!-- S-CURVE TRACK (5 rows of 3) -->
+      <div #sCurveTrack class="flex flex-col gap-space-lg md:gap-space-xl relative py-space-sm md:py-space-md">
+
+        <!-- SVG connector overlay joining the 5 rows -->
+        <svg #sCurveConnectors class="s-curve-connectors absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" aria-hidden="true">
+          <path class="s-curve-connector" id="rc1" d="" />
+          <path class="s-curve-connector" id="lc1" d="" />
+          <path class="s-curve-connector" id="rc2" d="" />
+          <path class="s-curve-connector" id="lc2" d="" />
+        </svg>
+
+        <!-- ROW 1: Quitumbe → Solanda (L→R) -->
         <div class="relative w-full">
-          <!-- Line background -->
-          <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
-          
-          <div class="grid grid-cols-5 gap-space-xs relative z-10">
+          <div class="absolute left-[14%] right-[14%] top-5 h-2 bg-primary/20 rounded-full z-0"></div>
+          <div class="grid grid-cols-3 gap-1 md:gap-2 relative z-10">
             @for (st of row1Stations; track st.id) {
               <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
-                
-                <!-- Station Node Circle -->
-                <div 
-                  [class.bg-primary]="currentStationIndex() === st.index"
-                  [class.ring-4]="currentStationIndex() === st.index"
-                  [class.ring-red-200]="currentStationIndex() === st.index"
-                  [class.scale-125]="currentStationIndex() === st.index"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
-                  class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
-                >
+                <div [class.bg-primary]="currentStationIndex() === st.index" [class.ring-4]="currentStationIndex() === st.index" [class.ring-red-200]="currentStationIndex() === st.index" [class.scale-125]="currentStationIndex() === st.index" [class.bg-surface-container-lowest]="currentStationIndex() !== st.index" [attr.data-station-idx]="st.index" class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 md:border-3 border-primary shadow-md transition-all duration-300 relative">
                   @if (currentStationIndex() === st.index) {
-                    <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
+                    <span class="material-symbols-outlined text-white text-[16px] md:text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
+                    <span class="font-label-sm text-[10px] md:text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
-
-                <!-- Station Label -->
-                <div class="flex flex-col items-center text-center pt-space-xs">
-                  <span 
-                    [class.text-primary]="currentStationIndex() === st.index"
-                    [class.font-black]="currentStationIndex() === st.index"
-                    [class.text-on-surface]="currentStationIndex() !== st.index"
-                    class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
-                  >
-                    {{ st.name }}
-                  </span>
-                  <span class="font-label-sm text-[11px] text-on-surface-variant font-semibold">
-                    {{ st.zone }}
-                  </span>
+                <div class="flex flex-col items-center text-center pt-space-2xs">
+                  <span [class.text-primary]="currentStationIndex() === st.index" [class.font-black]="currentStationIndex() === st.index" [class.text-on-surface]="currentStationIndex() !== st.index" class="font-bold text-[11px] md:text-sm tracking-tight transition-colors leading-tight">{{ st.name }}</span>
+                  <span class="text-[9px] md:text-[10px] text-on-surface-variant font-semibold hidden sm:block">{{ st.zone }}</span>
                 </div>
-
               </div>
             }
           </div>
-
-          <!-- Curve Right-Down Connector -->
-          <div class="hidden md:flex absolute -right-4 top-5 bottom-0 w-12 flex-col items-center justify-center pointer-events-none">
-            <div class="w-8 h-16 border-t-3 border-r-3 border-b-3 border-primary/40 rounded-r-2xl"></div>
-          </div>
         </div>
 
-        <!-- ================= ROW 2 (Right to Left: Univ. Central <- La Magdalena) ================= -->
-        <div class="relative w-full my-space-xs">
-          <!-- Line background -->
-          <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
-
-          <div class="grid grid-cols-5 gap-space-xs relative z-10">
+        <!-- ROW 2: La Magdalena ← Cardenal (R→L) -->
+        <div class="relative w-full">
+          <div class="absolute left-[14%] right-[14%] top-5 h-2 bg-primary/20 rounded-full z-0"></div>
+          <div class="grid grid-cols-3 gap-1 md:gap-2 relative z-10">
             @for (st of row2Stations; track st.id) {
               <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
-                
-                <!-- Station Node Circle -->
-                <div 
-                  [class.bg-primary]="currentStationIndex() === st.index"
-                  [class.ring-4]="currentStationIndex() === st.index"
-                  [class.ring-red-200]="currentStationIndex() === st.index"
-                  [class.scale-125]="currentStationIndex() === st.index"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
-                  class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
-                >
+                <div [class.bg-primary]="currentStationIndex() === st.index" [class.ring-4]="currentStationIndex() === st.index" [class.ring-red-200]="currentStationIndex() === st.index" [class.scale-125]="currentStationIndex() === st.index" [class.bg-surface-container-lowest]="currentStationIndex() !== st.index" [attr.data-station-idx]="st.index" class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 md:border-3 border-primary shadow-md transition-all duration-300 relative">
                   @if (currentStationIndex() === st.index) {
-                    <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
+                    <span class="material-symbols-outlined text-white text-[16px] md:text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
+                    <span class="font-label-sm text-[10px] md:text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
-
-                <!-- Station Label -->
-                <div class="flex flex-col items-center text-center pt-space-xs">
-                  <span 
-                    [class.text-primary]="currentStationIndex() === st.index"
-                    [class.font-black]="currentStationIndex() === st.index"
-                    [class.text-on-surface]="currentStationIndex() !== st.index"
-                    class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
-                  >
-                    {{ st.name }}
-                  </span>
-                  <span class="font-label-sm text-[11px] text-on-surface-variant font-semibold">
-                    {{ st.zone }}
-                  </span>
+                <div class="flex flex-col items-center text-center pt-space-2xs">
+                  <span [class.text-primary]="currentStationIndex() === st.index" [class.font-black]="currentStationIndex() === st.index" [class.text-on-surface]="currentStationIndex() !== st.index" class="font-bold text-[11px] md:text-sm tracking-tight transition-colors leading-tight">{{ st.name }}</span>
+                  <span class="text-[9px] md:text-[10px] text-on-surface-variant font-semibold hidden sm:block">{{ st.zone }}</span>
                 </div>
-
               </div>
             }
           </div>
-
-          <!-- Curve Left-Down Connector -->
-          <div class="hidden md:flex absolute -left-4 top-5 bottom-0 w-12 flex-col items-center justify-center pointer-events-none">
-            <div class="w-8 h-16 border-t-3 border-l-3 border-b-3 border-primary/40 rounded-l-2xl"></div>
-          </div>
         </div>
 
-        <!-- ================= ROW 3 (Left to Right: Pradera -> El Labrador) ================= -->
+        <!-- ROW 3: San Francisco → Ejido (L→R) -->
         <div class="relative w-full">
-          <!-- Line background -->
-          <div class="absolute left-8 right-8 top-5 h-2 bg-primary/20 rounded-full z-0"></div>
-
-          <div class="grid grid-cols-5 gap-space-xs relative z-10">
+          <div class="absolute left-[14%] right-[14%] top-5 h-2 bg-primary/20 rounded-full z-0"></div>
+          <div class="grid grid-cols-3 gap-1 md:gap-2 relative z-10">
             @for (st of row3Stations; track st.id) {
               <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
-                
-                <!-- Station Node Circle -->
-                <div 
-                  [class.bg-primary]="currentStationIndex() === st.index"
-                  [class.ring-4]="currentStationIndex() === st.index"
-                  [class.ring-red-200]="currentStationIndex() === st.index"
-                  [class.scale-125]="currentStationIndex() === st.index"
-                  [class.bg-surface-container-lowest]="currentStationIndex() !== st.index"
-                  class="w-10 h-10 rounded-full flex items-center justify-center border-3 border-primary shadow-md transition-all duration-300 relative"
-                >
+                <div [class.bg-primary]="currentStationIndex() === st.index" [class.ring-4]="currentStationIndex() === st.index" [class.ring-red-200]="currentStationIndex() === st.index" [class.scale-125]="currentStationIndex() === st.index" [class.bg-surface-container-lowest]="currentStationIndex() !== st.index" [attr.data-station-idx]="st.index" class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 md:border-3 border-primary shadow-md transition-all duration-300 relative">
                   @if (currentStationIndex() === st.index) {
-                    <span class="material-symbols-outlined text-white text-[20px] animate-pulse">directions_subway</span>
+                    <span class="material-symbols-outlined text-white text-[16px] md:text-[20px] animate-pulse">directions_subway</span>
                   } @else {
-                    <span class="font-label-sm text-[12px] font-extrabold text-primary">{{ st.id }}</span>
+                    <span class="font-label-sm text-[10px] md:text-[12px] font-extrabold text-primary">{{ st.id }}</span>
                   }
                 </div>
-
-                <!-- Station Label -->
-                <div class="flex flex-col items-center text-center pt-space-xs">
-                  <span 
-                    [class.text-primary]="currentStationIndex() === st.index"
-                    [class.font-black]="currentStationIndex() === st.index"
-                    [class.text-on-surface]="currentStationIndex() !== st.index"
-                    class="font-headline-sm text-headline-sm font-bold text-sm tracking-tight transition-colors leading-tight"
-                  >
-                    {{ st.name }}
-                  </span>
-                  <span class="font-label-sm text-[11px] text-on-surface-variant font-semibold">
-                    {{ st.zone }}
-                  </span>
+                <div class="flex flex-col items-center text-center pt-space-2xs">
+                  <span [class.text-primary]="currentStationIndex() === st.index" [class.font-black]="currentStationIndex() === st.index" [class.text-on-surface]="currentStationIndex() !== st.index" class="font-bold text-[11px] md:text-sm tracking-tight transition-colors leading-tight">{{ st.name }}</span>
+                  <span class="text-[9px] md:text-[10px] text-on-surface-variant font-semibold hidden sm:block">{{ st.zone }}</span>
                 </div>
-
               </div>
             }
           </div>
         </div>
+
+        <!-- ROW 4: La Carolina ← Universidad Central (R→L) -->
+        <div class="relative w-full">
+          <div class="absolute left-[14%] right-[14%] top-5 h-2 bg-primary/20 rounded-full z-0"></div>
+          <div class="grid grid-cols-3 gap-1 md:gap-2 relative z-10">
+            @for (st of row4Stations; track st.id) {
+              <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
+                <div [class.bg-primary]="currentStationIndex() === st.index" [class.ring-4]="currentStationIndex() === st.index" [class.ring-red-200]="currentStationIndex() === st.index" [class.scale-125]="currentStationIndex() === st.index" [class.bg-surface-container-lowest]="currentStationIndex() !== st.index" [attr.data-station-idx]="st.index" class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 md:border-3 border-primary shadow-md transition-all duration-300 relative">
+                  @if (currentStationIndex() === st.index) {
+                    <span class="material-symbols-outlined text-white text-[16px] md:text-[20px] animate-pulse">directions_subway</span>
+                  } @else {
+                    <span class="font-label-sm text-[10px] md:text-[12px] font-extrabold text-primary">{{ st.id }}</span>
+                  }
+                </div>
+                <div class="flex flex-col items-center text-center pt-space-2xs">
+                  <span [class.text-primary]="currentStationIndex() === st.index" [class.font-black]="currentStationIndex() === st.index" [class.text-on-surface]="currentStationIndex() !== st.index" class="font-bold text-[11px] md:text-sm tracking-tight transition-colors leading-tight">{{ st.name }}</span>
+                  <span class="text-[9px] md:text-[10px] text-on-surface-variant font-semibold hidden sm:block">{{ st.zone }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ROW 5: Iñaquito → El Labrador (L→R) -->
+        <div class="relative w-full">
+          <div class="absolute left-[14%] right-[14%] top-5 h-2 bg-primary/20 rounded-full z-0"></div>
+          <div class="grid grid-cols-3 gap-1 md:gap-2 relative z-10">
+            @for (st of row5Stations; track st.id) {
+              <div class="flex flex-col items-center cursor-pointer group" (click)="setStation(st.index)">
+                <div [class.bg-primary]="currentStationIndex() === st.index" [class.ring-4]="currentStationIndex() === st.index" [class.ring-red-200]="currentStationIndex() === st.index" [class.scale-125]="currentStationIndex() === st.index" [class.bg-surface-container-lowest]="currentStationIndex() !== st.index" [attr.data-station-idx]="st.index" class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 md:border-3 border-primary shadow-md transition-all duration-300 relative">
+                  @if (currentStationIndex() === st.index) {
+                    <span class="material-symbols-outlined text-white text-[16px] md:text-[20px] animate-pulse">directions_subway</span>
+                  } @else {
+                    <span class="font-label-sm text-[10px] md:text-[12px] font-extrabold text-primary">{{ st.id }}</span>
+                  }
+                </div>
+                <div class="flex flex-col items-center text-center pt-space-2xs">
+                  <span [class.text-primary]="currentStationIndex() === st.index" [class.font-black]="currentStationIndex() === st.index" [class.text-on-surface]="currentStationIndex() !== st.index" class="font-bold text-[11px] md:text-sm tracking-tight transition-colors leading-tight">{{ st.name }}</span>
+                  <span class="text-[9px] md:text-[10px] text-on-surface-variant font-semibold hidden sm:block">{{ st.zone }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

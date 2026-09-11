@@ -79,9 +79,9 @@ private initMap() {
 
     const container = this.mapContainer.nativeElement;
 
-    // Default center: Quito, Ecuador [-0.1807, -78.4678]
-    let centerLat = -0.1807;
-    let centerLng = -78.4678;
+    // Default center: Sangolquí, Valle de los Chillos [-0.3340, -78.4510]
+    let centerLat = -0.3340;
+    let centerLng = -78.4510;
     let zoomLevel = 12;
 
     if (this.singleQuadrant) {

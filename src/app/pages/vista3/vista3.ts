@@ -39,9 +39,11 @@ export interface StationWithIndex extends MetroStation {
 })
 export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('metroMapContainer', { static: false }) metroMapContainer!: ElementRef;
+  @ViewChild('sCurveTrack', { static: false }) sCurveTrack!: ElementRef<HTMLDivElement>;
   private map: any = null;
   private trainMarker: any = null;
   private polyline: any = null;
+  private resizeListener: (() => void) | null = null;
 
   // Official 15 Stations of Metro de Quito in geographical order (South to North) with exact GPS coordinates
   readonly stations: MetroStation[] = [
@@ -62,15 +64,17 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     { id: 15, name: 'El Labrador', zone: 'Norte', lat: -0.150420, lng: -78.481230, distFromPrevKm: 1.4, isTerminal: true }
   ];
 
-  // Fixed Geographical S-Curve Rows
-  // Row 1 (Sur: Quitumbe -> El Recreo, Left to Right, Indices 0..4)
-  readonly row1Stations: StationWithIndex[] = [0, 1, 2, 3, 4].map(idx => ({ index: idx, ...this.stations[idx] }));
-
-  // Row 2 (Centro: Univ. Central <- La Magdalena, Right to Left, Indices 9..5)
-  readonly row2Stations: StationWithIndex[] = [9, 8, 7, 6, 5].map(idx => ({ index: idx, ...this.stations[idx] }));
-
-  // Row 3 (Norte: Pradera -> El Labrador, Left to Right, Indices 10..14)
-  readonly row3Stations: StationWithIndex[] = [10, 11, 12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // Fixed Geographical S-Curve Rows (5 rows of 3 stations)
+  // Row 1 (Sur: Quitumbe → Solanda, Left to Right)
+  readonly row1Stations: StationWithIndex[] = [0, 1, 2].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // Row 2 (Centro-Sur: La Magdalena ← Cardenal, Right to Left)
+  readonly row2Stations: StationWithIndex[] = [5, 4, 3].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // Row 3 (Centro: San Francisco → Ejido, Left to Right)
+  readonly row3Stations: StationWithIndex[] = [6, 7, 8].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // Row 4 (Centro-Norte: La Carolina ← Universidad Central, Right to Left)
+  readonly row4Stations: StationWithIndex[] = [11, 10, 9].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // Row 5 (Norte: Iñaquito → El Labrador, Left to Right)
+  readonly row5Stations: StationWithIndex[] = [12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
 
   // Active Direction Signal: 'sur-norte' (avanzando al Norte) or 'norte-sur' (regresando al Sur)
   sentidoActual = signal<SentidoRecorrido>('sur-norte');
@@ -104,13 +108,73 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.initLeafletMap();
     }, 200);
+
+    setTimeout(() => {
+      if (this.activeView() === 'scurve') {
+        this.drawSCurveConnectors();
+      }
+    }, 250);
   }
 
   ngOnDestroy() {
     this.stopTimer();
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+      this.resizeListener = null;
+    }
     if (this.map) {
       this.map.remove();
       this.map = null;
+    }
+  }
+
+  private drawSCurveConnectors() {
+    if (!this.sCurveTrack) return;
+    const trackEl: HTMLElement = this.sCurveTrack.nativeElement;
+    const svgEl = trackEl.querySelector<SVGSVGElement>('.s-curve-connectors');
+    if (!svgEl) return;
+
+    const trackRect = trackEl.getBoundingClientRect();
+    const width = trackRect.width;
+    const height = trackRect.height;
+    if (width === 0 || height === 0) return;
+    svgEl.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    const stationCenter = (idx: number): { x: number; y: number } | null => {
+      const el = trackEl.querySelector<HTMLElement>(`[data-station-idx="${idx}"]`);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left - trackRect.left + r.width / 2, y: r.top - trackRect.top + r.height / 2 };
+    };
+
+    // 4 seams: Solanda→Cardenal(R), La Magdalena→San Francisco(L), Ejido→Univ.Central(R), La Carolina→Iñaquito(L)
+    const seams: { fromIdx: number; toIdx: number; side: 'right' | 'left'; id: string }[] = [
+      { fromIdx: 2,  toIdx: 3,  side: 'right', id: 'rc1' },
+      { fromIdx: 5,  toIdx: 6,  side: 'left',  id: 'lc1' },
+      { fromIdx: 8,  toIdx: 9,  side: 'right', id: 'rc2' },
+      { fromIdx: 11, toIdx: 12, side: 'left',  id: 'lc2' },
+    ];
+
+    for (const seam of seams) {
+      const from = stationCenter(seam.fromIdx);
+      const to = stationCenter(seam.toIdx);
+      const pathEl = svgEl.querySelector<SVGPathElement>(`#${seam.id}`);
+      if (!pathEl || !from || !to) continue;
+
+      const r = Math.max(28, (to.y - from.y) / 2);
+      const tail = Math.max(36, width * 0.07);
+
+      if (seam.side === 'right') {
+        const ex = Math.min(width - 6 - r, from.x + tail);
+        pathEl.setAttribute('d',
+          `M ${from.x} ${from.y} L ${ex} ${from.y} A ${r} ${r} 0 0 1 ${ex} ${to.y} L ${to.x} ${to.y}`
+        );
+      } else {
+        const ex = Math.max(6 + r, from.x - tail);
+        pathEl.setAttribute('d',
+          `M ${from.x} ${from.y} L ${ex} ${from.y} A ${r} ${r} 0 0 0 ${ex} ${to.y} L ${to.x} ${to.y}`
+        );
+      }
     }
   }
 
@@ -318,6 +382,9 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
         this.updateMapTrainPosition();
       } else {
         this.initLeafletMap();
+      }
+      if (mode === 'scurve') {
+        this.drawSCurveConnectors();
       }
     }, 120);
   }
