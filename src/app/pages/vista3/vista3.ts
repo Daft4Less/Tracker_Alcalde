@@ -94,29 +94,6 @@ export class Vista3Component implements OnInit, OnDestroy {
     this.stopTimer();
   }
 
-  setSentido(sentido: SentidoRecorrido) {
-    if (this.sentidoActual() === sentido) return;
-    this.sentidoActual.set(sentido);
-
-    const station = this.currentStation;
-    const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte (Hacia El Labrador)' : 'Norte → Sur (Hacia Quitumbe)';
-
-    const newLog: StationMovementLog = {
-      id: `sentido-change-${Date.now()}`,
-      time: this.getFormattedTime(),
-      stationName: station.name,
-      sentido: sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur',
-      unboarded: 0,
-      boarded: 10,
-      netChange: 10,
-      activePassengersAfter: this.activePassengers()
-    };
-
-    this.lastMovement.set(newLog);
-    this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
-    this.startTimer();
-  }
-
   setStation(index: number) {
     this.currentStationIndex.set(index);
     const station = this.stations[index];

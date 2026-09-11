@@ -190,18 +190,6 @@
 
         <!-- Status Badges -->
         <div class="flex flex-wrap items-center gap-space-xs">
-          <!-- Continuous Loop Indicator -->
-          <div class="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span>Circuito Continuo (Ida y Vuelta)</span>
-          </div>
-
-          <!-- Current Trajectory Dynamic Badge -->
-          <div class="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-xl bg-primary-container/30 border border-primary-container text-primary text-xs font-bold shadow-sm">
-            <span class="material-symbols-outlined text-[14px]">sync_alt</span>
-            <span>Sentido actual: {{ sentidoActual() === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur' }}</span>
-          </div>
-
           <span class="font-label-sm text-label-sm text-primary font-bold px-space-sm py-space-2xs bg-primary-container/20 rounded-full hidden sm:inline-flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px]">pin</span>
             15 Estaciones
