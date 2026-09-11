@@ -55,6 +55,9 @@ export class DetalleCuadranteComponent implements OnInit {
     } else if (!this.quadrant()) {
       this.quadrant.set(undefined);
     }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }
 
   navigatePrev() {
