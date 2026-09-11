@@ -261,7 +261,7 @@ const MOCK_OBRAS: Obra[] = [
 ];
 
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -270,27 +270,50 @@ export class CuadrantesService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
+  private static SEED_URL = 'assets/data/obras.json';
+
+  /**
+   * Carga el seed embebido (assets/data/obras.json) que incluye las
+   * coordenadas y fotos reales. Permite ver el mapa y el catálogo completo
+   * sin backend (GitHub Pages / un amigo sin API local).
+   */
+  private seedObras(): Observable<Obra[]> {
+    return this.http.get<Obra[]>(CuadrantesService.SEED_URL);
+  }
+
   getAllQuadrants(): Observable<QuadrantDetail[]> {
     return this.http.get<{ success: boolean; data: Obra[] }>(`${this.apiUrl}/obras`).pipe(
       map(res => (res.data || []).map(obraToQuadrant)),
-      catchError(() => of(MOCK_OBRAS.map(obraToQuadrant)))
+      catchError(() => this.seedObras().pipe(
+        map(list => list.map(obraToQuadrant)),
+        catchError(() => of(MOCK_OBRAS.map(obraToQuadrant)))
+      ))
     );
   }
 
   getQuadrantById(id: number): Observable<QuadrantDetail | undefined> {
     return this.http.get<{ success: boolean; data: Obra }>(`${this.apiUrl}/obras/${id}`).pipe(
       map(res => res.data ? obraToQuadrant(res.data) : undefined),
-      catchError(() => {
-        const found = MOCK_OBRAS.find(o => o.id_obra === id);
-        return of(found ? obraToQuadrant(found) : undefined);
-      })
+      catchError(() => this.seedObras().pipe(
+        switchMap(list => {
+          const found = list.find(o => o.id_obra === id);
+          return of(found ? obraToQuadrant(found) : undefined);
+        }),
+        catchError(() => {
+          const found = MOCK_OBRAS.find(o => o.id_obra === id);
+          return of(found ? obraToQuadrant(found) : undefined);
+        })
+      ))
     );
   }
 
   getObraCount(): Observable<number> {
     return this.http.get<{ success: boolean; count: number }>(`${this.apiUrl}/obras`).pipe(
       map(res => res.count ?? 0),
-      catchError(() => of(MOCK_OBRAS.length))
+      catchError(() => this.seedObras().pipe(
+        map(list => list.length),
+        catchError(() => of(MOCK_OBRAS.length))
+      ))
     );
   }
 }
