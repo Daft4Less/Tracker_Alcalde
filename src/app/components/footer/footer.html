@@ -44,14 +44,175 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Bottom Copyright -->
-    <div class="pt-space-md border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-white/70">
-      <p>&copy; {{ currentYear }} Observatorio Cívico Electoral de Quito. Todos los derechos reservados.</p>
-      <div class="flex items-center gap-space-xs">
-        <span class="material-symbols-outlined text-[16px] text-white">code</span>
-        <span>Angular v19 Standalone • Quito Red &amp; White Theme</span>
-      </div>
+  <!-- Riel y Metro Minimalista en Movimiento Continuo (Inspirado en Mamdani Tracker) -->
+  <div class="footer-track-container" aria-hidden="true">
+    <div class="footer-metro-train">
+      <svg class="metro-svg" viewBox="0 0 420 30" width="420" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Haz de luz del faro delantero -->
+          <linearGradient id="metroLightBeam" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+            <stop offset="35%" stop-color="#6cf8bb" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#6cf8bb" stop-opacity="0"/>
+          </linearGradient>
+          
+          <!-- Filtro de resplandor para el faro -->
+          <filter id="headlightGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" />
+          </filter>
+        </defs>
+
+        <!-- ==================== VAGÓN 1 (Cola / Trasero - Extremo Izquierdo) ==================== -->
+        <g class="metro-car car-rear">
+          <!-- Chasis -->
+          <path d="M 6 8 L 68 8 L 68 24 L 6 24 C 3 24 1 21 1 18 L 1 14 C 1 10 3 8 6 8 Z" 
+                fill="#001428" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.2"/>
+          <!-- Franja institucional (Quito) -->
+          <line x1="2" y1="21" x2="68" y2="21" stroke="rgba(225, 29, 72, 0.5)" stroke-width="1.5"/>
+          <line x1="2" y1="10" x2="68" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ventanas -->
+          <rect x="8" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="28" y="12" width="16" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="49" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <!-- Luces traseras rojas -->
+          <circle cx="2" cy="18" r="1.2" fill="#ef4444" opacity="0.8"/>
+          <!-- Ruedas y Bogies -->
+          <line x1="12" y1="25" x2="26" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="15" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="23" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <line x1="48" y1="25" x2="62" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="51" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="59" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+        </g>
+
+        <!-- Enganche 1-2 -->
+        <rect x="68" y="15" width="6" height="4" fill="rgba(255, 255, 255, 0.2)"/>
+        <line x1="71" y1="14" x2="71" y2="20" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+
+        <!-- ==================== VAGÓN 2 (Intermedio con Pantógrafo) ==================== -->
+        <g class="metro-car">
+          <!-- Pantógrafo superior -->
+          <path d="M 98 8 L 103 3 L 113 3 L 118 8" fill="none" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1"/>
+          <line x1="101" y1="3" x2="115" y2="3" stroke="rgba(108, 248, 187, 0.7)" stroke-width="1.2"/>
+          <!-- Chasis -->
+          <rect x="74" y="8" width="68" height="16" rx="2" fill="#001428" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.2"/>
+          <line x1="74" y1="21" x2="142" y2="21" stroke="rgba(225, 29, 72, 0.5)" stroke-width="1.5"/>
+          <line x1="74" y1="10" x2="142" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ventanas -->
+          <rect x="80" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="101" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="122" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <!-- Puertas -->
+          <line x1="97" y1="9" x2="97" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <line x1="118" y1="9" x2="118" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ruedas y Bogies -->
+          <line x1="82" y1="25" x2="96" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="85" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="93" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <line x1="120" y1="25" x2="134" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="123" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="131" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+        </g>
+
+        <!-- Enganche 2-3 -->
+        <rect x="142" y="15" width="6" height="4" fill="rgba(255, 255, 255, 0.2)"/>
+        <line x1="145" y1="14" x2="145" y2="20" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+
+        <!-- ==================== VAGÓN 3 (Intermedio Central) ==================== -->
+        <g class="metro-car">
+          <rect x="148" y="8" width="68" height="16" rx="2" fill="#001428" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.2"/>
+          <line x1="148" y1="21" x2="216" y2="21" stroke="rgba(225, 29, 72, 0.5)" stroke-width="1.5"/>
+          <line x1="148" y1="10" x2="216" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ventanas -->
+          <rect x="154" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="175" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="196" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <!-- Puertas -->
+          <line x1="171" y1="9" x2="171" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <line x1="192" y1="9" x2="192" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ruedas y Bogies -->
+          <line x1="156" y1="25" x2="170" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="159" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="167" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <line x1="194" y1="25" x2="208" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="197" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="205" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+        </g>
+
+        <!-- Enganche 3-4 -->
+        <rect x="216" y="15" width="6" height="4" fill="rgba(255, 255, 255, 0.2)"/>
+        <line x1="219" y1="14" x2="219" y2="20" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+
+        <!-- ==================== VAGÓN 4 (Intermedio con Pantógrafo) ==================== -->
+        <g class="metro-car">
+          <path d="M 246 8 L 251 3 L 261 3 L 266 8" fill="none" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1"/>
+          <line x1="249" y1="3" x2="263" y2="3" stroke="rgba(108, 248, 187, 0.7)" stroke-width="1.2"/>
+          <rect x="222" y="8" width="68" height="16" rx="2" fill="#001428" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.2"/>
+          <line x1="222" y1="21" x2="290" y2="21" stroke="rgba(225, 29, 72, 0.5)" stroke-width="1.5"/>
+          <line x1="222" y1="10" x2="290" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ventanas -->
+          <rect x="228" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="249" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="270" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <!-- Puertas -->
+          <line x1="245" y1="9" x2="245" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <line x1="266" y1="9" x2="266" y2="23" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ruedas y Bogies -->
+          <line x1="230" y1="25" x2="244" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="233" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="241" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <line x1="268" y1="25" x2="282" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="271" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="279" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+        </g>
+
+        <!-- Enganche 4-5 -->
+        <rect x="290" y="15" width="6" height="4" fill="rgba(255, 255, 255, 0.2)"/>
+        <line x1="293" y1="14" x2="293" y2="20" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+
+        <!-- ==================== VAGÓN 5 (Locomotora / Cabina Delantera - Sentido -> Derecha) ==================== -->
+        <g class="metro-car car-front">
+          <!-- Haz de luz frontal proyectado hacia adelante -->
+          <polygon points="364,19 418,10 418,28 364,21" fill="url(#metroLightBeam)"/>
+          
+          <!-- Chasis aerodinámico con morro inclinado hacia la derecha -->
+          <path d="M 296 8 L 354 8 C 358 8 361 9 363 12 L 366 17 C 367 19 367 21 366 23 L 364 24 L 296 24 Z" 
+                fill="#001428" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.2"/>
+          <!-- Franja institucional -->
+          <path d="M 296 21 L 364 21" stroke="rgba(225, 29, 72, 0.6)" stroke-width="1.5"/>
+          <line x1="296" y1="10" x2="354" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8"/>
+          <!-- Ventanilla parabrisas frontal del conductor -->
+          <path d="M 353 10 L 361 14 C 362 15 362 16 361 17 L 353 17 Z" 
+                fill="rgba(108, 248, 187, 0.25)" stroke="rgba(108, 248, 187, 0.5)" stroke-width="0.8"/>
+          <!-- Ventanas de pasajeros -->
+          <rect x="302" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <rect x="323" y="12" width="14" height="6" rx="1.5" fill="rgba(255, 255, 255, 0.12)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="0.8"/>
+          <!-- Faro delantero con resplandor -->
+          <circle cx="364" cy="20" r="1.6" fill="#ffffff" filter="url(#headlightGlow)"/>
+          <circle cx="364" cy="20" r="1.1" fill="#6cf8bb"/>
+          <!-- Ruedas y Bogies -->
+          <line x1="304" y1="25" x2="318" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="307" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="315" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <line x1="340" y1="25" x2="354" y2="25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1"/>
+          <circle cx="343" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+          <circle cx="351" cy="27.5" r="2.5" fill="#001428" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Línea divisoria horizontal que actúa como riel del tren -->
+  <div class="w-full border-t border-white/15"></div>
+
+  <!-- Bottom Copyright -->
+  <div class="max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-white/70">
+    <p>&copy; {{ currentYear }} Observatorio Cívico Electoral de Quito. Todos los derechos reservados.</p>
+    <div class="flex items-center gap-space-xs">
+      <span class="material-symbols-outlined text-[16px] text-white">code</span>
+      <span>Angular v19 Standalone • Quito Red &amp; White Theme</span>
     </div>
   </div>
 </footer>

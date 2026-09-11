@@ -127,3 +127,53 @@
     text-align: center;
   }
 }
+
+/* ==========================================================================
+   Animación Metro Minimalista en el Footer (Inspirado en Mamdani Tracker)
+   ========================================================================== */
+
+.footer-track-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+  user-select: none;
+  margin-bottom: -1px; /* Las ruedas se apoyan exactamente sobre el riel */
+}
+
+.footer-metro-train {
+  display: flex;
+  align-items: flex-end;
+  width: max-content;
+  flex-shrink: 0;
+  will-change: transform;
+  animation: metroDrive 22s linear infinite;
+}
+
+.metro-svg {
+  display: block;
+  height: 30px;
+  width: auto;
+}
+
+/* Desplazamiento continuo de izquierda a derecha (0% offscreen izq -> 100% offscreen der) */
+@keyframes metroDrive {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+/* Regla de accesibilidad para detener y ocultar la animación si el usuario lo solicita */
+@media (prefers-reduced-motion: reduce) {
+  .footer-metro-train {
+    animation: none;
+    display: none;
+  }
+}
+
