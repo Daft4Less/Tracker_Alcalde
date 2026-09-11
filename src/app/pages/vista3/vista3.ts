@@ -39,7 +39,8 @@ export interface StationWithIndex extends MetroStation {
 })
 export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('metroMapContainer', { static: false }) metroMapContainer!: ElementRef;
-  @ViewChild('sCurveTrack', { static: false }) sCurveTrack!: ElementRef<HTMLDivElement>;
+  @ViewChild('sCurveTrackDesktop', { static: false }) sCurveTrackDesktop!: ElementRef<HTMLDivElement>;
+  @ViewChild('sCurveTrackMobile', { static: false }) sCurveTrackMobile!: ElementRef<HTMLDivElement>;
   private map: any = null;
   private trainMarker: any = null;
   private polyline: any = null;
@@ -64,17 +65,17 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     { id: 15, name: 'El Labrador', zone: 'Norte', lat: -0.150420, lng: -78.481230, distFromPrevKm: 1.4, isTerminal: true }
   ];
 
-  // Fixed Geographical S-Curve Rows (5 rows of 3 stations)
-  // Row 1 (Sur: Quitumbe → Solanda, Left to Right)
-  readonly row1Stations: StationWithIndex[] = [0, 1, 2].map(idx => ({ index: idx, ...this.stations[idx] }));
-  // Row 2 (Centro-Sur: La Magdalena ← Cardenal, Right to Left)
-  readonly row2Stations: StationWithIndex[] = [5, 4, 3].map(idx => ({ index: idx, ...this.stations[idx] }));
-  // Row 3 (Centro: San Francisco → Ejido, Left to Right)
-  readonly row3Stations: StationWithIndex[] = [6, 7, 8].map(idx => ({ index: idx, ...this.stations[idx] }));
-  // Row 4 (Centro-Norte: La Carolina ← Universidad Central, Right to Left)
-  readonly row4Stations: StationWithIndex[] = [11, 10, 9].map(idx => ({ index: idx, ...this.stations[idx] }));
-  // Row 5 (Norte: Iñaquito → El Labrador, Left to Right)
-  readonly row5Stations: StationWithIndex[] = [12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
+  // DESKTOP: 3 rows of 5 (original S-curve layout)
+  readonly desktopRow1: StationWithIndex[] = [0, 1, 2, 3, 4].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly desktopRow2: StationWithIndex[] = [9, 8, 7, 6, 5].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly desktopRow3: StationWithIndex[] = [10, 11, 12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
+
+  // MOBILE: 5 rows of 3 (compact S-curve layout)
+  readonly mobileRow1: StationWithIndex[] = [0, 1, 2].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly mobileRow2: StationWithIndex[] = [5, 4, 3].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly mobileRow3: StationWithIndex[] = [6, 7, 8].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly mobileRow4: StationWithIndex[] = [11, 10, 9].map(idx => ({ index: idx, ...this.stations[idx] }));
+  readonly mobileRow5: StationWithIndex[] = [12, 13, 14].map(idx => ({ index: idx, ...this.stations[idx] }));
 
   // Active Direction Signal: 'sur-norte' (avanzando al Norte) or 'norte-sur' (regresando al Sur)
   sentidoActual = signal<SentidoRecorrido>('sur-norte');
@@ -129,8 +130,25 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private drawSCurveConnectors() {
-    if (!this.sCurveTrack) return;
-    const trackEl: HTMLElement = this.sCurveTrack.nativeElement;
+    // Desktop: 2 seams (3 rows of 5)
+    this.drawConnectorsOnTrack(this.sCurveTrackDesktop?.nativeElement, [
+      { fromIdx: 4,  toIdx: 5,  side: 'right', id: 'rc1' },
+      { fromIdx: 9,  toIdx: 10, side: 'left',  id: 'lc1' },
+    ]);
+    // Mobile: 4 seams (5 rows of 3)
+    this.drawConnectorsOnTrack(this.sCurveTrackMobile?.nativeElement, [
+      { fromIdx: 2,  toIdx: 3,  side: 'right', id: 'rc1' },
+      { fromIdx: 5,  toIdx: 6,  side: 'left',  id: 'lc1' },
+      { fromIdx: 8,  toIdx: 9,  side: 'right', id: 'rc2' },
+      { fromIdx: 11, toIdx: 12, side: 'left',  id: 'lc2' },
+    ]);
+  }
+
+  private drawConnectorsOnTrack(
+    trackEl: HTMLElement | undefined,
+    seams: { fromIdx: number; toIdx: number; side: 'right' | 'left'; id: string }[]
+  ) {
+    if (!trackEl) return;
     const svgEl = trackEl.querySelector<SVGSVGElement>('.s-curve-connectors');
     if (!svgEl) return;
 
@@ -146,14 +164,6 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
       const r = el.getBoundingClientRect();
       return { x: r.left - trackRect.left + r.width / 2, y: r.top - trackRect.top + r.height / 2 };
     };
-
-    // 4 seams: Solanda→Cardenal(R), La Magdalena→San Francisco(L), Ejido→Univ.Central(R), La Carolina→Iñaquito(L)
-    const seams: { fromIdx: number; toIdx: number; side: 'right' | 'left'; id: string }[] = [
-      { fromIdx: 2,  toIdx: 3,  side: 'right', id: 'rc1' },
-      { fromIdx: 5,  toIdx: 6,  side: 'left',  id: 'lc1' },
-      { fromIdx: 8,  toIdx: 9,  side: 'right', id: 'rc2' },
-      { fromIdx: 11, toIdx: 12, side: 'left',  id: 'lc2' },
-    ];
 
     for (const seam of seams) {
       const from = stationCenter(seam.fromIdx);
