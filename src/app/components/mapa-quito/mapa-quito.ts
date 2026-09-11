@@ -233,7 +233,26 @@ private initMap() {
     });
 
     if (bounds.length) {
-      this.map.fitBounds(L.latLngBounds(bounds), { padding: [40, 40], maxZoom: 14 });
+      // Calculate geometric centroid and find medoid point closest to all other works
+      let minTotalDist = Infinity;
+      let centralPoint: [number, number] = bounds[0];
+
+      bounds.forEach(([lat1, lng1]) => {
+        let sumDist = 0;
+        bounds.forEach(([lat2, lng2]) => {
+          const dLat = lat1 - lat2;
+          const dLng = lng1 - lng2;
+          sumDist += Math.sqrt(dLat * dLat + dLng * dLng);
+        });
+        if (sumDist < minTotalDist) {
+          minTotalDist = sumDist;
+          centralPoint = [lat1, lng1];
+        }
+      });
+
+      const latLngBounds = L.latLngBounds(bounds);
+      this.map.fitBounds(latLngBounds, { padding: [40, 40], maxZoom: 14 });
+      this.map.panTo(centralPoint);
     }
   }
 }

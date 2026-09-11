@@ -16,14 +16,6 @@
         </p>
       </div>
 
-      <!-- Live Transmission Badge -->
-      <div class="flex items-center gap-space-xs px-space-md py-space-xs rounded-xl bg-red-50 border border-red-200 text-red-800 font-label-md text-label-md font-bold shadow-sm self-start md:self-auto">
-        <span class="relative flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
-        </span>
-        <span>EN VIVO • SERVIDOR METRO DMQ</span>
-      </div>
     </div>
 
     <!-- HERO METRIC SCOREBOARD -->
@@ -142,60 +134,120 @@
         </p>
       </div>
 
-      <!-- Live Flow Metrics -->
-      <div class="grid grid-cols-3 gap-space-md w-full lg:w-auto bg-surface-container-low p-space-md rounded-xl border border-outline-variant/20 text-center">
-        
-        <!-- Bajan (Desembarque) -->
-        <div class="flex flex-col items-center justify-center p-space-sm bg-white rounded-lg shadow-sm border border-red-100">
-          <span class="material-symbols-outlined text-red-600 text-[22px]">output</span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant pt-1 font-semibold uppercase">Desembarque</span>
-          <span class="font-display text-[1.8rem] font-extrabold text-red-600 leading-tight">
-            -{{ lastMovement().unboarded }}
-          </span>
-          <span class="font-label-sm text-[11px] text-on-surface-variant">bajan</span>
-        </div>
-
-        <!-- Suben (Abordaje) -->
-        <div class="flex flex-col items-center justify-center p-space-sm bg-white rounded-lg shadow-sm border border-red-200">
-          <span class="material-symbols-outlined text-primary text-[22px]">input</span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant pt-1 font-semibold uppercase">Abordaje</span>
-          <span class="font-display text-[1.8rem] font-extrabold text-primary leading-tight">
-            +{{ lastMovement().boarded }}
-          </span>
-          <span class="font-label-sm text-[11px] text-on-surface-variant">suben</span>
-        </div>
-
-        <!-- Balance Neto -->
-        <div class="flex flex-col items-center justify-center p-space-sm bg-primary text-on-primary rounded-lg shadow-sm">
-          <span class="material-symbols-outlined text-[22px]">swap_vert</span>
-          <span class="font-label-sm text-label-sm text-white/80 pt-1 font-semibold uppercase">Neto Viaje</span>
-          <span class="font-display text-[1.8rem] font-extrabold text-white leading-tight">
-            +{{ lastMovement().netChange }}
-          </span>
-          <span class="font-label-sm text-[11px] text-white/80">balance</span>
-        </div>
-
-      </div>
-
     </div>
 
-    <!-- HORIZONTAL S-CURVE METRO LINE MAP TRACK (3 CONNECTED ROWS) -->
+    <!-- UNIFIED SECTION: SEGUIMIENTO Y MONITOREO DE MOVIMIENTO DE VAGONES (CON SWITCH DE VISTA Y TIEMPOS DE TRÁNSITO) -->
     <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-md flex flex-col gap-space-lg">
       
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md border-b border-outline-variant/30 pb-space-sm">
+      <!-- HEADER WITH VIEW TOGGLE SWITCH BUTTONS -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-sm border-b border-outline-variant/30">
         <div class="flex items-center gap-space-xs">
-          <span class="material-symbols-outlined text-primary text-[24px]">route</span>
-          <h3 class="font-headline-md text-headline-sm font-bold text-on-surface">Mapa en 'S' — Circuito Continuo Línea 1</h3>
+          <span class="material-symbols-outlined text-primary text-[26px]">subway</span>
+          <div>
+            <h3 class="font-headline-md text-headline-sm font-bold text-on-surface">Circuito y Monitoreo Telemétrico en Vivo</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Posicionamiento en tiempo real, física del movimiento y tiempos de parada</p>
+          </div>
         </div>
 
-        <!-- Status Badges -->
-        <div class="flex flex-wrap items-center gap-space-xs">
-          <span class="font-label-sm text-label-sm text-primary font-bold px-space-sm py-space-2xs bg-primary-container/20 rounded-full hidden sm:inline-flex items-center gap-1">
-            <span class="material-symbols-outlined text-[14px]">pin</span>
-            15 Estaciones
-          </span>
+        <!-- VIEW MODE TOGGLE BUTTONS -->
+        <div class="flex items-center gap-space-xs bg-surface-container-low p-1.5 rounded-xl border border-outline-variant/30 self-start md:self-auto shadow-sm">
+          <button 
+            (click)="setViewMode('map')"
+            [class.bg-primary]="activeView() === 'map'"
+            [class.text-white]="activeView() === 'map'"
+            [class.text-on-surface-variant]="activeView() !== 'map'"
+            class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg font-label-sm text-xs font-bold transition-all"
+          >
+            <span class="material-symbols-outlined text-[16px]">map</span>
+            <span>Mapa Vectorial Real</span>
+          </button>
+
+          <button 
+            (click)="setViewMode('scurve')"
+            [class.bg-primary]="activeView() === 'scurve'"
+            [class.text-white]="activeView() === 'scurve'"
+            [class.text-on-surface-variant]="activeView() !== 'scurve'"
+            class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg font-label-sm text-xs font-bold transition-all"
+          >
+            <span class="material-symbols-outlined text-[16px]">route</span>
+            <span>Esquema en 'S'</span>
+          </button>
         </div>
       </div>
+
+      <!-- REAL-TIME TRANSIT & DWELL TIME TELEMETRY BANNER -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm bg-surface-container-low/70 p-space-md rounded-xl border border-red-200">
+        
+        <!-- Travel Time Between Stations -->
+        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-9 h-9 rounded-full bg-red-50 text-primary flex items-center justify-center flex-shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[20px]">schedule</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Tiempo Entre Paradas</span>
+            <strong class="font-headline-sm text-sm text-primary font-extrabold">2 minutos</strong>
+            <span class="text-[10px] text-on-surface-variant">Promedio 1.5 km por tramo</span>
+          </div>
+        </div>
+
+        <!-- Total Journey Time -->
+        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-9 h-9 rounded-full bg-red-50 text-secondary flex items-center justify-center flex-shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[20px]">subway</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Trayecto Total Línea 1</span>
+            <strong class="font-headline-sm text-sm text-secondary font-extrabold">34 minutos</strong>
+            <span class="text-[10px] text-on-surface-variant">Quitumbe ↔ El Labrador (15 est.)</span>
+          </div>
+        </div>
+
+        <!-- Operating Frequency -->
+        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-9 h-9 rounded-full bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[20px]">update</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Frecuencia Activa</span>
+            <strong class="font-headline-sm text-sm text-primary font-extrabold">{{ currentFrequencyMin }} min / tren</strong>
+            <span class="text-[10px] text-on-surface-variant">{{ currentScheduleType }}</span>
+          </div>
+        </div>
+
+        <!-- Next Arrival & GPS -->
+        <div class="flex items-center gap-space-xs bg-primary text-white p-space-sm rounded-lg shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[20px]">near_me</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-label-sm text-[11px] text-white/80 uppercase font-semibold">Próximo Arribo GPS</span>
+            <strong class="font-headline-sm text-xs text-white font-bold">{{ nextStation.name }}</strong>
+            <span class="text-[10px] text-white/80">{{ currentStation.lat.toFixed(3) }}, {{ currentStation.lng.toFixed(3) }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MAIN VIEW DISPLAY CONTAINER (MAP / S-CURVE) -->
+      <div class="w-full">
+
+        <!-- VIEW 1: MAPA VECTORIAL REAL (OPENSTREETMAP LEAFLET) -->
+        <div [class.hidden]="activeView() !== 'map'" class="flex flex-col gap-space-sm w-full">
+          <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface font-bold">
+            <span>Trazado Vectorial en Geografía de Quito</span>
+            <span class="text-primary font-semibold text-xs">15 Estaciones • 22.5 km (34 min)</span>
+          </div>
+          <div class="relative w-full h-[400px] rounded-xl overflow-hidden border border-outline-variant/30 shadow-inner">
+            <div #metroMapContainer class="w-full h-full z-0"></div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: ESQUEMA DIAGRAMÁTICO EN 'S' (3 FILAS) -->
+        <div [class.hidden]="activeView() !== 'scurve'" class="flex flex-col gap-space-sm w-full bg-surface-container-low/40 p-space-md rounded-xl border border-outline-variant/20">
+          <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface font-bold pb-2">
+            <span>Esquema Diagramático en 'S'</span>
+            <span class="text-primary font-semibold text-xs">Sentido {{ sentidoActual() === 'sur-norte' ? 'Sur ➔ Norte' : 'Norte ➔ Sur' }}</span>
+          </div>
 
       <!-- S-CURVE TRACK CONTAINER -->
       <div class="flex flex-col gap-space-xl relative py-space-md">
@@ -344,60 +396,10 @@
             }
           </div>
         </div>
-
       </div>
     </div>
-
-    <!-- LIVE LOG FEED SECTION -->
-    <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-md flex flex-col gap-space-md">
-      <div class="flex items-center justify-between border-b border-outline-variant/30 pb-space-xs">
-        <div class="flex items-center gap-space-xs">
-          <span class="material-symbols-outlined text-primary text-[20px]">history</span>
-          <h3 class="font-headline-md text-headline-sm font-bold text-on-surface">Historial de Registro Telemétrico</h3>
-        </div>
-        <span class="font-label-sm text-label-sm text-on-surface-variant">Servidor Metro DMQ</span>
-      </div>
-
-      <!-- Feed Rows -->
-      <div class="flex flex-col gap-space-xs max-h-[350px] overflow-y-auto pr-1">
-        @for (log of logs(); track log.id) {
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container transition-colors">
-            
-            <div class="flex items-center gap-space-md">
-              <span class="font-headline-sm text-headline-sm font-bold text-primary min-w-[75px] text-sm">
-                {{ log.time }}
-              </span>
-              <div class="flex flex-col">
-                <div class="flex items-center gap-space-xs">
-                  <span class="font-headline-sm text-headline-sm font-bold text-on-surface text-base">
-                    Estación {{ log.stationName }}
-                  </span>
-                  <span class="px-space-xs py-0.5 rounded text-[11px] font-bold bg-primary-container text-primary">
-                    {{ log.sentido }}
-                  </span>
-                </div>
-                <span class="font-label-sm text-label-sm text-on-surface-variant">
-                  Pasajeros a bordo después de la parada: <strong>{{ log.activePassengersAfter | number }}</strong>
-                </span>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-space-xs sm:gap-space-md font-label-sm text-label-sm self-end sm:self-auto">
-              <span class="px-space-xs py-1 rounded bg-red-100 text-red-700 font-bold">
-                -{{ log.unboarded }} bajan
-              </span>
-              <span class="px-space-xs py-1 rounded bg-secondary-container text-primary font-bold">
-                +{{ log.boarded }} suben
-              </span>
-              <span class="px-space-xs py-1 rounded bg-primary text-on-primary font-bold">
-                +{{ log.netChange }} neto
-              </span>
-            </div>
-
-          </div>
-        }
-      </div>
-    </div>
+  </div>
+</div>
 
   </div>
 </main>
