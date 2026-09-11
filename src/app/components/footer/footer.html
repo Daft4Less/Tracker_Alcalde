@@ -6,12 +6,12 @@
     <div class="grid grid-cols-1 md:grid-cols-12 gap-space-xl">
       <!-- Col 1: Brand & Civic Statement -->
       <div class="md:col-span-5 flex flex-col gap-space-md">
-        <div class="flex items-center gap-space-sm">
-          <div class="w-10 h-10 rounded-xl bg-white text-primary flex items-center justify-center shadow-sm font-bold">
+        <a routerLink="/promesas" href="./promesas" class="flex items-center gap-space-sm group cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-white text-primary flex items-center justify-center shadow-sm font-bold group-hover:scale-105 transition-transform">
             <span class="material-symbols-outlined text-[24px]">verified_user</span>
           </div>
-          <span class="font-headline-sm text-headline-sm text-white font-bold">Compromiso &amp; Transparencia</span>
-        </div>
+          <span class="font-headline-sm text-headline-sm text-white font-bold group-hover:text-red-100 transition-colors">Compromiso &amp; Transparencia</span>
+        </a>
         <p class="font-body-md text-body-md text-white/90 max-w-md">
           Plataforma de auditoría ciudadana y seguimiento de compromisos para el Distrito Metropolitano de Quito.
         </p>
@@ -25,10 +25,30 @@
       <div class="md:col-span-3 flex flex-col gap-space-sm">
         <h4 class="font-headline-sm text-headline-sm text-white text-sm uppercase tracking-wider font-bold">Módulos Cívicos</h4>
         <ul class="flex flex-col gap-space-xs font-body-sm text-body-sm text-white/80">
-          <li><a routerLink="/promesas" class="hover:text-white font-semibold transition-colors">Inicio &amp; Rendición de Cuentas</a></li>
-          <li><a routerLink="/vista2" class="hover:text-white font-semibold transition-colors">Mapa de Impacto Territorial</a></li>
-          <li><a routerLink="/agenda" class="hover:text-white font-semibold transition-colors">El ritmo de Quito</a></li>
-          <li><a routerLink="/nosotros" class="hover:text-white font-semibold transition-colors">Sobre Nosotros</a></li>
+          <li>
+            <a routerLink="/promesas" href="./promesas" class="hover:text-white font-semibold transition-colors flex items-center gap-1.5 group">
+              <span class="material-symbols-outlined text-[16px] text-red-200 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+              <span>Inicio &amp; Rendición de Cuentas</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/vista2" href="./vista2" class="hover:text-white font-semibold transition-colors flex items-center gap-1.5 group">
+              <span class="material-symbols-outlined text-[16px] text-red-200 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+              <span>Mapa de Impacto Territorial</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/agenda" href="./agenda" class="hover:text-white font-semibold transition-colors flex items-center gap-1.5 group">
+              <span class="material-symbols-outlined text-[16px] text-red-200 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+              <span>El ritmo de Quito (Metro en Vivo)</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/nosotros" href="./nosotros" class="hover:text-white font-semibold transition-colors flex items-center gap-1.5 group">
+              <span class="material-symbols-outlined text-[16px] text-red-200 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+              <span>Sobre Nosotros</span>
+            </a>
+          </li>
         </ul>
       </div>
 

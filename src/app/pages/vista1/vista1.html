@@ -2,8 +2,6 @@
   <div class="flex flex-col w-full">
     <!-- HERO BANNER SECTION (PC & Mobile Responsive) -->
     <section class="relative w-full bg-primary text-on-primary overflow-hidden pb-space-3xl pt-space-xl">
-      <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-primary-container/60 blur-3xl pointer-events-none"></div>
-      <div class="absolute left-1/3 bottom-0 w-80 h-80 rounded-full bg-secondary/15 blur-2xl pointer-events-none"></div>
       
       <div class="max-w-[92rem] mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
@@ -37,8 +35,8 @@
           
           <!-- Right: Leader Portrait Card -->
           <div class="lg:col-span-5 relative flex justify-center lg:justify-end">
-            <div class="relative w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-space-sm shadow-xl border border-white/20">
-              <div class="relative h-[22rem] sm:h-[24rem] w-full rounded-xl overflow-hidden bg-primary-container">
+            <div class="relative w-full max-w-md rounded-2xl p-space-sm shadow-xl border border-white/20 bg-primary">
+              <div class="relative h-[22rem] sm:h-[24rem] w-full rounded-xl overflow-hidden bg-primary">
                 <!-- Franja decorativa institucional en todo el borde (superior, inferior, izquierdo, derecho) -->
                 <div class="franja-trama absolute top-0 left-0 right-0 z-20"></div>
                 <div class="franja-trama absolute bottom-0 left-0 right-0 z-20"></div>
@@ -50,9 +48,9 @@
                   alt="Alcaldía Metropolitana de Quito" 
                   src="alcalde.jpg"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent"></div>
                 
-                <div class="absolute bottom-space-md left-space-md right-space-md bg-white/95 backdrop-blur-md p-space-md rounded-xl shadow-md flex items-center justify-between z-10">
+                <div class="absolute bottom-space-md left-space-md right-space-md bg-white p-space-md rounded-xl shadow-md flex items-center justify-between z-10">
                   <div>
                     <p class="font-label-md text-label-md text-primary leading-tight font-bold">Alcaldía Metropolitana de Quito</p>
                     <p class="font-label-sm text-label-sm text-on-surface-variant">Gestión &amp; Presupuesto Participativo</p>
@@ -63,81 +61,81 @@
           </div>
         </div>
         
-        <!-- KEY METRICS SCOREBOARD (Bento Row) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-2xl">
+        <!-- KEY METRICS SCOREBOARD (GRID 2X2 EN MÓVIL) -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md mt-space-2xl">
           <!-- Metric 1: Cumplidas -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
+          <div class="bg-surface-container-lowest text-on-surface p-2.5 sm:p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
-              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Obras Cumplidas</span>
-              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Obras Cumplidas</span>
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined text-[14px] sm:text-[16px]">check_circle</span>
               </span>
             </div>
-            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
-              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiCumplidas() }}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant">/ {{ total() }}</span>
+            <div class="py-1 sm:py-space-xs flex items-baseline justify-center gap-1">
+              <span class="font-display text-lg sm:text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiCumplidas() }}</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant">/ {{ total() }}</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-primary">verified</span>
-              <span>100% recepción de obra</span>
+            <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">verified</span>
+              <span class="truncate">100% recepción</span>
             </p>
           </div>
           
           <!-- Metric 2: En Ejecución -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
+          <div class="bg-surface-container-lowest text-on-surface p-2.5 sm:p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
-              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">En Ejecución</span>
-              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-[16px]">pending</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">En Ejecución</span>
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined text-[14px] sm:text-[16px]">pending</span>
               </span>
             </div>
-            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
-              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiEnProceso() }}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant">obras activas</span>
+            <div class="py-1 sm:py-space-xs flex items-baseline justify-center gap-1">
+              <span class="font-display text-lg sm:text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiEnProceso() }}</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant">obras activas</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
-              <span>Avance promedio {{ kpiPromedioAvance() }}%</span>
+            <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">schedule</span>
+              <span class="truncate">Avance {{ kpiPromedioAvance() }}%</span>
             </p>
           </div>
           
           <!-- Metric 3: Pendientes -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
+          <div class="bg-surface-container-lowest text-on-surface p-2.5 sm:p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
-              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Planificadas</span>
-              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-[16px]">hourglass_empty</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Planificadas</span>
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined text-[14px] sm:text-[16px]">hourglass_empty</span>
               </span>
             </div>
-            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
-              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiPlanificadas() }}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant">por iniciar</span>
+            <div class="py-1 sm:py-space-xs flex items-baseline justify-center gap-1">
+              <span class="font-display text-lg sm:text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiPlanificadas() }}</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant">por iniciar</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-primary">event</span>
-              <span>Licitaciones activas</span>
+            <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">event</span>
+              <span class="truncate">Licitaciones</span>
             </p>
           </div>
           
           <!-- Metric 4: Presupuesto Ejecutado -->
-          <div class="bg-surface-container-lowest text-on-surface p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
+          <div class="bg-surface-container-lowest text-on-surface p-2.5 sm:p-space-md rounded-xl shadow-md flex flex-col justify-between items-center text-center relative overflow-hidden group hover:shadow-xl transition-all border border-[var(--color-secondary)]">
             <div class="w-full h-1.5 absolute left-0 top-0 bg-primary"></div>
             <div class="flex items-center justify-between w-full">
-              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Inversión Total</span>
-              <span class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-[16px]">payments</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Inversión Total</span>
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined text-[14px] sm:text-[16px]">payments</span>
               </span>
             </div>
-            <div class="py-space-xs flex items-baseline justify-center gap-space-2xs">
-              <span class="font-display text-[2.1rem] font-extrabold text-primary leading-none">{{ kpiInversion() }}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant">USD</span>
+            <div class="py-1 sm:py-space-xs flex items-baseline justify-center gap-1">
+              <span class="font-display text-base sm:text-[2.1rem] font-extrabold text-primary leading-none truncate">{{ kpiInversion() }}</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant">USD</span>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-              <span class="material-symbols-outlined text-[14px] text-primary">account_balance</span>
-              <span>Base de datos municipal</span>
+            <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">account_balance</span>
+              <span class="truncate">Base municipal</span>
             </p>
           </div>
         </div>

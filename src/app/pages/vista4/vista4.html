@@ -15,50 +15,50 @@
       </p>
     </div>
 
-    <!-- MISSION & VISION BENTO GRID (QUITO RED & WHITE) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+    <!-- MISSION & VISION BENTO GRID (GRID 2X2 EN MÓVIL) -->
+    <div class="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-space-lg">
       
       <!-- Misión -->
-      <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-md flex flex-col gap-space-sm relative overflow-hidden group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-3.5 sm:p-space-xl shadow-md flex flex-col gap-1 sm:gap-space-sm relative overflow-hidden group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-primary"></div>
-        <div class="w-12 h-12 rounded-xl bg-secondary-container text-primary flex items-center justify-center mb-space-xs shadow-sm">
-          <span class="material-symbols-outlined text-[26px]">flag</span>
+        <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-secondary-container text-primary flex items-center justify-center mb-1 sm:mb-space-xs shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-[18px] sm:text-[26px]">flag</span>
         </div>
-        <h3 class="font-headline-md text-headline-md text-primary font-bold">Nuestra Misión</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-          Garantizar el libre acceso a la información pública mediante herramientas digitales abiertas que permitan a las familias de Quito verificar el avance real, inversión e impacto de cada compromiso municipal.
+        <h3 class="font-headline-md text-sm sm:text-headline-md text-primary font-bold">Nuestra Misión</h3>
+        <p class="font-body-md text-xs sm:text-body-md text-on-surface-variant leading-relaxed">
+          Garantizar el libre acceso a la información pública mediante herramientas digitales abiertas que permitan verificar el avance real.
         </p>
       </div>
 
       <!-- Visión -->
-      <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-md flex flex-col gap-space-sm relative overflow-hidden group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-3.5 sm:p-space-xl shadow-md flex flex-col gap-1 sm:gap-space-sm relative overflow-hidden group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-secondary"></div>
-        <div class="w-12 h-12 rounded-xl bg-secondary-container text-secondary flex items-center justify-center mb-space-xs shadow-sm">
-          <span class="material-symbols-outlined text-[26px]">rocket_launch</span>
+        <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-secondary-container text-secondary flex items-center justify-center mb-1 sm:mb-space-xs shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-[18px] sm:text-[26px]">rocket_launch</span>
         </div>
-        <h3 class="font-headline-md text-headline-md text-secondary font-bold">Nuestra Visión</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-          Convertir a Quito en un referente de democracia participativa y gobierno abierto en Latinoamérica, impulsando la veeduría ciudadana basada en datos en vivo e innovación tecnológica.
+        <h3 class="font-headline-md text-sm sm:text-headline-md text-secondary font-bold">Nuestra Visión</h3>
+        <p class="font-body-md text-xs sm:text-body-md text-on-surface-variant leading-relaxed">
+          Convertir a Quito en un referente de democracia participativa y gobierno abierto en Latinoamérica.
         </p>
       </div>
 
     </div>
 
-    <!-- CORE VALUES GRID -->
+    <!-- CORE VALUES GRID (GRID 2X2 EN MÓVIL) -->
     <div class="flex flex-col gap-space-md pt-space-md">
       <div class="text-center flex flex-col gap-1">
         <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Valores Fundamentales</h2>
         <p class="font-body-md text-body-md text-on-surface-variant">Principios que rigen la veeduría e integridad de la información</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md pt-space-xs">
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md pt-space-xs">
         @for (val of values; track val.title) {
-          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-xs hover:shadow-md transition-all border-t-2 border-t-primary/20">
-            <div class="w-10 h-10 rounded-xl bg-secondary-container text-primary flex items-center justify-center mb-1">
-              <span class="material-symbols-outlined text-[22px]">{{ val.icon }}</span>
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-3 sm:p-space-lg shadow-sm flex flex-col gap-1 sm:gap-space-xs hover:shadow-md transition-all border-t-2 border-t-primary/20">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-secondary-container text-primary flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[16px] sm:text-[22px]">{{ val.icon }}</span>
             </div>
-            <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold pt-space-2xs">{{ val.title }}</h4>
-            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">{{ val.desc }}</p>
+            <h4 class="font-headline-sm text-xs sm:text-headline-sm text-on-surface font-bold pt-1">{{ val.title }}</h4>
+            <p class="font-body-sm text-[11px] sm:text-body-sm text-on-surface-variant leading-relaxed">{{ val.desc }}</p>
           </div>
         }
       </div>

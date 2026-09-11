@@ -15,10 +15,10 @@
       </p>
     </div>
 
-    <!-- KEY IMPACT SCOREBOARD CARDS -->
+    <!-- KEY IMPACT SCOREBOARD CARDS (GRID 2X2 EN MÓVIL) -->
     @if (loading()) {
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md animate-pulse">
-        @for (s of [1,2,3,4]; track s) { <div class="h-32 bg-surface-container-high rounded-2xl"></div> }
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md animate-pulse">
+        @for (s of [1,2,3,4]; track s) { <div class="h-28 sm:h-32 bg-surface-container-high rounded-2xl"></div> }
       </div>
       <div class="h-[520px] bg-surface-container-high rounded-2xl animate-pulse"></div>
     } @else if (error()) {
@@ -28,22 +28,22 @@
         <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Asegúrate de que la API esté corriendo en localhost:3000 y recarga la página.</p>
       </div>
     } @else {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md">
       @for (card of impactSummary(); track card.title) {
-        <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-md shadow-sm flex flex-col justify-between items-center text-center hover:shadow-md transition-all">
+        <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-2.5 sm:p-space-md shadow-sm flex flex-col justify-between items-center text-center hover:shadow-md transition-all">
           <div class="flex items-center justify-between w-full">
-            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">{{ card.title }}</span>
-            <div class="w-8 h-8 rounded-xl bg-secondary-container/40 text-on-secondary-container flex items-center justify-center">
-              <span class="material-symbols-outlined text-[18px]">{{ card.icon }}</span>
+            <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase font-semibold truncate">{{ card.title }}</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-secondary-container/40 text-on-secondary-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[14px] sm:text-[18px]">{{ card.icon }}</span>
             </div>
           </div>
-          <div class="my-space-xs text-center">
-            <span class="font-display text-[2.1rem] font-extrabold text-secondary leading-none">{{ card.percentage }}</span>
-            <p class="font-body-sm text-body-sm text-on-surface-variant pt-1">{{ card.changeSubtext }}</p>
+          <div class="my-1 sm:my-space-xs text-center">
+            <span class="font-display text-lg sm:text-[2.1rem] font-extrabold text-secondary leading-none">{{ card.percentage }}</span>
+            <p class="font-body-sm text-[10px] sm:text-body-sm text-on-surface-variant pt-1 leading-tight">{{ card.changeSubtext }}</p>
           </div>
-          <div class="flex items-center justify-center gap-1 text-secondary font-label-sm text-label-sm font-semibold pt-space-xs border-t border-outline-variant/20 w-full">
-            <span class="material-symbols-outlined text-[14px]">trending_up</span>
-            <span>Impacto Verificado</span>
+          <div class="flex items-center justify-center gap-1 text-secondary font-label-sm text-[10px] sm:text-label-sm font-semibold pt-1 sm:pt-space-xs border-t border-outline-variant/20 w-full">
+            <span class="material-symbols-outlined text-[12px] sm:text-[14px]">trending_up</span>
+            <span class="truncate">Verificado</span>
           </div>
         </div>
       }
@@ -66,18 +66,18 @@
         </span>
       </div>
 
-      <div class="flex flex-col gap-space-md">
+      <div class="grid grid-cols-2 lg:grid-cols-2 gap-2.5 sm:gap-space-md">
         @for (sec of sectorImpacts(); track sec.sector) {
-          <div class="bg-surface-container-low/60 border border-outline-variant/30 rounded-xl p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
-            <div class="flex-1 flex flex-col gap-space-2xs">
-              <div class="flex items-center justify-between">
-                <span class="font-headline-sm text-label-md text-on-surface font-bold">{{ sec.sector }}</span>
-                <span class="font-label-sm text-label-sm text-primary font-bold">{{ sec.improvementPercentage }}% de mejora</span>
+          <div class="bg-surface-container-low/60 border border-outline-variant/30 rounded-xl p-2.5 sm:p-space-md flex flex-col justify-between gap-2 hover:shadow-sm transition-all">
+            <div class="flex-1 flex flex-col gap-1">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5">
+                <span class="font-headline-sm text-xs sm:text-label-md text-on-surface font-bold truncate">{{ sec.sector }}</span>
+                <span class="font-label-sm text-[10px] sm:text-label-sm text-primary font-bold whitespace-nowrap">{{ sec.improvementPercentage }}% mejora</span>
               </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant">Obra Principal: {{ sec.mainWork }}</p>
+              <p class="font-body-sm text-[10px] sm:text-body-sm text-on-surface-variant line-clamp-2 leading-tight">Obra: {{ sec.mainWork }}</p>
               
               <!-- Progress Bar -->
-              <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden mt-1">
+              <div class="w-full h-1.5 sm:h-2 bg-surface-container-high rounded-full overflow-hidden mt-1">
                 <div 
                   class="h-full bg-primary rounded-full transition-all duration-700"
                   [style.width.%]="sec.improvementPercentage"
@@ -85,8 +85,8 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-space-sm self-end md:self-center">
-              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-secondary-container text-primary border border-red-200 font-bold">
+            <div class="flex items-center pt-1 border-t border-outline-variant/10">
+              <span class="font-label-sm text-[9px] sm:text-label-sm px-2 py-0.5 sm:px-space-sm sm:py-2xs rounded-full bg-secondary-container text-primary border border-red-200 font-bold truncate">
                 {{ sec.statusText }}
               </span>
             </div>

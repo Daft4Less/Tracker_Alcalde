@@ -18,90 +18,90 @@
 
     </div>
 
-    <!-- HERO METRIC SCOREBOARD -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+    <!-- HERO METRIC SCOREBOARD (GRID 2X2 EN MÓVIL) -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md">
       
       <!-- Metric 1: Active Passengers -->
-      <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest text-on-surface p-3 sm:p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-primary"></div>
         <div class="flex items-center justify-between">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Pasajeros a Bordo</span>
-          <span class="relative flex h-3 w-3">
+          <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Pasajeros a Bordo</span>
+          <span class="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-primary"></span>
           </span>
         </div>
-        <div class="py-space-sm">
-          <span class="font-display text-[2.6rem] font-extrabold text-primary leading-none tracking-tight">
+        <div class="py-1 sm:py-space-sm">
+          <span class="font-display text-xl sm:text-[2.6rem] font-extrabold text-primary leading-none tracking-tight">
             {{ activePassengers() | number }}
           </span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant ml-2">usuarios activos</span>
+          <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant block sm:inline sm:ml-2">usuarios activos</span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-          <span class="material-symbols-outlined text-[14px] text-primary">subway</span>
-          <span>Tránsito en red subterránea</span>
+        <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+          <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">subway</span>
+          <span class="truncate">Red subterránea</span>
         </p>
       </div>
 
       <!-- Metric 2: Average Net Passengers per Stop -->
-      <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest text-on-surface p-3 sm:p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-secondary"></div>
         <div class="flex items-center justify-between">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Media por Parada</span>
-          <span class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-            <span class="material-symbols-outlined text-[18px]">balance</span>
+          <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Media por Parada</span>
+          <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shrink-0">
+            <span class="material-symbols-outlined text-[14px] sm:text-[18px]">balance</span>
           </span>
         </div>
-        <div class="py-space-sm flex items-baseline gap-space-2xs">
-          <span class="font-display text-[2.6rem] font-extrabold text-secondary leading-none tracking-tight">
+        <div class="py-1 sm:py-space-sm flex items-baseline gap-1 sm:gap-space-2xs">
+          <span class="font-display text-xl sm:text-[2.6rem] font-extrabold text-secondary leading-none tracking-tight">
             +3.5
           </span>
-          <span class="font-label-md text-label-md text-on-surface-variant font-bold">pasajeros</span>
+          <span class="font-label-md text-xs sm:text-label-md text-on-surface-variant font-bold">pasajeros</span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-          <span class="material-symbols-outlined text-[14px] text-secondary">swap_vert</span>
-          <span>Abordaje (+12) vs Desembarque (-7 a -10)</span>
+        <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+          <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-secondary shrink-0">swap_vert</span>
+          <span class="truncate">Abordaje / Salida</span>
         </p>
       </div>
 
       <!-- Metric 3: Total Daily Passengers -->
-      <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest text-on-surface p-3 sm:p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-primary-container"></div>
         <div class="flex items-center justify-between">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Total Pasajeros Hoy</span>
-          <span class="w-8 h-8 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined text-[18px]">groups</span>
+          <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">Total Pasajeros Hoy</span>
+          <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[14px] sm:text-[18px]">groups</span>
           </span>
         </div>
-        <div class="py-space-sm">
-          <span class="font-display text-[2.6rem] font-extrabold text-on-surface leading-none tracking-tight">
+        <div class="py-1 sm:py-space-sm">
+          <span class="font-display text-xl sm:text-[2.6rem] font-extrabold text-on-surface leading-none tracking-tight">
             {{ totalDailyPassengers() | number }}
           </span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-          <span class="material-symbols-outlined text-[14px] text-primary">trending_up</span>
-          <span>Conteo acumulado diario</span>
+        <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+          <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">trending_up</span>
+          <span class="truncate">Conteo acumulado</span>
         </p>
       </div>
 
       <!-- Metric 4: CO2 Saved -->
-      <div class="bg-surface-container-lowest text-on-surface p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
+      <div class="bg-surface-container-lowest text-on-surface p-3 sm:p-space-lg rounded-2xl shadow-md border border-outline-variant/30 relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all">
         <div class="w-full h-1.5 absolute top-0 left-0 bg-primary"></div>
         <div class="flex items-center justify-between">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">CO₂ Reducido</span>
-          <span class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined text-[18px]">eco</span>
+          <span class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold truncate">CO₂ Reducido</span>
+          <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[14px] sm:text-[18px]">eco</span>
           </span>
         </div>
-        <div class="py-space-sm flex items-baseline gap-space-2xs">
-          <span class="font-display text-[2.6rem] font-extrabold text-primary leading-none tracking-tight">
+        <div class="py-1 sm:py-space-sm flex items-baseline gap-1 sm:gap-space-2xs">
+          <span class="font-display text-xl sm:text-[2.6rem] font-extrabold text-primary leading-none tracking-tight">
             {{ co2SavedTons() }}
           </span>
-          <span class="font-label-md text-label-md text-on-surface-variant font-bold">Ton</span>
+          <span class="font-label-md text-xs sm:text-label-md text-on-surface-variant font-bold">Ton</span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-2xs">
-          <span class="material-symbols-outlined text-[14px] text-primary">clean_hands</span>
-          <span>Reducción de huella ecológica</span>
+        <p class="font-label-sm text-[10px] sm:text-label-sm text-on-surface-variant flex items-center gap-1">
+          <span class="material-symbols-outlined text-[12px] sm:text-[14px] text-primary shrink-0">clean_hands</span>
+          <span class="truncate">Huella ecológica</span>
         </p>
       </div>
 
@@ -175,54 +175,54 @@
         </div>
       </div>
 
-      <!-- REAL-TIME TRANSIT & DWELL TIME TELEMETRY BANNER -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm bg-surface-container-low/70 p-space-md rounded-xl border border-red-200">
+      <!-- REAL-TIME TRANSIT & DWELL TIME TELEMETRY BANNER (GRID 2X2 EN MÓVIL) -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-space-sm bg-surface-container-low/70 p-2.5 sm:p-space-md rounded-xl border border-red-200">
         
         <!-- Travel Time Between Stations -->
-        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
-          <div class="w-9 h-9 rounded-full bg-red-50 text-primary flex items-center justify-center flex-shrink-0 font-bold">
-            <span class="material-symbols-outlined text-[20px]">schedule</span>
+        <div class="flex items-center gap-2 bg-white p-2 sm:p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-red-50 text-primary flex items-center justify-center shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[16px] sm:text-[20px]">schedule</span>
           </div>
-          <div class="flex flex-col">
-            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Tiempo Entre Paradas</span>
-            <strong class="font-headline-sm text-sm text-primary font-extrabold">2 minutos</strong>
-            <span class="text-[10px] text-on-surface-variant">Promedio 1.5 km por tramo</span>
+          <div class="flex flex-col min-w-0">
+            <span class="font-label-sm text-[9px] sm:text-[11px] text-on-surface-variant uppercase font-semibold truncate">Entre Paradas</span>
+            <strong class="font-headline-sm text-xs sm:text-sm text-primary font-extrabold truncate">2 minutos</strong>
+            <span class="text-[9px] sm:text-[10px] text-on-surface-variant truncate">Promed. 1.5 km</span>
           </div>
         </div>
 
         <!-- Total Journey Time -->
-        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
-          <div class="w-9 h-9 rounded-full bg-red-50 text-secondary flex items-center justify-center flex-shrink-0 font-bold">
-            <span class="material-symbols-outlined text-[20px]">subway</span>
+        <div class="flex items-center gap-2 bg-white p-2 sm:p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-red-50 text-secondary flex items-center justify-center shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[16px] sm:text-[20px]">subway</span>
           </div>
-          <div class="flex flex-col">
-            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Trayecto Total Línea 1</span>
-            <strong class="font-headline-sm text-sm text-secondary font-extrabold">34 minutos</strong>
-            <span class="text-[10px] text-on-surface-variant">Quitumbe ↔ El Labrador (15 est.)</span>
+          <div class="flex flex-col min-w-0">
+            <span class="font-label-sm text-[9px] sm:text-[11px] text-on-surface-variant uppercase font-semibold truncate">Trayecto Total</span>
+            <strong class="font-headline-sm text-xs sm:text-sm text-secondary font-extrabold truncate">34 minutos</strong>
+            <span class="text-[9px] sm:text-[10px] text-on-surface-variant truncate">Quitumbe ↔ Labrador</span>
           </div>
         </div>
 
         <!-- Operating Frequency -->
-        <div class="flex items-center gap-space-xs bg-white p-space-sm rounded-lg shadow-sm border border-red-100">
-          <div class="w-9 h-9 rounded-full bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 font-bold">
-            <span class="material-symbols-outlined text-[20px]">update</span>
+        <div class="flex items-center gap-2 bg-white p-2 sm:p-space-sm rounded-lg shadow-sm border border-red-100">
+          <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-secondary-container text-primary flex items-center justify-center shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[16px] sm:text-[20px]">update</span>
           </div>
-          <div class="flex flex-col">
-            <span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-semibold">Frecuencia Activa</span>
-            <strong class="font-headline-sm text-sm text-primary font-extrabold">{{ currentFrequencyMin }} min / tren</strong>
-            <span class="text-[10px] text-on-surface-variant">{{ currentScheduleType }}</span>
+          <div class="flex flex-col min-w-0">
+            <span class="font-label-sm text-[9px] sm:text-[11px] text-on-surface-variant uppercase font-semibold truncate">Frecuencia</span>
+            <strong class="font-headline-sm text-xs sm:text-sm text-primary font-extrabold truncate">{{ currentFrequencyMin }} min/tren</strong>
+            <span class="text-[9px] sm:text-[10px] text-on-surface-variant truncate">{{ currentScheduleType }}</span>
           </div>
         </div>
 
         <!-- Next Arrival & GPS -->
-        <div class="flex items-center gap-space-xs bg-primary text-white p-space-sm rounded-lg shadow-sm">
-          <div class="w-9 h-9 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 font-bold">
-            <span class="material-symbols-outlined text-[20px]">near_me</span>
+        <div class="flex items-center gap-2 bg-primary text-white p-2 sm:p-space-sm rounded-lg shadow-sm">
+          <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0 font-bold">
+            <span class="material-symbols-outlined text-[16px] sm:text-[20px]">near_me</span>
           </div>
-          <div class="flex flex-col">
-            <span class="font-label-sm text-[11px] text-white/80 uppercase font-semibold">Próximo Arribo GPS</span>
-            <strong class="font-headline-sm text-xs text-white font-bold">{{ nextStation.name }}</strong>
-            <span class="text-[10px] text-white/80">{{ currentStation.lat.toFixed(3) }}, {{ currentStation.lng.toFixed(3) }}</span>
+          <div class="flex flex-col min-w-0">
+            <span class="font-label-sm text-[9px] sm:text-[11px] text-white/80 uppercase font-semibold truncate">Próximo Arribo</span>
+            <strong class="font-headline-sm text-xs sm:text-xs text-white font-bold truncate">{{ nextStation.name }}</strong>
+            <span class="text-[9px] sm:text-[10px] text-white/80 truncate">{{ currentStation.lat.toFixed(2) }}, {{ currentStation.lng.toFixed(2) }}</span>
           </div>
         </div>
 
