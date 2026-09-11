@@ -32,7 +32,11 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.map && (changes['quadrants'] || changes['singleQuadrant'])) {
-      this.renderMarkers();
+      if (this.singleQuadrant) {
+        this.renderSingle();
+      } else {
+        this.renderMarkers();
+      }
     }
   }
 
@@ -101,14 +105,30 @@ private initMap() {
       maxZoom: 19
     }).addTo(this.map);
 
-    // Custom Icon Generator for Leaflet Markers (Quito Red Palette)
+    // If single quadrant view
+    if (this.singleQuadrant) {
+      this.renderSingle();
+      return;
+    }
+
+    this.renderMarkers();
+  }
+
+  private renderSingle() {
+    if (!this.map || !this.markerLayer) return;
+    const item = this.singleQuadrant;
+    if (!item) return;
+    this.markerLayer.clearLayers();
+
+    const coords = this.centerOf(item);
+
     const createCustomIcon = (statusColor: string) => {
-      let colorHex = '#C8102E'; // Quito Red (Default Primary)
-      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#C8102E';
-      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#E53935';
-      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#D32F2F';
-      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#9B0A20';
-      if (statusColor === 'purple') colorHex = '#B71C1C';
+      let colorHex = '#C8102E';
+      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#22c55e';
+      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#0ea5e9';
+      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#f59e0b';
+      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#f43f5e';
+      if (statusColor === 'purple') colorHex = '#a855f7';
 
       return L.divIcon({
         className: 'custom-map-pin',
@@ -125,24 +145,19 @@ private initMap() {
       });
     };
 
-    // If single quadrant view
-    if (this.singleQuadrant) {
-      const coords = this.centerOf(this.singleQuadrant);
-      const marker = L.marker(coords, {
-        icon: createCustomIcon(this.singleQuadrant.statusColor)
-      }).addTo(this.map);
+    const marker = L.marker(coords, {
+      icon: createCustomIcon(item.statusColor)
+    }).addTo(this.markerLayer);
 
-      marker.bindPopup(`
-        <div style="font-family: sans-serif; padding: 4px; max-width: 240px;">
-          <strong style="color: #000; font-size: 0.95rem;">${this.esc(this.singleQuadrant.title)}</strong><br/>
-          <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.esc(this.singleQuadrant.locationZone)}</span><br/>
-          ${this.photosHtml(this.singleQuadrant)}
-        </div>
-      `).openPopup();
-      return;
-    }
+    marker.bindPopup(`
+      <div style="font-family: sans-serif; padding: 4px; max-width: 240px;">
+        <strong style="color: #000; font-size: 0.95rem;">${this.esc(item.title)}</strong><br/>
+        <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.esc(item.locationZone)}</span><br/>
+        ${this.photosHtml(item)}
+      </div>
+    `).openPopup();
 
-    this.renderMarkers();
+    this.map.setView(coords, Math.max(14, this.map.getZoom()));
   }
 
   private renderMarkers() {

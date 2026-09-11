@@ -130,11 +130,17 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadEjes() {
-    this.api.getEjes().subscribe(res => this.ejes.set(res.data));
+    this.api.getEjes().subscribe({
+      next: res => this.ejes.set(res.data),
+      error: () => this.errorMessage.set('No se pudieron cargar los ejes desde el backend.')
+    });
   }
 
   private loadParroquias() {
-    this.api.getParroquias().subscribe(res => this.parroquias.set(res.data));
+    this.api.getParroquias().subscribe({
+      next: res => this.parroquias.set(res.data),
+      error: () => this.errorMessage.set('No se pudieron cargar las parroquias desde el backend.')
+    });
   }
 
   loadObras() {
