@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CuadrantesService, QuadrantDetail } from '../../services/cuadrantes.service';
+import { CuadrantesService, QuadrantDetail, formatMoney } from '../../services/cuadrantes.service';
 
 @Component({
   selector: 'app-vista1',
@@ -15,12 +15,114 @@ export class Vista1Component implements OnInit {
 
   selectedStatus = signal<string>('todas');
   quadrants = signal<QuadrantDetail[]>([]);
+  loading = signal(true);
+  error = signal(false);
 
-  ngOnInit() {
-    this.quadrants.set(this.cuadrantesService.getAllQuadrants());
+  // Grid pagination: 6 on mobile (<768px), 15 on desktop
+  private getInitialCount(): number {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return 6;
+    }
+    return 15;
   }
 
+  private getLoadStep(): number {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return 6; // 3 rows of 2 cols on mobile = 6 works
+    }
+    return 9; // 3 rows of 3 cols on desktop = 9 works
+  }
+
+  visibleCount = signal<number>(15);
+
+  total = computed(() => this.quadrants().length);
+  kpiCumplidas = computed(() => this.quadrants().filter(q => q.promiseStatus === 'cumplidas').length);
+  kpiEnProceso = computed(() => this.quadrants().filter(q => q.promiseStatus === 'en-proceso').length);
+  kpiPlanificadas = computed(() => this.quadrants().filter(q => q.promiseStatus === 'sin-comenzar').length);
+  kpiPromedioAvance = computed(() => {
+    const list = this.quadrants();
+    if (!list.length) return 0;
+    return Math.round(list.reduce((acc, q) => acc + q.progressPercentage, 0) / list.length);
+  });
+  kpiInversion = computed(() => {
+    const total = this.quadrants().reduce((acc, q) => acc + (q.montoTotal ?? 0), 0);
+    return formatMoney(total);
+  });
+
+  // Filtered status counts
+  countCumplidas = computed(() => this.quadrants().filter(q => q.promiseStatus === 'cumplidas').length);
+  countEnProceso = computed(() => this.quadrants().filter(q => q.promiseStatus === 'en-proceso').length);
+  countDetenidas = computed(() => this.quadrants().filter(q => q.promiseStatus === 'detenidas').length);
+  countSinComenzar = computed(() => this.quadrants().filter(q => q.promiseStatus === 'sin-comenzar').length);
+  countIncumplidas = computed(() => this.quadrants().filter(q => q.promiseStatus === 'incumplidas').length);
+
+  // Filtered list based on status selector
+  filteredQuadrants = computed(() => {
+    const status = this.selectedStatus();
+    const list = this.quadrants();
+    if (status === 'todas') return list;
+    return list.filter(q => q.promiseStatus === status);
+  });
+
+  // Sliced list for paginated grid display
+  visibleQuadrants = computed(() => {
+    return this.filteredQuadrants().slice(0, this.visibleCount());
+  });
+
+  // Check if there are more items to load
+  hasMore = computed(() => {
+    return this.visibleCount() < this.filteredQuadrants().length;
+  });
+
+  // Calculate remaining count for button badge
+  remainingCount = computed(() => {
+    const totalFiltered = this.filteredQuadrants().length;
+    const currentVisible = this.visibleCount();
+    return Math.max(0, totalFiltered - currentVisible);
+  });
+
+  nextBatchCount = computed(() => {
+    const step = this.getLoadStep();
+    const rem = this.remainingCount();
+    return Math.min(step, rem);
+  });
+
+  ngOnInit() {
+    const initialCount = this.getInitialCount();
+    this.visibleCount.set(initialCount);
+    console.log(`[Vista1Component] Inicializando catálogo de obras. Tamaño de lote inicial: ${initialCount}`);
+
+    this.cuadrantesService.getAllQuadrants().subscribe({
+      next: list => {
+        console.log(`[Vista1Component] Datos cargados con éxito: ${list.length} obras registradas.`);
+        this.quadrants.set(list);
+        this.loading.set(false);
+      },
+      error: err => {
+        console.error('[Vista1Component] Error al cargar la lista de obras:', err);
+        this.error.set(true);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Cambia el filtro activo por estado de obra y reinicia el recuento visible al lote inicial.
+   */
   filterByStatus(status: string) {
+    console.log(`[Vista1Component] Filtrando catálogo por estado: "${status}"`);
     this.selectedStatus.set(status);
+    this.visibleCount.set(this.getInitialCount());
+  }
+
+  /**
+   * Carga el siguiente lote de filas en la cuadrícula de obras.
+   */
+  loadMore() {
+    const loadStep = this.getLoadStep();
+    const currentVisible = this.visibleCount();
+    const newTotalVisible = currentVisible + loadStep;
+    console.log(`[Vista1Component] Cargar Más presionado: incrementando vista de ${currentVisible} a ${newTotalVisible} obras.`);
+    this.visibleCount.set(newTotalVisible);
   }
 }

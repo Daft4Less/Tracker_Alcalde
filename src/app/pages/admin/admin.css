@@ -1,0 +1,30 @@
+#mapContainer ::ng-deep .leaflet-container {
+  font-family: 'Inter', sans-serif;
+}
+
+#mapContainer ::ng-deep .leaflet-tooltip {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#mapContainer ::ng-deep .leaflet-control-zoom a {
+  color: #001428;
+}
+
+#mapContainer ::ng-deep .leaflet-div-icon {
+  background: transparent;
+  border: none;
+}
+
+#mapContainer ::ng-deep .custom-map-pin {
+  border-radius: 50%;
+}
+
+select {
+  cursor: pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  opacity: 1;
+}

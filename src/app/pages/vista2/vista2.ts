@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CuadrantesService, QuadrantDetail } from '../../services/cuadrantes.service';
+import { CuadrantesService, QuadrantDetail, formatMoney } from '../../services/cuadrantes.service';
 import { MapaQuitoComponent } from '../../components/mapa-quito/mapa-quito';
 
 export interface ImpactCategory {
@@ -8,7 +8,6 @@ export interface ImpactCategory {
   percentage: string;
   changeSubtext: string;
   icon: string;
-  statusColor: 'emerald' | 'indigo' | 'cyan' | 'purple';
 }
 
 export interface SectorImpact {
@@ -28,47 +27,79 @@ export interface SectorImpact {
 export class Vista2Component implements OnInit {
   private cuadrantesService = inject(CuadrantesService);
   quadrants = signal<QuadrantDetail[]>([]);
+  loading = signal(true);
+  error = signal(false);
 
   ngOnInit() {
-    this.quadrants.set(this.cuadrantesService.getAllQuadrants());
+    console.log('[Vista2Component] Cargando obras para resumen de impacto e indicadores territoriales...');
+    this.cuadrantesService.getAllQuadrants().subscribe({
+      next: list => {
+        console.log(`[Vista2Component] Carga exitosa: ${list.length} obras procesadas para impacto.`);
+        this.quadrants.set(list);
+        this.loading.set(false);
+      },
+      error: err => {
+        console.error('[Vista2Component] Error al obtener datos para vista de impacto:', err);
+        this.error.set(true);
+        this.loading.set(false);
+      }
+    });
   }
 
-  impactSummary = signal<ImpactCategory[]>([
-    {
-      title: 'Mejora en Movilidad Urbana',
-      percentage: '+42%',
-      changeSubtext: 'Reducción de tiempos de traslado en avenidas principales',
-      icon: 'directions_car',
-      statusColor: 'indigo'
-    },
-    {
-      title: 'Prevención de Inundaciones',
-      percentage: '+85%',
-      changeSubtext: 'Mayor capacidad en colectores pluviales instalados',
-      icon: 'water_drop',
-      statusColor: 'emerald'
-    },
-    {
-      title: 'Seguridad Nocturna',
-      percentage: '+64%',
-      changeSubtext: 'Percepción de seguridad por luminarias LED y C4',
-      icon: 'shield',
-      statusColor: 'cyan'
-    },
-    {
-      title: 'Espacios Verdes por Hab.',
-      percentage: '+38%',
-      changeSubtext: 'Nuevas hectáreas de parques y áreas recreativas',
-      icon: 'park',
-      statusColor: 'purple'
-    }
-  ]);
+  impactSummary = computed<ImpactCategory[]>(() => {
+    const list = this.quadrants();
+    if (!list.length) return [];
+    const avgPercentage = Math.round(list.reduce((acc, quadrant) => acc + quadrant.progressPercentage, 0) / list.length);
+    const totalInversion = list.reduce((acc, quadrant) => acc + (quadrant.montoTotal ?? 0), 0);
+    const totalParroquias = new Set(list.map(quadrant => quadrant.territory).filter(Boolean)).size;
 
-  sectorImpacts = signal<SectorImpact[]>([
-    { sector: 'Distrito Central (Vías y Pavimentación)', improvementPercentage: 88, mainWork: 'Paso a Desnivel & Repavimentación LED', statusText: 'Impacto Alto' },
-    { sector: 'Zona Norte (Drenaje e Iluminación)', improvementPercentage: 74, mainWork: 'Colector Pluvial & 3,200 Luminarias', statusText: 'Impacto Alto' },
-    { sector: 'Distrito Sur (Salud y Equipamiento)', improvementPercentage: 92, mainWork: 'Hospital Municipal & Módulos Médicos', statusText: 'Impacto Máximo' },
-    { sector: 'Zona Oriente (Parques y Recreación)', improvementPercentage: 81, mainWork: 'Pulmón Verde & Senderos Recreativos', statusText: 'Impacto Alto' },
-    { sector: 'Corredor Poniente (Movilidad Sustentable)', improvementPercentage: 68, mainWork: 'Red de Ciclovías & Tránsito Calmado', statusText: 'Impacto Moderado' }
-  ]);
+    console.debug(`[Vista2Component] Métricas calculadas: Avance prom: ${avgPercentage}%, Inversión: $${totalInversion}, Parroquias: ${totalParroquias}`);
+
+    return [
+      {
+        title: 'Obras Registradas',
+        percentage: `${list.length}`,
+        changeSubtext: 'en el catálogo municipal',
+        icon: 'inventory_2'
+      },
+      {
+        title: 'Avance Promedio',
+        percentage: `${avgPercentage}%`,
+        changeSubtext: 'cumplimiento físico general',
+        icon: 'trending_up'
+      },
+      {
+        title: 'Inversión Total',
+        percentage: formatMoney(totalInversion),
+        changeSubtext: 'USD en obras municipales',
+        icon: 'payments'
+      },
+      {
+        title: 'Parroquias Cubiertas',
+        percentage: `${totalParroquias}`,
+        changeSubtext: 'unidades territoriales con obras',
+        icon: 'map'
+      }
+    ];
+  });
+
+  sectorImpacts = computed<SectorImpact[]>(() => {
+    const sectorGroups = new Map<string, QuadrantDetail[]>();
+    this.quadrants().forEach(quadrant => {
+      const sectorKey = quadrant.territory || 'Distrito Metropolitano';
+      if (!sectorGroups.has(sectorKey)) sectorGroups.set(sectorKey, []);
+      sectorGroups.get(sectorKey)!.push(quadrant);
+    });
+
+    return Array.from(sectorGroups.entries()).map(([sector, obras]) => {
+      const avgPercentage = Math.round(obras.reduce((acc, quadrant) => acc + quadrant.progressPercentage, 0) / obras.length);
+      const topObra = obras.reduce((firstObra, secondObra) => (secondObra.progressPercentage > firstObra.progressPercentage ? secondObra : firstObra));
+      return {
+        sector: `Parroquia ${sector}`,
+        improvementPercentage: avgPercentage,
+        mainWork: topObra.fullDescription.length > 60 ? topObra.fullDescription.slice(0, 60) + '…' : topObra.fullDescription,
+        statusText: avgPercentage >= 70 ? 'Impacto Alto' : (avgPercentage >= 40 ? 'Impacto Medio' : 'Impacto Bajo')
+      };
+    });
+  });
 }

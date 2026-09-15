@@ -1,5 +1,21 @@
 <main class="w-full pt-20 bg-surface min-h-screen">
-  @if (quadrant(); as item) {
+  @if (loading()) {
+    <div class="max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl flex flex-col gap-space-xl animate-pulse">
+      <div class="h-6 bg-surface-container-high rounded w-40"></div>
+      <div class="h-48 bg-surface-container-high rounded-2xl"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-xl">
+        <div class="h-72 bg-surface-container-high rounded-2xl"></div>
+        <div class="h-72 bg-surface-container-high rounded-2xl"></div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="max-w-md mx-auto my-20 p-space-xl bg-surface-container-lowest rounded-2xl border border-outline-variant text-center flex flex-col items-center gap-space-md">
+      <span class="material-symbols-outlined text-[48px] text-error">cloud_off</span>
+      <h2 class="font-headline-md text-headline-md text-on-surface font-bold">No se pudo conectar con el servidor de datos</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant">Verifica que la API esté corriendo en localhost:3000 y recarga.</p>
+      <a routerLink="/promesas" class="bg-primary text-on-primary px-space-lg py-space-sm rounded-lg font-label-md">Volver a Promesas</a>
+    </div>
+  } @else if (quadrant(); as item) {
     <div class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
       
       <!-- TOP NAVIGATION & PAGER BAR -->
@@ -12,18 +28,18 @@
         <!-- Quick Switcher -->
         <div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-2xs rounded-full border border-outline-variant/30 self-start sm:self-auto">
           <button 
-            [disabled]="item.id <= 1"
-            (click)="navigateToQuadrant(item.id - 1)"
+            [disabled]="!hasPrev()"
+            (click)="navigatePrev()"
             class="p-1 text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <span class="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
           
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface">Compromiso {{ item.id }} de 9</span>
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface">Compromiso {{ currentIndex() + 1 }} de {{ quadrants().length }}</span>
 
           <button 
-            [disabled]="item.id >= 9"
-            (click)="navigateToQuadrant(item.id + 1)"
+            [disabled]="!hasNext()"
+            (click)="navigateNext()"
             class="p-1 text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <span class="material-symbols-outlined text-[20px]">chevron_right</span>
@@ -38,7 +54,10 @@
         <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-space-lg relative z-10">
           <div class="flex flex-col gap-space-xs flex-1">
             <div class="flex flex-wrap items-center gap-space-xs">
-              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-secondary-container/40 text-on-secondary-container font-bold">
+              <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full font-bold"
+                    [style.background]="item.statusHex + '22'"
+                    [style.color]="item.statusHex"
+                    [style.border]="'1px solid ' + item.statusHex + '55'">
                 {{ item.badgeText }}
               </span>
               <span class="font-label-sm text-label-sm px-space-sm py-space-2xs rounded-full bg-surface-container-lowest/10 text-surface-container-lowest border border-white/10 font-semibold">
@@ -51,7 +70,7 @@
             </h1>
 
             <p class="font-body-md text-body-md text-surface-variant flex items-center gap-space-2xs pt-space-2xs">
-              <span class="material-symbols-outlined text-[18px] text-secondary-fixed">location_on</span>
+              <span class="material-symbols-outlined text-[18px] text-red-200">location_on</span>
               <span>Quito, Ecuador - {{ item.locationZone }}</span>
             </p>
           </div>
@@ -59,7 +78,7 @@
           <!-- Executed Budget KPI Box -->
           <div class="bg-surface-container-lowest/10 backdrop-blur-md p-space-lg rounded-xl border border-white/10 flex flex-col items-start lg:items-end min-w-[220px]">
             <span class="font-label-sm text-label-sm uppercase tracking-wider text-surface-variant font-semibold">Presupuesto Ejecutado</span>
-            <span class="font-data-metric text-headline-lg text-secondary-fixed font-bold leading-none py-1">{{ item.value }}</span>
+            <span class="font-data-metric text-headline-lg text-red-200 font-bold leading-none py-1">{{ item.value }}</span>
             <span class="font-label-sm text-label-sm text-surface-variant">{{ item.subtext }}</span>
           </div>
         </div>
@@ -74,12 +93,59 @@
       <!-- MAIN CONTENT GRID (2 COLUMNS) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
         
-        <!-- LEFT COLUMN: MAP & METRICS -->
-        <div class="lg:col-span-6 flex flex-col gap-space-xl">
+        <!-- LEFT COLUMN: FOTO PRINCIPAL & METRICAS Y MAPA PEQUEÑO -->
+        <div class="lg:col-span-7 flex flex-col gap-space-xl">
           
-          <!-- Leaflet Quito Map Box -->
-          <div class="w-full">
-            <app-mapa-quito [singleQuadrant]="item" mapHeight="360px"></app-mapa-quito>
+          <!-- FOTO PRINCIPAL DESTACADA DE LA OBRA (HERO VISUAL) -->
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl overflow-hidden shadow-lg flex flex-col group">
+            <div class="relative h-[340px] sm:h-[420px] w-full bg-surface-container-high overflow-hidden">
+              <img 
+                [src]="item.imagen || 'assets/fotos/obra_1.jpg'" 
+                [alt]="item.title"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+              
+              <div class="absolute top-space-md left-space-md flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full bg-primary text-white font-label-sm text-xs font-bold shadow-md">
+                  Registro Fotográfico Municipal
+                </span>
+                <span class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white font-label-sm text-xs font-semibold border border-white/20">
+                  Inspección Presencial
+                </span>
+              </div>
+              
+              <div class="absolute bottom-space-md left-space-md right-space-md flex flex-col gap-1 text-white z-10">
+                <div class="flex items-center gap-1.5 text-xs text-red-200 font-bold">
+                  <span class="material-symbols-outlined text-[16px]">verified</span>
+                  <span>Evidencia Fotográfica Verificada</span>
+                </div>
+                <p class="font-headline-sm text-base sm:text-headline-md font-bold leading-tight drop-shadow-sm">{{ item.title }}</p>
+              </div>
+            </div>
+
+            <div class="p-space-md bg-surface-container-low/60 flex items-center justify-between border-t border-outline-variant/20">
+              <span class="font-label-sm text-xs text-on-surface-variant flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
+                <span>Quito - {{ item.locationZone }}</span>
+              </span>
+              <span class="font-label-sm text-xs text-primary font-bold">Auditoría {{ item.lastUpdated }}</span>
+            </div>
+          </div>
+
+          <!-- MAPA PEQUEÑO DE UBICACIÓN EN EL MAPA -->
+          <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-md shadow-sm flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-space-xs">
+              <div class="flex items-center gap-space-xs">
+                <span class="material-symbols-outlined text-[20px] text-primary">pin_drop</span>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Ubicación Georreferenciada</h4>
+              </div>
+              <span class="font-label-sm text-xs text-on-surface-variant font-mono">Quito, Ecuador</span>
+            </div>
+            
+            <div class="w-full rounded-xl overflow-hidden border border-outline-variant/30 mt-1">
+              <app-mapa-quito [singleQuadrant]="item" mapHeight="210px"></app-mapa-quito>
+            </div>
           </div>
 
           <!-- Specific Project Metrics -->
@@ -102,17 +168,17 @@
             <div class="flex flex-col gap-space-xs pt-space-xs">
               <div class="flex justify-between items-center font-label-md text-label-md font-semibold">
                 <span class="text-on-surface-variant">Cumplimiento Físico</span>
-                <span class="text-secondary font-bold">{{ item.progressPercentage }}%</span>
+                <span class="text-primary font-bold">{{ item.progressPercentage }}%</span>
               </div>
               <div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden">
-                <div class="h-full bg-secondary rounded-full" [style.width.%]="item.progressPercentage"></div>
+                <div class="h-full bg-primary rounded-full" [style.width.%]="item.progressPercentage"></div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- RIGHT COLUMN: METADATA & TIMELINE -->
-        <div class="lg:col-span-6 flex flex-col gap-space-xl">
+        <div class="lg:col-span-5 flex flex-col gap-space-xl">
           
           <!-- Metadata Card -->
           <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-space-xl shadow-sm flex flex-col gap-space-md">
@@ -159,10 +225,10 @@
             <div class="flex flex-col gap-space-md relative pl-2">
               @for (act of item.timeline; track act.time) {
                 <div class="flex gap-space-md relative">
-                  <div class="w-3 h-3 rounded-full bg-secondary ring-4 ring-secondary-container/40 mt-1 flex-shrink-0"></div>
+                  <div class="w-3 h-3 rounded-full bg-primary ring-4 ring-red-200 mt-1 flex-shrink-0"></div>
                   <div class="flex flex-col gap-0.5">
                     <div class="flex items-center gap-space-xs font-label-sm text-label-sm">
-                      <span class="text-secondary font-bold">{{ act.time }}</span>
+                      <span class="text-primary font-bold">{{ act.time }}</span>
                       <span class="text-on-surface-variant">• {{ act.user }}</span>
                     </div>
                     <p class="font-body-sm text-body-sm text-on-surface leading-snug">{{ act.action }}</p>

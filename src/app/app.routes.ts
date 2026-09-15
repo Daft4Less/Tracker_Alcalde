@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'promesas', pathMatch: 'full' },
@@ -21,6 +22,16 @@ export const routes: Routes = [
   { 
     path: 'nosotros', 
     loadComponent: () => import('./pages/vista4/vista4').then(m => m.Vista4Component) 
+  },
+  // Rutas secretas del panel de administración (no enlazadas en la UI pública)
+  {
+    path: 'auth',
+    loadComponent: () => import('./pages/auth/auth').then(m => m.AuthComponent)
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin/admin').then(m => m.AdminComponent)
   },
   // Backward compatibility redirects
   { path: 'vista1', redirectTo: 'promesas', pathMatch: 'full' },
