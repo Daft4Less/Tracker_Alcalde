@@ -33,8 +33,10 @@ try {
 
 // Copiar index.html a 404.html para rutas Angular SPA
 copyFileSync(`${dest}/index.html`, `${dest}/404.html`);
+copyFileSync(`${dest}/index.html`, `./404.html`);
 
-// Crear .nojekyll en docs/
+// Crear .nojekyll en docs/ y raíz
 writeFileSync(`${dest}/.nojekyll`, '');
+writeFileSync(`.nojekyll`, '');
 
 console.log('Contenido compilado desplegado limpiamente en docs/ (JS, CSS, HTML, 404.html y .nojekyll) para GitHub Pages.');
