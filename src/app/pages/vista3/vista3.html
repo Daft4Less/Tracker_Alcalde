@@ -234,12 +234,72 @@
         <!-- VIEW 1: MAPA VECTORIAL REAL (OPENSTREETMAP LEAFLET) -->
         <div [class.hidden]="activeView() !== 'map'" class="flex flex-col gap-space-sm w-full">
           <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface font-bold">
-            <span>Trazado Vectorial en Geografía de Quito</span>
-            <span class="text-primary font-semibold text-xs">15 Estaciones • 22.5 km (34 min)</span>
+            <span class="text-xs sm:text-label-sm">Trazado Vectorial en Geografía de Quito</span>
+            <span class="hidden sm:inline-flex text-primary font-semibold text-xs">15 Estaciones • 22.5 km (34 min)</span>
+
+            <!-- Indicador de estado del mapa en móvil (informativo) -->
+            <div
+              class="mobile-status-badge sm:hidden"
+              [class.status-visible]="showMapOnMobile()"
+              [class.status-hidden]="!showMapOnMobile()"
+              role="status"
+              aria-live="polite"
+            >
+              <span class="status-indicator-dot"></span>
+              <span class="status-indicator-text">
+                {{ showMapOnMobile() ? 'Mapa visible' : 'Mapa oculto' }}
+              </span>
+            </div>
           </div>
-          <div class="relative w-full h-[400px] rounded-xl overflow-hidden border border-outline-variant/30 shadow-inner">
+
+          <!-- Banner interactivo en celular cuando el mapa está oculto (sm:hidden) -->
+          @if (!showMapOnMobile()) {
+            <div class="mobile-toggle-card sm:hidden" (click)="toggleMobileMap()">
+              <div class="mobile-toggle-info">
+                <div class="toggle-icon-wrap">
+                  <span class="material-symbols-outlined text-2xl text-secondary">explore</span>
+                </div>
+                <div class="toggle-text-wrap">
+                  <span class="toggle-title">
+                    Mostrar mapa interactivo (15 estaciones)
+                  </span>
+                  <span class="toggle-desc">
+                    Toca para explorar el mapa interactivo
+                  </span>
+                </div>
+              </div>
+              <button type="button" class="toggle-action-btn">
+                <span class="material-symbols-rounded text-base">map</span>
+                <span>Mostrar mapa interactivo</span>
+              </button>
+            </div>
+          }
+
+          <!-- Contenedor del mapa Leaflet (En móvil se oculta por clase si !showMapOnMobile) -->
+          <div
+            class="relative w-full h-[360px] sm:h-[400px] rounded-xl overflow-hidden border border-outline-variant/30 shadow-inner"
+            [class.map-hidden-mobile]="!showMapOnMobile()"
+          >
             <div #metroMapContainer class="w-full h-full z-0"></div>
           </div>
+
+          <!-- Barra inferior en móvil cuando el mapa está abierto para cerrarlo rápidamente -->
+          @if (showMapOnMobile()) {
+            <div class="mobile-close-footer sm:hidden">
+              <div class="mobile-gesture-tip">
+                <span class="material-symbols-outlined text-sm text-secondary">touch_app</span>
+                <span>Usa dos dedos para moverte dentro del mapa</span>
+              </div>
+              <button
+                type="button"
+                class="mobile-close-btn"
+                (click)="toggleMobileMap()"
+              >
+                <span class="material-symbols-rounded text-base">visibility_off</span>
+                <span>Ocultar mapa interactivo</span>
+              </button>
+            </div>
+          }
         </div>
 
         <!-- VIEW 2: ESQUEMA DIAGRAMÁTICO EN 'S' -->

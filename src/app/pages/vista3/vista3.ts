@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 declare let L: any;
@@ -45,6 +45,7 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   private trainMarker: any = null;
   private polyline: any = null;
   private resizeListener: (() => void) | null = null;
+  showMapOnMobile = signal(false);
 
   // Official 15 Stations of Metro de Quito in geographical order (South to North) with exact GPS coordinates
   readonly stations: MetroStation[] = [
@@ -106,15 +107,46 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.initLeafletMap();
-    }, 200);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    if (!isMobile || this.showMapOnMobile()) {
+      setTimeout(() => {
+        this.initLeafletMap();
+      }, 200);
+    }
 
     setTimeout(() => {
       if (this.activeView() === 'scurve') {
         this.drawSCurveConnectors();
       }
     }, 250);
+  }
+
+  toggleMobileMap() {
+    this.showMapOnMobile.update(v => !v);
+    if (this.showMapOnMobile()) {
+      setTimeout(() => {
+        if (!this.map) {
+          this.initLeafletMap();
+        } else {
+          this.map.invalidateSize();
+          this.updateMapTrainPosition();
+        }
+      }, 150);
+    }
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 640;
+    if (this.activeView() === 'map') {
+      if (isDesktop && !this.map) {
+        this.initLeafletMap();
+      } else if (this.map) {
+        this.map.invalidateSize();
+      }
+    } else {
+      this.drawSCurveConnectors();
+    }
   }
 
   ngOnDestroy() {
@@ -195,7 +227,8 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     this.map = L.map(this.metroMapContainer.nativeElement, {
       center: [-0.220, -78.510],
       zoom: 12,
-      zoomControl: true
+      zoomControl: true,
+      scrollWheelZoom: false
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -406,13 +439,17 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     console.log(`[MetroSimulator] Cambiando modo de vista a: "${mode}"`);
     this.activeView.set(mode);
     setTimeout(() => {
-      if (this.map) {
-        this.map.invalidateSize();
-        this.updateMapTrainPosition();
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      if (mode === 'map') {
+        if (!isMobile || this.showMapOnMobile()) {
+          if (this.map) {
+            this.map.invalidateSize();
+            this.updateMapTrainPosition();
+          } else {
+            this.initLeafletMap();
+          }
+        }
       } else {
-        this.initLeafletMap();
-      }
-      if (mode === 'scurve') {
         this.drawSCurveConnectors();
       }
     }, 120);
