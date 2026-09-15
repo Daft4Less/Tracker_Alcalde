@@ -32,6 +32,7 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.map && (changes['quadrants'] || changes['singleQuadrant'])) {
+      console.log('[MapaQuitoComponent] Entradas detectadas por ngOnChanges. Re-renderizando marcadores.');
       if (this.singleQuadrant) {
         this.renderSingle();
       } else {
@@ -40,7 +41,7 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
-  private esc(value?: string): string {
+  private escapeHtml(value?: string): string {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -48,17 +49,46 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
       .replace(/"/g, '&quot;');
   }
 
-  private photosHtml(q: QuadrantDetail): string {
-    const photo = q.imagen;
-    if (!photo) return `<div style="margin-top:6px; font-size:0.72rem; color:#9ca3af; font-style:italic;">Sin registro fotográfico</div>`;
-    return `<img src="${this.esc(photo)}" alt="Registro fotográfico de la obra" style="width:100%; height:120px; object-fit:cover; border-radius:6px; display:block; margin-top:8px;"/>`;
+  private buildPhotoGalleryHtml(quadrant: QuadrantDetail): string {
+    const photoUrl = quadrant.imagen;
+    if (!photoUrl) {
+      return `<div style="margin-top:6px; font-size:0.72rem; color:#9ca3af; font-style:italic;">Sin registro fotográfico</div>`;
+    }
+    return `<img src="${this.escapeHtml(photoUrl)}" alt="Registro fotográfico de la obra" style="width:100%; height:120px; object-fit:cover; border-radius:6px; display:block; margin-top:8px;"/>`;
   }
 
-  private centerOf(item?: QuadrantDetail): [number, number] {
+  private calculateCoordinatesCenter(item?: QuadrantDetail): [number, number] {
     if (item && item.lat !== undefined && item.lng !== undefined) {
       return [item.lat, item.lng];
     }
     return [-0.1807, -78.4678];
+  }
+
+  private createMapPinIcon(statusColor: string, isSingleView: boolean = false): any {
+    let colorHex = '#C8102E';
+    if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#22c55e';
+    if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#0ea5e9';
+    if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#f59e0b';
+    if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#f43f5e';
+    if (statusColor === 'purple') colorHex = '#a855f7';
+
+    const boxShadow = isSingleView
+      ? `0 2px 8px rgba(200, 16, 46, 0.4), 0 0 10px ${colorHex}`
+      : '0 2px 8px rgba(0,0,0,0.3)';
+
+    return L.divIcon({
+      className: 'custom-map-pin',
+      html: `<div style="
+        background-color: ${colorHex};
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid #FFFFFF;
+        box-shadow: ${boxShadow};
+      "></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
   }
 
   ngAfterViewInit() {
@@ -67,13 +97,14 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnDestroy() {
     if (this.map) {
+      console.log('[MapaQuitoComponent] Destruyendo instancia de mapa Leaflet.');
       this.map.remove();
     }
   }
 
-private initMap() {
+  private initMap() {
     if (typeof L === 'undefined') {
-      console.warn('Leaflet (L) no se ha cargado aún.');
+      console.warn('[MapaQuitoComponent] Leaflet (L) no se ha cargado en el contexto global.');
       return;
     }
 
@@ -85,11 +116,13 @@ private initMap() {
     let zoomLevel = 12;
 
     if (this.singleQuadrant) {
-      const coords = this.centerOf(this.singleQuadrant);
+      const coords = this.calculateCoordinatesCenter(this.singleQuadrant);
       centerLat = coords[0];
       centerLng = coords[1];
       zoomLevel = 14;
     }
+
+    console.log(`[MapaQuitoComponent] Inicializando mapa en lat: ${centerLat}, lng: ${centerLng}, zoom: ${zoomLevel}`);
 
     this.map = L.map(container, {
       center: [centerLat, centerLng],
@@ -99,13 +132,11 @@ private initMap() {
 
     this.markerLayer = L.layerGroup().addTo(this.map);
 
-    // Standard OpenStreetMap tiles (100% libre, sin requerir API Key ni marcas de agua)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(this.map);
 
-    // If single quadrant view
     if (this.singleQuadrant) {
       this.renderSingle();
       return;
@@ -116,44 +147,22 @@ private initMap() {
 
   private renderSingle() {
     if (!this.map || !this.markerLayer) return;
-    const item = this.singleQuadrant;
-    if (!item) return;
+    const quadrant = this.singleQuadrant;
+    if (!quadrant) return;
+
+    console.log('[MapaQuitoComponent] Renderizando vista de obra individual:', quadrant.title);
     this.markerLayer.clearLayers();
 
-    const coords = this.centerOf(item);
-
-    const createCustomIcon = (statusColor: string) => {
-      let colorHex = '#C8102E';
-      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#22c55e';
-      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#0ea5e9';
-      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#f59e0b';
-      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#f43f5e';
-      if (statusColor === 'purple') colorHex = '#a855f7';
-
-      return L.divIcon({
-        className: 'custom-map-pin',
-        html: `<div style="
-          background-color: ${colorHex};
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: 3px solid #FFFFFF;
-          box-shadow: 0 2px 8px rgba(200, 16, 46, 0.4), 0 0 10px ${colorHex};
-        "></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-    };
-
+    const coords = this.calculateCoordinatesCenter(quadrant);
     const marker = L.marker(coords, {
-      icon: createCustomIcon(item.statusColor)
+      icon: this.createMapPinIcon(quadrant.statusColor, true)
     }).addTo(this.markerLayer);
 
     marker.bindPopup(`
       <div style="font-family: sans-serif; padding: 4px; max-width: 240px;">
-        <strong style="color: #000; font-size: 0.95rem;">${this.esc(item.title)}</strong><br/>
-        <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.esc(item.locationZone)}</span><br/>
-        ${this.photosHtml(item)}
+        <strong style="color: #000; font-size: 0.95rem;">${this.escapeHtml(quadrant.title)}</strong><br/>
+        <span style="color: #4b5563; font-size: 0.8rem;">Quito, Ecuador - ${this.escapeHtml(quadrant.locationZone)}</span><br/>
+        ${this.buildPhotoGalleryHtml(quadrant)}
       </div>
     `).openPopup();
 
@@ -164,76 +173,54 @@ private initMap() {
     if (!this.map || !this.markerLayer) return;
 
     this.markerLayer.clearLayers();
-
-    const createCustomIcon = (statusColor: string) => {
-      let colorHex = '#C8102E';
-      if (statusColor === 'emerald' || statusColor === 'cumplidas') colorHex = '#22c55e';
-      if (statusColor === 'cyan' || statusColor === 'en-proceso') colorHex = '#0ea5e9';
-      if (statusColor === 'amber' || statusColor === 'detenidas') colorHex = '#f59e0b';
-      if (statusColor === 'rose' || statusColor === 'sin-comenzar') colorHex = '#f43f5e';
-      if (statusColor === 'purple') colorHex = '#a855f7';
-
-      return L.divIcon({
-        className: 'custom-map-pin',
-        html: `<div style="
-          background-color: ${colorHex};
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: 3px solid #FFFFFF;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        "></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-    };
+    console.log(`[MapaQuitoComponent] Renderizando ${this._quadrants.length} marcadores de cuadrantes en el mapa.`);
 
     const bounds: [number, number][] = [];
-    this._quadrants.forEach(q => {
-      if (q.lat === undefined || q.lng === undefined) return;
-      bounds.push([q.lat, q.lng]);
-      const coords: [number, number] = [q.lat, q.lng];
+    this._quadrants.forEach(quadrant => {
+      if (quadrant.lat === undefined || quadrant.lng === undefined) return;
+      bounds.push([quadrant.lat, quadrant.lng]);
+      const coords: [number, number] = [quadrant.lat, quadrant.lng];
       const marker = L.marker(coords, {
-          icon: createCustomIcon(q.statusColor)
-        }).addTo(this.markerLayer);
+        icon: this.createMapPinIcon(quadrant.statusColor, false)
+      }).addTo(this.markerLayer);
 
-        const popupContent = document.createElement('div');
-        popupContent.style.fontFamily = 'sans-serif';
-        popupContent.style.padding = '4px';
-        popupContent.style.maxWidth = '240px';
-        popupContent.innerHTML = `
-          <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.esc(q.title)}</strong>
-          <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.esc(q.locationZone)}</span>
-          ${this.photosHtml(q)}
-          <br/>
-          <button id="btn-map-go-${q.id}" style="
-            margin-top: 8px;
-            background: #C8102E;
-            color: #ffffff;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 600;
-            width: 100%;
-          ">Ver detalles de la obra</button>
-        `;
+      const popupContent = document.createElement('div');
+      popupContent.style.fontFamily = 'sans-serif';
+      popupContent.style.padding = '4px';
+      popupContent.style.maxWidth = '240px';
+      popupContent.innerHTML = `
+        <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.escapeHtml(quadrant.title)}</strong>
+        <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.escapeHtml(quadrant.locationZone)}</span>
+        ${this.buildPhotoGalleryHtml(quadrant)}
+        <br/>
+        <button id="btn-map-go-${quadrant.id}" style="
+          margin-top: 8px;
+          background: #C8102E;
+          color: #ffffff;
+          border: none;
+          padding: 6px 10px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.78rem;
+          font-weight: 600;
+          width: 100%;
+        ">Ver detalles de la obra</button>
+      `;
 
-        marker.bindPopup(popupContent);
+      marker.bindPopup(popupContent);
 
-        marker.on('popupopen', () => {
-          const btn = document.getElementById(`btn-map-go-${q.id}`);
-          if (btn) {
-            btn.onclick = () => {
-              this.router.navigate(['/cuadrante', q.id]);
-            };
-          }
-        });
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(`btn-map-go-${quadrant.id}`);
+        if (btn) {
+          btn.onclick = () => {
+            console.log(`[MapaQuitoComponent] Navegando a detalle de obra ID ${quadrant.id}`);
+            this.router.navigate(['/cuadrante', quadrant.id]);
+          };
+        }
+      });
     });
 
     if (bounds.length) {
-      // Calculate geometric centroid and find medoid point closest to all other works
       let minTotalDist = Infinity;
       let centralPoint: [number, number] = bounds[0];
 

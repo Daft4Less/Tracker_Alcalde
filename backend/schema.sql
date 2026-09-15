@@ -1,77 +1,114 @@
 -- =============================================================
--- ESQUEMA COMPLETO DE BASE DE DATOS POSTGRESQL - ALCALDE TRACKER QUITO
--- Basado en el Plan de Gobierno (PDF 1) e Informes de Presupuestos (PDF 2)
+-- ESQUEMA COMPLETO Y DEFINITIVO - ALCALDE TRACKER QUITO (PostgreSQL)
 -- =============================================================
 
--- 1. Tipo ENUM para estado de obras
+-- 1. TIPO ENUMERADO: Estados posibles de la obra
 DO $$ BEGIN
-    CREATE TYPE estado_obra AS ENUM ('cumplida', 'en_proceso', 'detenida', 'sin_comenzar', 'incumplida');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
--- Estados adicionales usados por la matriz del GTD Los Chillos
-DO $$ BEGIN
-    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'entregada';
-EXCEPTION WHEN duplicate_object THEN null; END $$;
-DO $$ BEGIN
-    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'concluida';
-EXCEPTION WHEN duplicate_object THEN null; END $$;
-DO $$ BEGIN
-    ALTER TYPE estado_obra ADD VALUE IF NOT EXISTS 'suspendida';
+    CREATE TYPE estado_obra AS ENUM (
+        'cumplida', 
+        'en_proceso', 
+        'detenida', 
+        'sin_comenzar', 
+        'incumplida',
+        'entregada',
+        'concluida',
+        'suspendida'
+    );
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- 2. Tabla de Ejes de Gobierno
+-- 2. TABLA: Ejes Estratégicos de Gobierno
 CREATE TABLE IF NOT EXISTS eje_gobierno (
     id_eje SERIAL PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
+    nombre VARCHAR(255) NOT NULL UNIQUE,
     descripcion TEXT,
-    icono VARCHAR(50) DEFAULT 'dashboard',
-    color_hex VARCHAR(7) DEFAULT '#006c49'
+    icono VARCHAR(50) DEFAULT 'construction',
+    color_hex VARCHAR(7) DEFAULT '#C8102E'
 );
 
--- 3. Tabla de Programas
-CREATE TABLE IF NOT EXISTS programa (
-    id_programa SERIAL PRIMARY KEY,
-    id_eje INTEGER NOT NULL REFERENCES eje_gobierno(id_eje) ON DELETE CASCADE,
-    nombre VARCHAR(255) NOT NULL,
-    codigo_programa VARCHAR(50)
-);
-
--- 4. Tabla de Parroquias del DMQ
+-- 3. TABLA: Parroquias del Distrito Metropolitano de Quito
 CREATE TABLE IF NOT EXISTS parroquia (
     id_parroquia SERIAL PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL UNIQUE,
     tipo VARCHAR(50) CHECK (tipo IN ('urbana', 'rural')),
-    zona_administrativa VARCHAR(100)
+    zona_administrativa VARCHAR(100) NOT NULL
 );
 
--- 5. Tabla Principal de Obras y Compromisos
+-- 4. TABLA PRINCIPAL: Obras y Compromisos Municipales
 CREATE TABLE IF NOT EXISTS obra (
     id_obra SERIAL PRIMARY KEY,
-    id_programa INTEGER REFERENCES programa(id_programa) ON DELETE CASCADE,
+    
+    -- Clasificación Estratégica y Territorial
     id_eje INTEGER REFERENCES eje_gobierno(id_eje) ON DELETE SET NULL,
     id_parroquia INTEGER NOT NULL REFERENCES parroquia(id_parroquia) ON DELETE RESTRICT,
     barrio_sector VARCHAR(255) NOT NULL,
+    tipo_obra VARCHAR(150) NOT NULL DEFAULT 'Vialidad y Movilidad',  -- Ej: Asfaltado, Alumbrado, Parques, Agua Potable
+    
+    -- Detalles Descriptivos y Estado Físico
     descripcion TEXT NOT NULL,
-    monto_inversion NUMERIC(12, 2) NULL,           -- NULL para obras en fase de propuesta
     estado estado_obra DEFAULT 'sin_comenzar',
     porcentaje_avance INT CHECK (porcentaje_avance BETWEEN 0 AND 100) DEFAULT 0,
-    latitud NUMERIC(10, 8) NULL,                    -- Georreferenciación Leaflet
-    longitud NUMERIC(11, 8) NULL,                   -- Georreferenciación Leaflet
-    entidad_ejecutora VARCHAR(150),                 -- Ej: EPMMOP, EPMAPS
+    
+    -- Ubicación y Georreferenciación GPS (Leaflet Maps)
+    latitud NUMERIC(10, 8) NULL,
+    longitud NUMERIC(11, 8) NULL,
     url_mapa TEXT,
-    fuente_financiamiento VARCHAR(50),
-    estado_pago VARCHAR(30),                        -- enviado_pago | devengado | arrastre_2025
-    url_imagen TEXT,                                -- URL de la foto de la obra (desde la matriz xlsx)
+    
+    -- Gestión Institucional y Transparencia Financiera
+    entidad_ejecutora VARCHAR(150) NOT NULL DEFAULT 'EPMMOP',       -- Ej: EPMMOP, EPMAPS, Municipio de Quito
+    monto_inversion NUMERIC(14, 2) NULL,                            -- Presupuesto ejecutado/asignado en USD
+    beneficiarios_directos INTEGER DEFAULT 0,
     codigo_contrato VARCHAR(100),
-    beneficiarios_directos INTEGER,
+    fuente_financiamiento VARCHAR(100) DEFAULT 'Presupuesto Participativo',
+    estado_pago VARCHAR(50) DEFAULT 'devengado',                   -- enviado_pago | devengado | arrastre_2025
+    
+    -- Evidencias Multimedia y Documentos de Respaldo (PDF)
+    url_imagen TEXT,                                                -- Fotografía principal de la obra (Base64 o URL)
+    url_documento_respaldo TEXT,                                    -- Enlace al PDF del contrato o acta de entrega
+    
+    -- Fechas y Auditoría de Tiempos
+    anio_ejecucion INTEGER DEFAULT EXTRACT(YEAR FROM CURRENT_DATE),
     fecha_inicio DATE,
     fecha_fin_estimada DATE,
-    anio_ejecucion INTEGER
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Seeds de catálogos necesarios para la matriz del GTD Los Chillos
+-- 5. TABLA: Galería de Evidencias Fotográficas Múltiples
+CREATE TABLE IF NOT EXISTS evidencia_obra (
+    id_evidencia SERIAL PRIMARY KEY,
+    id_obra INTEGER NOT NULL REFERENCES obra(id_obra) ON DELETE CASCADE,
+    url_imagen TEXT NOT NULL,
+    tipo_evidencia VARCHAR(50) CHECK (tipo_evidencia IN ('antes', 'durante', 'despues', 'documento')),
+    descripcion TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. TABLA: Usuarios Administradores (Seguridad JWT)
+CREATE TABLE IF NOT EXISTS admin (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,                                    -- Contraseña encriptada en bcrypt
+    nombre_completo VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) DEFAULT 'admin',                                -- admin | auditor | editor
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. TABLA: Log de Auditoría y Trazabilidad de Cambios
+CREATE TABLE IF NOT EXISTS auditoria_log (
+    id_log SERIAL PRIMARY KEY,
+    usuario VARCHAR(100) NOT NULL,
+    accion VARCHAR(50) NOT NULL,                                    -- CREAR | ACTUALIZAR | ELIMINAR | LOGIN
+    tabla_afectada VARCHAR(50) NOT NULL,
+    id_registro_afectado INTEGER,
+    detalles JSONB,                                                 -- Copia de los datos antes/después del cambio
+    ip_origen VARCHAR(45),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =============================================================
+-- SEED DE DATOS INICIALES (Ejes y Parroquias Principales)
+-- =============================================================
+
 INSERT INTO eje_gobierno (id_eje, nombre, descripcion, icono, color_hex) VALUES
     (1, 'Hábitat, Seguridad y Convivencia Ciudadana', 'Vialidad, alumbrado LED, espacios públicos y patrullaje barrial.', 'policy', '#006c49'),
     (2, 'Trabajo, Economía, Producción e Innovación', 'Fomento a emprendimientos, reactivación comercial y atracción de inversiones.', 'work', '#001428'),
@@ -91,44 +128,3 @@ INSERT INTO parroquia (id_parroquia, nombre, tipo, zona_administrativa) VALUES
     (8, 'Centro Histórico', 'urbana', 'Manuela Sáenz'),
     (9, 'Quitumbe', 'urbana', 'Quitumbe')
 ON CONFLICT DO NOTHING;
-
--- 6. Tabla de Evidencias y Galerías
-CREATE TABLE IF NOT EXISTS evidencia_obra (
-    id_evidencia SERIAL PRIMARY KEY,
-    id_obra INTEGER NOT NULL REFERENCES obra(id_obra) ON DELETE CASCADE,
-    url_imagen TEXT NOT NULL,
-    tipo_evidencia VARCHAR(50) CHECK (tipo_evidencia IN ('antes', 'durante', 'despues', 'documento')),
-    descripcion TEXT,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 7. Tabla de Criterios de Priorización
-CREATE TABLE IF NOT EXISTS criterio_priorizacion (
-    id_criterio SERIAL PRIMARY KEY,
-    id_obra INTEGER NOT NULL REFERENCES obra(id_obra) ON DELETE CASCADE,
-    tipo_criterio VARCHAR(100) NOT NULL,
-    puntaje INTEGER CHECK (puntaje BETWEEN 1 AND 5),
-    detalles TEXT
-);
-
--- 8. Tabla de Eventos de Rendición de Cuentas (Vista 3)
-CREATE TABLE IF NOT EXISTS evento_rendicion (
-    id_evento SERIAL PRIMARY KEY,
-    id_obra INTEGER REFERENCES obra(id_obra) ON DELETE SET NULL,
-    titulo VARCHAR(255) NOT NULL,
-    fecha_evento TIMESTAMP NOT NULL,
-    lugar VARCHAR(255) NOT NULL,
-    tipo_evento VARCHAR(100),
-    descripcion TEXT
-);
-
--- 9. Tabla de Administradores (Autenticación JWT del Panel Admin)
-CREATE TABLE IF NOT EXISTS admin (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,                    -- Hash bcrypt
-    nombre_completo VARCHAR(255),
-    rol VARCHAR(50) DEFAULT 'admin',
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);

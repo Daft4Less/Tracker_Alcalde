@@ -88,25 +88,41 @@ export class Vista1Component implements OnInit {
   });
 
   ngOnInit() {
-    this.visibleCount.set(this.getInitialCount());
+    const initialCount = this.getInitialCount();
+    this.visibleCount.set(initialCount);
+    console.log(`[Vista1Component] Inicializando catálogo de obras. Tamaño de lote inicial: ${initialCount}`);
+
     this.cuadrantesService.getAllQuadrants().subscribe({
       next: list => {
+        console.log(`[Vista1Component] Datos cargados con éxito: ${list.length} obras registradas.`);
         this.quadrants.set(list);
         this.loading.set(false);
       },
-      error: () => {
+      error: err => {
+        console.error('[Vista1Component] Error al cargar la lista de obras:', err);
         this.error.set(true);
         this.loading.set(false);
       }
     });
   }
 
+  /**
+   * Cambia el filtro activo por estado de obra y reinicia el recuento visible al lote inicial.
+   */
   filterByStatus(status: string) {
+    console.log(`[Vista1Component] Filtrando catálogo por estado: "${status}"`);
     this.selectedStatus.set(status);
-    this.visibleCount.set(this.getInitialCount()); // Reset visible count on filter change
+    this.visibleCount.set(this.getInitialCount());
   }
 
+  /**
+   * Carga el siguiente lote de filas en la cuadrícula de obras.
+   */
   loadMore() {
-    this.visibleCount.update(count => count + this.getLoadStep()); // Release next batch of rows
+    const loadStep = this.getLoadStep();
+    const currentVisible = this.visibleCount();
+    const newTotalVisible = currentVisible + loadStep;
+    console.log(`[Vista1Component] Cargar Más presionado: incrementando vista de ${currentVisible} a ${newTotalVisible} obras.`);
+    this.visibleCount.set(newTotalVisible);
   }
 }

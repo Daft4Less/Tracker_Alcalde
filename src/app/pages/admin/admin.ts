@@ -130,38 +130,56 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadEjes() {
+    console.log('[AdminComponent] Cargando catálogo de ejes...');
     this.api.getEjes().subscribe({
-      next: res => this.ejes.set(res.data),
-      error: () => this.errorMessage.set('No se pudieron cargar los ejes desde el backend.')
+      next: response => {
+        console.log(`[AdminComponent] ${response.data.length} ejes recibidos.`);
+        this.ejes.set(response.data);
+      },
+      error: err => {
+        console.error('[AdminComponent] Error al cargar ejes:', err);
+        this.errorMessage.set('No se pudieron cargar los ejes desde el backend.');
+      }
     });
   }
 
   private loadParroquias() {
+    console.log('[AdminComponent] Cargando catálogo de parroquias...');
     this.api.getParroquias().subscribe({
-      next: res => this.parroquias.set(res.data),
-      error: () => this.errorMessage.set('No se pudieron cargar las parroquias desde el backend.')
+      next: response => {
+        console.log(`[AdminComponent] ${response.data.length} parroquias recibidas.`);
+        this.parroquias.set(response.data);
+      },
+      error: err => {
+        console.error('[AdminComponent] Error al cargar parroquias:', err);
+        this.errorMessage.set('No se pudieron cargar las parroquias desde el backend.');
+      }
     });
   }
 
   loadObras() {
     this.loading.set(true);
+    console.log('[AdminComponent] Cargando listado completo de obras para la tabla admin...');
     this.api.getObras().subscribe({
-      next: res => {
-        this.allObras.set(res.data || []);
+      next: response => {
+        const obrasList = response.data || [];
+        console.log(`[AdminComponent] ${obrasList.length} obras cargadas en el panel administrativo.`);
+        this.allObras.set(obrasList);
         this.loading.set(false);
       },
-      error: () => {
+      error: err => {
+        console.error('[AdminComponent] Error al cargar obras:', err);
         this.loading.set(false);
         this.errorMessage.set('No se pudo cargar las obras desde el backend.');
       }
     });
   }
 
-  formatMoney(val?: number | null): string {
-    if (!val) return '$0';
-    if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
-    if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}K`;
-    return `$${val.toLocaleString()}`;
+  formatMoney(amount?: number | null): string {
+    if (!amount) return '$0';
+    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
+    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(1)}K`;
+    return `$${amount.toLocaleString()}`;
   }
 
   estadoColor(estado?: string): string {
@@ -169,7 +187,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   estadoLabel(estado?: string): string {
-    const map: { [key: string]: string } = {
+    const statusMap: { [key: string]: string } = {
       cumplida: 'Cumplida',
       entregada: 'Entregada',
       concluida: 'Concluida',
@@ -180,21 +198,22 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       incumplida: 'Incumplida',
       pendiente: 'Pendiente'
     };
-    return map[estado || ''] || estado || '—';
+    return statusMap[estado || ''] || estado || '—';
   }
 
   estadoPagoLabel(estadoPago?: string): string {
-    const map: { [key: string]: string } = {
+    const paymentMap: { [key: string]: string } = {
       enviado_pago: 'Enviado para el pago',
       devengado: 'Devengado',
       arrastre_2025: 'Arrastre a 2025'
     };
-    return map[estadoPago || ''] || (estadoPago ? estadoPago : '—');
+    return paymentMap[estadoPago || ''] || (estadoPago ? estadoPago : '—');
   }
 
   // ---------- MAPA ----------
   private initMap() {
     if (typeof L === 'undefined' || !this.mapContainer) return;
+    console.log('[AdminComponent] Inicializando mapa picker interactivo Leaflet.');
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [this.form.latitud, this.form.longitud],
       zoom: 12,
@@ -213,7 +232,6 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
     this.pickerMarker.on('dragend', (e: any) => this.setLocation(e.target.getLatLng().lat, e.target.getLatLng().lng));
     this.map.on('click', (e: any) => this.setLocation(e.latlng.lat, e.latlng.lng));
 
-    // Asegurar render correcto tras carga
     setTimeout(() => this.map?.invalidateSize(), 150);
   }
 
@@ -222,6 +240,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
     this.form.longitud = Number(lng.toFixed(6));
     this.pickerMarker?.setLatLng([lat, lng]);
     this.mapPinLabel = label || `Lat ${this.form.latitud}, Lng ${this.form.longitud}`;
+    console.debug(`[AdminComponent] Coordenadas fijadas en formulario: Lat ${this.form.latitud}, Lng ${this.form.longitud}`);
   }
 
   onParroquiaChange(event: Event) {
@@ -229,7 +248,8 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
     const coords = PARROQUIA_COORDS[id];
     if (coords && this.map) {
       this.map.flyTo(coords, 13);
-      const nombre = this.parroquias().find(p => p.id_parroquia === id)?.nombre || '';
+      const nombre = this.parroquias().find(parroquia => parroquia.id_parroquia === id)?.nombre || '';
+      console.log(`[AdminComponent] Parroquia seleccionada: ${nombre} (ID ${id}). Centrando mapa.`);
       this.setLocation(coords[0], coords[1], nombre ? `Sector ${nombre}` : undefined);
     }
   }
@@ -237,36 +257,46 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   searchAddress() {
     const query = this.addressSearch.trim();
     if (!query) return;
+    console.log(`[AdminComponent] Buscando geocodificación de dirección: "${query}"`);
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${query}, Quito, Ecuador`)}`)
       .then(r => r.json())
       .then((results: any[]) => {
         if (results && results.length > 0) {
           const lat = parseFloat(results[0].lat);
           const lng = parseFloat(results[0].lon);
+          console.log(`[AdminComponent] Geocodificación exitosa: Lat ${lat}, Lng ${lng}`);
           this.map?.flyTo([lat, lng], 14);
           this.setLocation(lat, lng, results[0].display_name.split(',')[0]);
         } else {
+          console.warn('[AdminComponent] No se encontraron resultados en Nominatim.');
           this.errorMessage.set('No se encontraron coordenadas para esa dirección.');
         }
       })
-      .catch(() => this.errorMessage.set('Error en la búsqueda de dirección.'));
+      .catch(err => {
+        console.error('[AdminComponent] Error en búsqueda de dirección:', err);
+        this.errorMessage.set('Error en la búsqueda de dirección.');
+      });
   }
 
   parseMapsUrl() {
     const url = this.mapsUrlInput.trim();
     if (!url) return;
+    console.log('[AdminComponent] Analizando URL de Google Maps...');
     this.mapsParserMsg = 'Analizando enlace de Google Maps...';
     this.api.parseMapsUrl(url).subscribe({
-      next: res => {
-        if (res.success && res.lat && res.lng) {
-          this.map?.flyTo([res.lat, res.lng], 15);
-          this.setLocation(res.lat, res.lng);
-          this.mapsParserMsg = `Coordenadas extraídas: Lat ${res.lat}, Lng ${res.lng}`;
+      next: response => {
+        if (response.success && response.lat && response.lng) {
+          console.log(`[AdminComponent] Coordenadas extraídas de Maps: Lat ${response.lat}, Lng ${response.lng}`);
+          this.map?.flyTo([response.lat, response.lng], 15);
+          this.setLocation(response.lat, response.lng);
+          this.mapsParserMsg = `Coordenadas extraídas: Lat ${response.lat}, Lng ${response.lng}`;
         } else {
-          this.mapsParserMsg = res.message || 'No se pudieron extraer coordenadas.';
+          console.warn('[AdminComponent] No se pudieron extraer coordenadas:', response.message);
+          this.mapsParserMsg = response.message || 'No se pudieron extraer coordenadas.';
         }
       },
-      error: () => {
+      error: err => {
+        console.error('[AdminComponent] Error en parseMapsUrl:', err);
         this.mapsParserMsg = 'El enlace no pudo ser procesado.';
       }
     });
@@ -281,6 +311,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorMessage.set('Selecciona un archivo de imagen válido.');
       return;
     }
+    console.log(`[AdminComponent] Imagen seleccionada: ${file.name} (${Math.round(file.size / 1024)} KB)`);
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const base64 = e.target.result;
@@ -291,12 +322,14 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   removeImage(field: 'imagen') {
+    console.log('[AdminComponent] Removiendo imagen adjunta.');
     this.form.url_imagen = '';
     this.imagePreviews.imagen = '';
   }
 
   // ---------- CRUD ----------
   resetForm() {
+    console.log('[AdminComponent] Reseteando formulario de edición a valores por defecto.');
     this.form = {
       id_eje: this.ejes()[0]?.id_eje || 1,
       id_parroquia: 7,
@@ -321,6 +354,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   startEdit(obra: Obra) {
+    console.log(`[AdminComponent] Iniciando edición para obra ID: ${obra.id_obra} (${obra.barrio_sector})`);
     this.editingId.set(obra.id_obra || null);
     this.form = {
       id_eje: obra.id_eje || 1,
@@ -350,6 +384,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorMessage.set('Los campos Barrio/Sector y Descripción son obligatorios.');
       return;
     }
+    console.log('[AdminComponent] Enviando formulario de obra (Crear/Actualizar)...');
     void this.persist(this.form, this.editingId());
   }
 
@@ -361,9 +396,10 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       ? this.api.updateObra(editingId, obra)
       : this.api.createObra(obra);
     request.subscribe({
-      next: res => {
+      next: response => {
         this.saving.set(false);
-        this.successMessage.set(res.message || 'Obra guardada exitosamente.');
+        console.log(`[AdminComponent] Obra ${editingId ? 'actualizada' : 'creada'} exitosamente.`);
+        this.successMessage.set(response.message || 'Obra guardada exitosamente.');
         const prevEdit = this.editingId();
         this.resetForm();
         this.loadObras();
@@ -374,6 +410,7 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       error: err => {
         this.saving.set(false);
+        console.error('[AdminComponent] Error al guardar obra:', err);
         this.errorMessage.set(err.error?.message || 'Error al guardar la obra en el backend.');
       }
     });
@@ -387,38 +424,44 @@ export class AdminComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     if (!confirm('¿Eliminar permanentemente esta obra de la base de datos?')) return;
+    console.log(`[AdminComponent] Solicitando eliminación permanente de obra ID: ${id}`);
     this.api.deleteObra(id).subscribe({
       next: () => {
+        console.log(`[AdminComponent] Obra ID ${id} eliminada exitosamente.`);
         this.successMessage.set('Obra eliminada exitosamente.');
         this.resetForm();
         this.loadObras();
         setTimeout(() => this.successMessage.set(''), 3500);
       },
       error: err => {
+        console.error(`[AdminComponent] Error al eliminar obra ID ${id}:`, err);
         this.errorMessage.set(err.error?.message || 'Error al eliminar la obra.');
       }
     });
   }
 
   logout() {
+    console.log('[AdminComponent] Acción de cierre de sesión invocada por el usuario.');
     this.auth.logout();
   }
 
   exportCSV() {
+    console.log('[AdminComponent] Generando exportación de archivo CSV de obras filtradas...');
     const rows = this.filteredObras();
     const header = ['ID', 'Barrio/Sector', 'Parroquia', 'Descripcion', 'Estado', 'Eje', 'Avance %', 'Pago', 'Fuente', 'Inversion USD', 'Lat', 'Lng', 'URL Maps', 'Ejecutora'];
-    const escape = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
-    const lines = rows.map(o => [
-      o.id_obra, o.barrio_sector, o.parroquia_nombre, o.descripcion, o.estado,
-      o.eje_nombre, o.porcentaje_avance, o.estado_pago, o.fuente_financiamiento,
-      o.monto_inversion, o.latitud, o.longitud, o.url_mapa, o.entidad_ejecutora
-    ].map(escape).join(','));
-    const csv = [header.map(escape).join(','), ...lines].join('\r\n');
+    const escapeValue = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+    const lines = rows.map(obra => [
+      obra.id_obra, obra.barrio_sector, obra.parroquia_nombre, obra.descripcion, obra.estado,
+      obra.eje_nombre, obra.porcentaje_avance, obra.estado_pago, obra.fuente_financiamiento,
+      obra.monto_inversion, obra.latitud, obra.longitud, obra.url_mapa, obra.entidad_ejecutora
+    ].map(escapeValue).join(','));
+    const csv = [header.map(escapeValue).join(','), ...lines].join('\r\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `obras-alcalde-tracker-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
+    console.log(`[AdminComponent] Archivo CSV descargado con ${rows.length} registros.`);
   }
 }

@@ -31,12 +31,15 @@ export class Vista2Component implements OnInit {
   error = signal(false);
 
   ngOnInit() {
+    console.log('[Vista2Component] Cargando obras para resumen de impacto e indicadores territoriales...');
     this.cuadrantesService.getAllQuadrants().subscribe({
       next: list => {
+        console.log(`[Vista2Component] Carga exitosa: ${list.length} obras procesadas para impacto.`);
         this.quadrants.set(list);
         this.loading.set(false);
       },
-      error: () => {
+      error: err => {
+        console.error('[Vista2Component] Error al obtener datos para vista de impacto:', err);
         this.error.set(true);
         this.loading.set(false);
       }
@@ -46,9 +49,12 @@ export class Vista2Component implements OnInit {
   impactSummary = computed<ImpactCategory[]>(() => {
     const list = this.quadrants();
     if (!list.length) return [];
-    const avg = Math.round(list.reduce((acc, q) => acc + q.progressPercentage, 0) / list.length);
-    const inversion = list.reduce((acc, q) => acc + (q.montoTotal ?? 0), 0);
-    const parroquias = new Set(list.map(q => q.territory).filter(Boolean)).size;
+    const avgPercentage = Math.round(list.reduce((acc, quadrant) => acc + quadrant.progressPercentage, 0) / list.length);
+    const totalInversion = list.reduce((acc, quadrant) => acc + (quadrant.montoTotal ?? 0), 0);
+    const totalParroquias = new Set(list.map(quadrant => quadrant.territory).filter(Boolean)).size;
+
+    console.debug(`[Vista2Component] Métricas calculadas: Avance prom: ${avgPercentage}%, Inversión: $${totalInversion}, Parroquias: ${totalParroquias}`);
+
     return [
       {
         title: 'Obras Registradas',
@@ -58,19 +64,19 @@ export class Vista2Component implements OnInit {
       },
       {
         title: 'Avance Promedio',
-        percentage: `${avg}%`,
+        percentage: `${avgPercentage}%`,
         changeSubtext: 'cumplimiento físico general',
         icon: 'trending_up'
       },
       {
         title: 'Inversión Total',
-        percentage: formatMoney(inversion),
+        percentage: formatMoney(totalInversion),
         changeSubtext: 'USD en obras municipales',
         icon: 'payments'
       },
       {
         title: 'Parroquias Cubiertas',
-        percentage: `${parroquias}`,
+        percentage: `${totalParroquias}`,
         changeSubtext: 'unidades territoriales con obras',
         icon: 'map'
       }
@@ -78,21 +84,21 @@ export class Vista2Component implements OnInit {
   });
 
   sectorImpacts = computed<SectorImpact[]>(() => {
-    const groups = new Map<string, QuadrantDetail[]>();
-    this.quadrants().forEach(q => {
-      const key = q.territory || 'Distrito Metropolitano';
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(q);
+    const sectorGroups = new Map<string, QuadrantDetail[]>();
+    this.quadrants().forEach(quadrant => {
+      const sectorKey = quadrant.territory || 'Distrito Metropolitano';
+      if (!sectorGroups.has(sectorKey)) sectorGroups.set(sectorKey, []);
+      sectorGroups.get(sectorKey)!.push(quadrant);
     });
 
-    return Array.from(groups.entries()).map(([sector, obras]) => {
-      const avg = Math.round(obras.reduce((acc, q) => acc + q.progressPercentage, 0) / obras.length);
-      const top = obras.reduce((a, b) => (b.progressPercentage > a.progressPercentage ? b : a));
+    return Array.from(sectorGroups.entries()).map(([sector, obras]) => {
+      const avgPercentage = Math.round(obras.reduce((acc, quadrant) => acc + quadrant.progressPercentage, 0) / obras.length);
+      const topObra = obras.reduce((firstObra, secondObra) => (secondObra.progressPercentage > firstObra.progressPercentage ? secondObra : firstObra));
       return {
         sector: `Parroquia ${sector}`,
-        improvementPercentage: avg,
-        mainWork: top.fullDescription.length > 60 ? top.fullDescription.slice(0, 60) + '…' : top.fullDescription,
-        statusText: avg >= 70 ? 'Impacto Alto' : (avg >= 40 ? 'Impacto Medio' : 'Impacto Bajo')
+        improvementPercentage: avgPercentage,
+        mainWork: topObra.fullDescription.length > 60 ? topObra.fullDescription.slice(0, 60) + '…' : topObra.fullDescription,
+        statusText: avgPercentage >= 70 ? 'Impacto Alto' : (avgPercentage >= 40 ? 'Impacto Medio' : 'Impacto Bajo')
       };
     });
   });

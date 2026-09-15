@@ -279,6 +279,7 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setStation(index: number) {
+    console.log(`[MetroSimulator] Selección manual de estación índice: ${index} (${this.stations[index]?.name})`);
     this.currentStationIndex.set(index);
     this.updateMapTrainPosition();
     const station = this.stations[index];
@@ -288,7 +289,7 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     const updatedActive = Math.max(100, this.activePassengers() + netChange);
 
     this.activePassengers.set(updatedActive);
-    this.totalDailyPassengers.update(v => v + boarded);
+    this.totalDailyPassengers.update(currentTotal => currentTotal + boarded);
 
     const newLog: StationMovementLog = {
       id: `manual-${Date.now()}`,
@@ -305,41 +306,53 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     this.logs.update(currentLogs => [newLog, ...currentLogs.slice(0, 14)]);
   }
 
+  /**
+   * Inicia el temporizador de simulación en tiempo real (recorrido automatizado).
+   */
   startTimer() {
     this.stopTimer();
+    console.log('[MetroSimulator] Iniciando temporizador de simulación de recorrido (3.5s por estación).');
     this.timerRef = setInterval(() => {
       this.simulateStationStop();
     }, 3500);
   }
 
+  /**
+   * Detiene el temporizador de simulación.
+   */
   stopTimer() {
     if (this.timerRef) {
+      console.log('[MetroSimulator] Deteniendo temporizador de simulación de recorrido.');
       clearInterval(this.timerRef);
       this.timerRef = null;
     }
   }
 
+  /**
+   * Simula el avance del tren hacia la siguiente estación con intercambio de pasajeros
+   * y cambio automático de sentido en las terminales (Quitumbe / El Labrador).
+   */
   simulateStationStop() {
     let sentido = this.sentidoActual();
     let currentIdx = this.currentStationIndex();
 
-    // Reversible trajectory on the same physical line (Ida y Vuelta por el mismo camino)
     if (sentido === 'sur-norte') {
       if (currentIdx >= 14) {
-        // Reached El Labrador (Terminal Norte): Turn around and start returning south!
+        // Al llegar a El Labrador (Terminal Norte), cambiar sentido hacia el Sur
         sentido = 'norte-sur';
         this.sentidoActual.set('norte-sur');
-        currentIdx = 13; // Step back to Jipijapa
+        currentIdx = 13;
+        console.log('[MetroSimulator] Terminal Norte alcanzada (El Labrador). Invirtiendo recorrido: Norte → Sur');
       } else {
         currentIdx = currentIdx + 1;
       }
     } else {
-      // Sentido is 'norte-sur' (returning south)
       if (currentIdx <= 0) {
-        // Reached Quitumbe (Terminal Sur): Turn around and start heading north!
+        // Al llegar a Quitumbe (Terminal Sur), cambiar sentido hacia el Norte
         sentido = 'sur-norte';
         this.sentidoActual.set('sur-norte');
-        currentIdx = 1; // Step forward to Morán Valverde
+        currentIdx = 1;
+        console.log('[MetroSimulator] Terminal Sur alcanzada (Quitumbe). Invirtiendo recorrido: Sur → Norte');
       } else {
         currentIdx = currentIdx - 1;
       }
@@ -357,10 +370,12 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
     const updatedActive = Math.max(100, this.activePassengers() + netChange);
 
     this.activePassengers.set(updatedActive);
-    this.totalDailyPassengers.update(v => v + boarded);
-    this.co2SavedTons.update(v => Number((v + 0.015).toFixed(2)));
+    this.totalDailyPassengers.update(val => val + boarded);
+    this.co2SavedTons.update(val => Number((val + 0.015).toFixed(2)));
 
     const sentidoLabel = sentido === 'sur-norte' ? 'Sur → Norte' : 'Norte → Sur';
+
+    console.debug(`[MetroSimulator] Parada: ${station.name} (${sentidoLabel}) | +${boarded} -${unboarded} = Pasajeros activos: ${updatedActive}`);
 
     const newLog: StationMovementLog = {
       id: `log-${Date.now()}`,
@@ -384,7 +399,11 @@ export class Vista3Component implements OnInit, AfterViewInit, OnDestroy {
   readonly avgStationDistanceKm = 1.5; // 1.5 km distancia promedio entre estaciones
   readonly avgStationTravelMin = 2; // 2 minutos tiempo de viaje promedio entre estaciones consecutivas
 
+  /**
+   * Alterna el modo de visualización entre Mapa GPS Leaflet y Esquema S-Curve.
+   */
   setViewMode(mode: 'map' | 'scurve') {
+    console.log(`[MetroSimulator] Cambiando modo de vista a: "${mode}"`);
     this.activeView.set(mode);
     setTimeout(() => {
       if (this.map) {

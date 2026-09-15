@@ -110,52 +110,57 @@ function estadoColor(estado: PromiseStatus): QuadrantDetail['statusColor'] {
   }
 }
 
-function obraToQuadrant(o: Obra): QuadrantDetail {
-  const estado = normalizeEstado(o.estado);
-  const category = EJE_CATEGORY[o.id_eje ?? 0] || 'seguridad';
-  const avance = o.porcentaje_avance ?? (estado === 'cumplidas' ? 100 : 0);
-  const inversion = o.monto_inversion ?? null;
-  const ejecutora = o.entidad_ejecutora || 'Municipio de Quito';
+function obraToQuadrant(obra: Obra): QuadrantDetail {
+  const estado = normalizeEstado(obra.estado);
+  const category = EJE_CATEGORY[obra.id_eje ?? 0] || 'seguridad';
+  const avance = obra.porcentaje_avance ?? (estado === 'cumplidas' ? 100 : 0);
+  const inversion = obra.monto_inversion ?? null;
+  const ejecutora = obra.entidad_ejecutora || 'Municipio de Quito';
 
   return {
-    id: o.id_obra ?? 0,
-    title: `Compromiso ${o.id_obra}: ${o.barrio_sector || 'Obra Municipal'}`,
+    id: obra.id_obra ?? 0,
+    title: `Compromiso ${obra.id_obra}: ${obra.barrio_sector || 'Obra Municipal'}`,
     category,
     promiseStatus: estado,
     statusLabel: estadoLabel(estado),
     value: estado === 'cumplidas' ? '100% Logrado' : `${avance}% Avance`,
-    subtext: `${o.parroquia_nombre || 'Distrito Metropolitano'} · ${ejecutora}`,
+    subtext: `${obra.parroquia_nombre || 'Distrito Metropolitano'} · ${ejecutora}`,
     icon: EJE_ICON[category] || 'construction',
     statusColor: estadoColor(estado),
     statusHex: STATUS_HEX[estadoColor(estado)],
     badgeText: estadoLabel(estado),
     progressPercentage: estado === 'cumplidas' ? 100 : avance,
-    fullDescription: o.descripcion || 'Obra registrada en el catálogo municipal.',
+    fullDescription: obra.descripcion || 'Obra registrada en el catálogo municipal.',
     responsibleTeam: ejecutora,
-    lastUpdated: o.anio_ejecucion ? `Año ${o.anio_ejecucion}` : 'Reciente',
+    lastUpdated: obra.anio_ejecucion ? `Año ${obra.anio_ejecucion}` : 'Reciente',
     priority: inversion !== null && inversion >= 1000000 ? 'Alta' : (inversion !== null && inversion >= 300000 ? 'Media' : 'Normal'),
-    locationZone: o.barrio_sector || 'Quito, Ecuador',
+    locationZone: obra.barrio_sector || 'Quito, Ecuador',
     metrics: [
       { label: 'Inversión Total', val: formatMoney(inversion) },
-      { label: 'Beneficiarios Directos', val: o.beneficiarios_directos ? `${o.beneficiarios_directos.toLocaleString('en-US')}` : '—' },
-      { label: 'Código de Contrato', val: o.codigo_contrato || '—' }
+      { label: 'Beneficiarios Directos', val: obra.beneficiarios_directos ? `${obra.beneficiarios_directos.toLocaleString('en-US')}` : '—' },
+      { label: 'Código de Contrato', val: obra.codigo_contrato || '—' }
     ],
     timeline: [
       {
-        time: o.anio_ejecucion ? `${o.anio_ejecucion}` : '2026',
+        time: obra.anio_ejecucion ? `${obra.anio_ejecucion}` : '2026',
         action: `${estadoLabel(estado)} · avance físico ${avance}%`,
         user: ejecutora
       }
     ],
-    lat: o.latitud,
-    lng: o.longitud,
+    lat: obra.latitud,
+    lng: obra.longitud,
     montoTotal: inversion,
-    beneficiariosDirectos: o.beneficiarios_directos,
-    territory: o.parroquia_nombre,
-imagen: o.url_imagen || undefined
+    beneficiariosDirectos: obra.beneficiarios_directos,
+    territory: obra.parroquia_nombre,
+    imagen: obra.url_imagen || undefined
   };
 }
 
+/**
+ * Servicio encargado de la gestión de cuadrantes y obras públicas.
+ * Aplica estrategia de resiliencia: intenta consumir la API backend primero;
+ * si falla o no está disponible, conmuta transparentemente al seed JSON local.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -163,41 +168,78 @@ export class CuadrantesService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  private static SEED_URL = 'assets/data/obras.json';
+  private static readonly SEED_URL = 'assets/data/obras.json';
 
   /**
-   * Carga el seed embebido (assets/data/obras.json) que incluye las
-   * coordenadas y fotos reales. Permite ver el mapa y el catálogo completo
-   * sin backend (GitHub Pages / un amigo sin API local).
+   * Carga el seed embebido (assets/data/obras.json) con coordenadas y fotos reales.
+   * Permite funcionamiento offline o en despliegues estáticos (GitHub Pages).
    */
   private seedObras(): Observable<Obra[]> {
+    console.debug('[CuadrantesService] Cargando datos desde seed embebido local:', CuadrantesService.SEED_URL);
     return this.http.get<Obra[]>(CuadrantesService.SEED_URL);
   }
 
+  /**
+   * Obtiene la totalidad de obras/cuadrantes transformados al modelo de vista UI.
+   */
   getAllQuadrants(): Observable<QuadrantDetail[]> {
+    console.log('[CuadrantesService] Solicitando catálogo completo de cuadrantes...');
     return this.http.get<{ success: boolean; data: Obra[] }>(`${this.apiUrl}/obras`).pipe(
-      map(res => (res.data || []).map(obraToQuadrant)),
-      catchError(() => this.seedObras().pipe(
-        map(list => list.map(obraToQuadrant))
-      ))
+      map(response => {
+        const obras = response.data || [];
+        console.log(`[CuadrantesService] API respondió exitosamente con ${obras.length} obras.`);
+        return obras.map(obraToQuadrant);
+      }),
+      catchError(error => {
+        console.warn('[CuadrantesService] Error al contactar backend API. Usando fallback seed local.', error);
+        return this.seedObras().pipe(
+          map(list => {
+            console.log(`[CuadrantesService] Fallback completado: ${list.length} obras procesadas desde seed.`);
+            return list.map(obraToQuadrant);
+          })
+        );
+      })
     );
   }
 
+  /**
+   * Obtiene el detalle de un cuadrante específico según su ID numérico.
+   */
   getQuadrantById(id: number): Observable<QuadrantDetail | undefined> {
+    console.log(`[CuadrantesService] Buscando cuadrante por ID: ${id}`);
     return this.http.get<{ success: boolean; data: Obra }>(`${this.apiUrl}/obras/${id}`).pipe(
-      map(res => res.data ? obraToQuadrant(res.data) : undefined),
-      catchError(() => this.seedObras().pipe(
-        switchMap(list => {
-          const found = list.find(o => o.id_obra === id);
-          return of(found ? obraToQuadrant(found) : undefined);
-        })
-      ))
+      map(response => {
+        if (response.data) {
+          console.log(`[CuadrantesService] Obra ID ${id} encontrada en backend API.`);
+          return obraToQuadrant(response.data);
+        }
+        console.warn(`[CuadrantesService] API no devolvió datos para Obra ID ${id}.`);
+        return undefined;
+      }),
+      catchError(error => {
+        console.warn(`[CuadrantesService] Falló consulta API para ID ${id}. Buscando en seed local...`, error);
+        return this.seedObras().pipe(
+          switchMap(list => {
+            const foundObra = list.find(o => o.id_obra === id);
+            if (foundObra) {
+              console.log(`[CuadrantesService] Obra ID ${id} encontrada en seed local.`);
+            } else {
+              console.warn(`[CuadrantesService] Obra ID ${id} no existe ni en backend ni en seed local.`);
+            }
+            return of(foundObra ? obraToQuadrant(foundObra) : undefined);
+          })
+        );
+      })
     );
   }
 
+  /**
+   * Retorna el recuento total de obras disponibles.
+   */
   getObraCount(): Observable<number> {
+    console.log('[CuadrantesService] Consultando cantidad total de obras...');
     return this.http.get<{ success: boolean; count: number }>(`${this.apiUrl}/obras`).pipe(
-      map(res => res.count ?? 0),
+      map(response => response.count ?? 0),
       catchError(() => this.seedObras().pipe(
         map(list => list.length)
       ))

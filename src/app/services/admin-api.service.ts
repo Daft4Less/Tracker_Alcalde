@@ -43,26 +43,36 @@ export interface Parroquia {
   zona_administrativa?: string;
 }
 
+/**
+ * Servicio encargado de la comunicación HTTP REST con el panel de administración
+ * de la API backend para la gestión de Obras, Ejes y Parroquias.
+ */
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private apiUrl = environment.apiUrl;
 
-  private headers(): HttpHeaders {
+  /**
+   * Construye las cabeceras HTTP incluyendo el Token JWT Bearer si existe.
+   */
+  private buildAuthHeaders(): HttpHeaders {
     const token = this.auth.getToken();
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
   getEjes(): Observable<{ success: boolean; data: Eje[] }> {
+    console.log('[AdminApiService] GET /api/ejes - Solicitando catálogo de ejes...');
     return this.http.get<{ success: boolean; data: Eje[] }>(`${this.apiUrl}/ejes`);
   }
 
   getParroquias(): Observable<{ success: boolean; data: Parroquia[] }> {
+    console.log('[AdminApiService] GET /api/parroquias - Solicitando catálogo de parroquias...');
     return this.http.get<{ success: boolean; data: Parroquia[] }>(`${this.apiUrl}/parroquias`);
   }
 
   getObras(filters: { estado?: string; id_parroquia?: string } = {}): Observable<{ success: boolean; count: number; data: Obra[] }> {
+    console.log('[AdminApiService] GET /api/obras - Consultando obras con filtros:', filters);
     let params = new HttpParams();
     if (filters.estado) params = params.set('estado', filters.estado);
     if (filters.id_parroquia) params = params.set('id_parroquia', filters.id_parroquia);
@@ -70,26 +80,42 @@ export class AdminApiService {
   }
 
   getObraById(id: number): Observable<{ success: boolean; data: Obra }> {
+    console.log(`[AdminApiService] GET /api/obras/${id} - Consultando obra por ID...`);
     return this.http.get<{ success: boolean; data: Obra }>(`${this.apiUrl}/obras/${id}`);
   }
 
   createObra(obra: Obra): Observable<{ success: boolean; data: Obra; message?: string }> {
-    return this.http.post<{ success: boolean; data: Obra; message?: string }>(`${this.apiUrl}/obras`, obra, { headers: this.headers() });
+    console.log('[AdminApiService] POST /api/obras - Registrando nueva obra:', obra.barrio_sector);
+    return this.http.post<{ success: boolean; data: Obra; message?: string }>(
+      `${this.apiUrl}/obras`,
+      obra,
+      { headers: this.buildAuthHeaders() }
+    );
   }
 
   updateObra(id: number, obra: Obra): Observable<{ success: boolean; data: Obra; message?: string }> {
-    return this.http.put<{ success: boolean; data: Obra; message?: string }>(`${this.apiUrl}/obras/${id}`, obra, { headers: this.headers() });
+    console.log(`[AdminApiService] PUT /api/obras/${id} - Actualizando obra ID ${id}...`);
+    return this.http.put<{ success: boolean; data: Obra; message?: string }>(
+      `${this.apiUrl}/obras/${id}`,
+      obra,
+      { headers: this.buildAuthHeaders() }
+    );
   }
 
   deleteObra(id: number): Observable<{ success: boolean; message?: string }> {
-    return this.http.delete<{ success: boolean; message?: string }>(`${this.apiUrl}/obras/${id}`, { headers: this.headers() });
+    console.log(`[AdminApiService] DELETE /api/obras/${id} - Eliminando obra ID ${id}...`);
+    return this.http.delete<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/obras/${id}`,
+      { headers: this.buildAuthHeaders() }
+    );
   }
 
   parseMapsUrl(mapsUrl: string): Observable<{ success: boolean; lat?: number; lng?: number; message?: string }> {
+    console.log('[AdminApiService] POST /api/parse-maps-url - Solicitando parsing de URL de Google Maps...');
     return this.http.post<{ success: boolean; lat?: number; lng?: number; message?: string }>(
       `${this.apiUrl}/parse-maps-url`,
       { mapsUrl },
-      { headers: this.headers() }
+      { headers: this.buildAuthHeaders() }
     );
   }
 }
