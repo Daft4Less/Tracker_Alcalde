@@ -1,14 +1,86 @@
 <div class="map-card-wrapper">
   <div class="map-card-header">
     <div class="header-title-box">
-      <span class="material-symbols-rounded map-header-icon">location_on</span>
+      <div class="map-icon-badge">
+        <span class="material-symbols-rounded map-header-icon">location_on</span>
+      </div>
       <div>
-        <h3 class="map-heading">Mapa de Geolocalización de Obras - Quito, Ecuador</h3>
-        <p class="map-subheading">Ubicación de proyectos y promesas municipales en los distritos Norte, Centro y Sur de Quito.</p>
+        <h3 class="map-heading">
+          {{ singleQuadrant ? 'Ubicación Georreferenciada' : 'Mapa de Geolocalización de Obras - Quito, Ecuador' }}
+        </h3>
+        <p class="map-subheading">
+          {{ singleQuadrant ? (singleQuadrant.locationZone || 'Valle de los Chillos, Quito') : 'Ubicación de proyectos y promesas municipales en los distritos Norte, Centro y Sur de Quito.' }}
+        </p>
       </div>
     </div>
-    <span class="location-badge">Quito - Pichincha</span>
+
+    <div class="header-actions">
+      <span class="location-badge">Quito - Pichincha</span>
+
+      <!-- Indicador de estado del mapa en móvil (informativo, no botón de acción) -->
+      @if (collapsibleOnMobile) {
+        <div
+          class="mobile-status-badge sm:hidden"
+          [class.status-visible]="showMapOnMobile"
+          [class.status-hidden]="!showMapOnMobile"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="status-indicator-dot"></span>
+          <span class="status-indicator-text">
+            {{ showMapOnMobile ? 'Mapa visible' : 'Mapa oculto' }}
+          </span>
+        </div>
+      }
+    </div>
   </div>
 
-  <div #mapContainer class="leaflet-map-container" [style.height]="mapHeight"></div>
+  <!-- Banner interactivo en celular cuando el mapa está oculto (sm:hidden) -->
+  @if (collapsibleOnMobile && !showMapOnMobile) {
+    <div class="mobile-toggle-card sm:hidden" (click)="toggleMobileMap()">
+      <div class="mobile-toggle-info">
+        <div class="toggle-icon-wrap">
+          <span class="material-symbols-rounded text-2xl text-secondary">explore</span>
+        </div>
+        <div class="toggle-text-wrap">
+          <span class="toggle-title">
+            {{ singleQuadrant ? 'Ver ubicación en el mapa' : 'Mostrar mapa interactivo (' + (quadrants.length || '150+') + ' obras)' }}
+          </span>
+          <span class="toggle-desc">
+            Toca para explorar el mapa interactivo
+          </span>
+        </div>
+      </div>
+      <button type="button" class="toggle-action-btn">
+        <span class="material-symbols-rounded text-base">map</span>
+        <span>Mostrar mapa interactivo</span>
+      </button>
+    </div>
+  }
+
+  <!-- Contenedor del mapa Leaflet (En móvil se oculta por clase si !showMapOnMobile) -->
+  <div
+    #mapContainer
+    class="leaflet-map-container"
+    [class.map-hidden-mobile]="collapsibleOnMobile && !showMapOnMobile"
+    [style.height]="mapHeight"
+  ></div>
+
+  <!-- Barra inferior en móvil cuando el mapa está abierto para cerrarlo rápidamente -->
+  @if (collapsibleOnMobile && showMapOnMobile) {
+    <div class="mobile-close-footer sm:hidden">
+      <div class="mobile-gesture-tip">
+        <span class="material-symbols-rounded text-sm">touch_app</span>
+        <span>Usa dos dedos para moverte dentro del mapa</span>
+      </div>
+      <button
+        type="button"
+        class="mobile-close-btn"
+        (click)="toggleMobileMap()"
+      >
+        <span class="material-symbols-rounded text-base">visibility_off</span>
+        <span>Ocultar mapa interactivo</span>
+      </button>
+    </div>
+  }
 </div>

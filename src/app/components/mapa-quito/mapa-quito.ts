@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input, ElementRef, ViewChild, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ElementRef, ViewChild, OnDestroy, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { QuadrantDetail } from '../../services/cuadrantes.service';
@@ -12,7 +12,7 @@ declare let L: any;
   templateUrl: './mapa-quito.html',
   styleUrl: './mapa-quito.css'
 })
-export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private _quadrants: QuadrantDetail[] = [];
   @Input() set quadrants(value: QuadrantDetail[]) {
     this._quadrants = value || [];
@@ -22,6 +22,10 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
   @Input() singleQuadrant?: QuadrantDetail;
   @Input() mapHeight: string = '450px';
+  @Input() collapsibleOnMobile: boolean = true;
+  @Input() defaultMobileVisible: boolean = false;
+
+  showMapOnMobile: boolean = false;
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
@@ -29,6 +33,10 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
   private markerLayer: any;
 
   constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.showMapOnMobile = this.defaultMobileVisible;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.map && (changes['quadrants'] || changes['singleQuadrant'])) {
@@ -92,7 +100,38 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.initMap();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    if (!isMobile || !this.collapsibleOnMobile || this.showMapOnMobile) {
+      this.initMap();
+    }
+  }
+
+  toggleMobileMap() {
+    this.showMapOnMobile = !this.showMapOnMobile;
+    if (this.showMapOnMobile) {
+      setTimeout(() => {
+        if (!this.map) {
+          this.initMap();
+        } else {
+          this.map.invalidateSize();
+          if (this.singleQuadrant) {
+            this.renderSingle();
+          } else {
+            this.renderMarkers();
+          }
+        }
+      }, 150);
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 640;
+    if (isDesktop && !this.map) {
+      this.initMap();
+    } else if (this.map) {
+      this.map.invalidateSize();
+    }
   }
 
   ngOnDestroy() {
@@ -127,7 +166,8 @@ export class MapaQuitoComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.map = L.map(container, {
       center: [centerLat, centerLng],
       zoom: zoomLevel,
-      zoomControl: true
+      zoomControl: true,
+      scrollWheelZoom: false
     });
 
     this.markerLayer = L.layerGroup().addTo(this.map);
