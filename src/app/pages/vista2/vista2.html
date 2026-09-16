@@ -1,5 +1,28 @@
-<main class="w-full pt-20 bg-surface min-h-screen">
-  <div class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
+<main class="w-full pt-20 bg-surface min-h-screen flex flex-col">
+
+  <!-- MAPA EN PANTALLA COMPLETA INICIAL -->
+  <section class="relative w-full h-[calc(100vh-80px)] min-h-[480px] bg-slate-900 overflow-hidden flex-shrink-0">
+    <app-mapa-quito
+      [quadrants]="quadrants()"
+      [fullPageMode]="true"
+      mapHeight="100%"
+    ></app-mapa-quito>
+
+    <!-- FLOATING CHIP OVERLAY: ACCESO A MÉTRICAS Y DESGLOSE -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-[400] flex items-center gap-2 pointer-events-auto">
+      <button
+        type="button"
+        (click)="scrollToMetrics()"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/95 text-white font-label-sm text-xs font-bold shadow-2xl border border-white/25 backdrop-blur-md hover:bg-primary transition-all hover:scale-105 cursor-pointer active:scale-95"
+      >
+        <span class="material-symbols-outlined text-[18px] text-secondary">analytics</span>
+        <span>Ver Métricas &amp; Desglose por Sector</span>
+        <span class="material-symbols-outlined text-[16px] animate-bounce">arrow_downward</span>
+      </button>
+    </div>
+  </section>
+
+  <div #metricsSection class="flex flex-col w-full max-w-[80rem] mx-auto px-margin-mobile md:px-margin-desktop py-space-xl gap-space-xl">
     
     <!-- PAGE HEADER HERO -->
     <div class="flex flex-col gap-space-xs">
@@ -20,7 +43,6 @@
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-space-md animate-pulse">
         @for (s of [1,2,3,4]; track s) { <div class="h-28 sm:h-32 bg-surface-container-high rounded-2xl"></div> }
       </div>
-      <div class="h-[520px] bg-surface-container-high rounded-2xl animate-pulse"></div>
     } @else if (error()) {
       <div class="bg-error-container/40 border border-error/20 rounded-2xl p-space-xl text-center flex flex-col items-center gap-space-md">
         <span class="material-symbols-outlined text-[48px] text-error">cloud_off</span>
@@ -47,11 +69,6 @@
           </div>
         </div>
       }
-    </div>
-
-    <!-- MAPA INTERACTIVO COMPLETO DE QUITO -->
-    <div class="w-full">
-      <app-mapa-quito [quadrants]="quadrants()" mapHeight="520px"></app-mapa-quito>
     </div>
 
     <!-- SECTOR IMPACT BREAKDOWN -->

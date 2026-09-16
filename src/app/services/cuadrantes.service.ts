@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, switchMap, timeout, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import type { Obra } from './admin-api.service';
 
@@ -179,27 +179,36 @@ export class CuadrantesService {
     return this.http.get<Obra[]>(CuadrantesService.SEED_URL);
   }
 
+  private quadrantsCache$?: Observable<QuadrantDetail[]>;
+
   /**
    * Obtiene la totalidad de obras/cuadrantes transformados al modelo de vista UI.
+   * Utiliza timeout rápido (1200ms) para conmutar de inmediato al seed local si el backend está apagado,
+   * y cachea con shareReplay para que múltiples componentes no dupliquen peticiones HTTP.
    */
   getAllQuadrants(): Observable<QuadrantDetail[]> {
-    console.log('[CuadrantesService] Solicitando catálogo completo de cuadrantes...');
-    return this.http.get<{ success: boolean; data: Obra[] }>(`${this.apiUrl}/obras`).pipe(
-      map(response => {
-        const obras = response.data || [];
-        console.log(`[CuadrantesService] API respondió exitosamente con ${obras.length} obras.`);
-        return obras.map(obraToQuadrant);
-      }),
-      catchError(error => {
-        console.warn('[CuadrantesService] Error al contactar backend API. Usando fallback seed local.', error);
-        return this.seedObras().pipe(
-          map(list => {
-            console.log(`[CuadrantesService] Fallback completado: ${list.length} obras procesadas desde seed.`);
-            return list.map(obraToQuadrant);
-          })
-        );
-      })
-    );
+    if (!this.quadrantsCache$) {
+      console.log('[CuadrantesService] Solicitando catálogo completo de cuadrantes...');
+      this.quadrantsCache$ = this.http.get<{ success: boolean; data: Obra[] }>(`${this.apiUrl}/obras`).pipe(
+        timeout(1200),
+        map(response => {
+          const obras = response.data || [];
+          console.log(`[CuadrantesService] API respondió exitosamente con ${obras.length} obras.`);
+          return obras.map(obraToQuadrant);
+        }),
+        catchError(error => {
+          console.warn('[CuadrantesService] API backend no disponible o tiempo agotado. Conmutando a seed local de inmediato.', error);
+          return this.seedObras().pipe(
+            map(list => {
+              console.log(`[CuadrantesService] Carga inmediata completada: ${list.length} obras procesadas desde seed.`);
+              return list.map(obraToQuadrant);
+            })
+          );
+        }),
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
+    }
+    return this.quadrantsCache$;
   }
 
   /**

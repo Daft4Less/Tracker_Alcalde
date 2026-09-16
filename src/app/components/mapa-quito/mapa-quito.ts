@@ -24,6 +24,7 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
   @Input() mapHeight: string = '450px';
   @Input() collapsibleOnMobile: boolean = true;
   @Input() defaultMobileVisible: boolean = false;
+  @Input() fullPageMode: boolean = false;
 
   showMapOnMobile: boolean = false;
 
@@ -35,7 +36,11 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
   constructor(private router: Router) {}
 
   ngOnInit() {
-    this.showMapOnMobile = this.defaultMobileVisible;
+    if (this.fullPageMode) {
+      this.showMapOnMobile = true;
+    } else {
+      this.showMapOnMobile = this.defaultMobileVisible;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -46,6 +51,7 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
       } else {
         this.renderMarkers();
       }
+      setTimeout(() => this.map?.invalidateSize(), 100);
     }
   }
 
@@ -101,7 +107,7 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
 
   ngAfterViewInit() {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    if (!isMobile || !this.collapsibleOnMobile || this.showMapOnMobile) {
+    if (this.fullPageMode || !isMobile || !this.collapsibleOnMobile || this.showMapOnMobile) {
       this.initMap();
     }
   }
@@ -177,6 +183,12 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
       maxZoom: 19
     }).addTo(this.map);
 
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 150);
+
     if (this.singleQuadrant) {
       this.renderSingle();
       return;
@@ -224,30 +236,32 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
         icon: this.createMapPinIcon(quadrant.statusColor, false)
       }).addTo(this.markerLayer);
 
-      const popupContent = document.createElement('div');
-      popupContent.style.fontFamily = 'sans-serif';
-      popupContent.style.padding = '4px';
-      popupContent.style.maxWidth = '240px';
-      popupContent.innerHTML = `
-        <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.escapeHtml(quadrant.title)}</strong>
-        <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.escapeHtml(quadrant.locationZone)}</span>
-        ${this.buildPhotoGalleryHtml(quadrant)}
-        <br/>
-        <button id="btn-map-go-${quadrant.id}" style="
-          margin-top: 8px;
-          background: #C8102E;
-          color: #ffffff;
-          border: none;
-          padding: 6px 10px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 0.78rem;
-          font-weight: 600;
-          width: 100%;
-        ">Ver detalles de la obra</button>
-      `;
-
-      marker.bindPopup(popupContent);
+      // Generación diferida (lazy) del popup: solo se crea el DOM cuando el usuario hace clic en el marcador
+      marker.bindPopup(() => {
+        const popupContent = document.createElement('div');
+        popupContent.style.fontFamily = 'sans-serif';
+        popupContent.style.padding = '4px';
+        popupContent.style.maxWidth = '240px';
+        popupContent.innerHTML = `
+          <strong style="color: #090d16; font-size: 0.95rem; display: block; margin-bottom: 2px;">${this.escapeHtml(quadrant.title)}</strong>
+          <span style="color: #4b5563; font-size: 0.8rem; display: block; margin-bottom: 6px;">Quito - ${this.escapeHtml(quadrant.locationZone)}</span>
+          ${this.buildPhotoGalleryHtml(quadrant)}
+          <br/>
+          <button id="btn-map-go-${quadrant.id}" style="
+            margin-top: 8px;
+            background: #C8102E;
+            color: #ffffff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            width: 100%;
+          ">Ver detalles de la obra</button>
+        `;
+        return popupContent;
+      });
 
       marker.on('popupopen', () => {
         const btn = document.getElementById(`btn-map-go-${quadrant.id}`);
@@ -261,25 +275,8 @@ export class MapaQuitoComponent implements OnInit, AfterViewInit, OnChanges, OnD
     });
 
     if (bounds.length) {
-      let minTotalDist = Infinity;
-      let centralPoint: [number, number] = bounds[0];
-
-      bounds.forEach(([lat1, lng1]) => {
-        let sumDist = 0;
-        bounds.forEach(([lat2, lng2]) => {
-          const dLat = lat1 - lat2;
-          const dLng = lng1 - lng2;
-          sumDist += Math.sqrt(dLat * dLat + dLng * dLng);
-        });
-        if (sumDist < minTotalDist) {
-          minTotalDist = sumDist;
-          centralPoint = [lat1, lng1];
-        }
-      });
-
       const latLngBounds = L.latLngBounds(bounds);
-      this.map.fitBounds(latLngBounds, { padding: [40, 40], maxZoom: 14 });
-      this.map.panTo(centralPoint);
+      this.map.fitBounds(latLngBounds, { padding: [35, 35], maxZoom: 14 });
     }
   }
 }

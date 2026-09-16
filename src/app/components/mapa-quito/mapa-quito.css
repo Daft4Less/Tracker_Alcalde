@@ -274,3 +274,33 @@
   background: transparent;
   border: none;
 }
+
+/* Full Page Mode Styles */
+.map-card-wrapper.full-page {
+  height: 100%;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: #002B49;
+}
+
+.map-card-wrapper.full-page .map-card-header {
+  border-radius: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.85rem 1.25rem;
+}
+
+.map-card-wrapper.full-page .leaflet-map-container {
+  height: calc(100% - 58px) !important;
+  max-height: none !important;
+  border-radius: 0;
+}
+
+@media (max-width: 639px) {
+  .map-card-wrapper.full-page .leaflet-map-container {
+    height: calc(100% - 54px) !important;
+    max-height: none !important;
+  }
+}
+

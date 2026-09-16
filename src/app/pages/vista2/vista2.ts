@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CuadrantesService, QuadrantDetail, formatMoney } from '../../services/cuadrantes.service';
 import { MapaQuitoComponent } from '../../components/mapa-quito/mapa-quito';
@@ -25,10 +25,17 @@ export interface SectorImpact {
   styleUrl: './vista2.css'
 })
 export class Vista2Component implements OnInit {
+  @ViewChild('metricsSection', { static: false }) metricsSection?: ElementRef;
   private cuadrantesService = inject(CuadrantesService);
   quadrants = signal<QuadrantDetail[]>([]);
   loading = signal(true);
   error = signal(false);
+
+  scrollToMetrics() {
+    if (this.metricsSection) {
+      this.metricsSection.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
   ngOnInit() {
     console.log('[Vista2Component] Cargando obras para resumen de impacto e indicadores territoriales...');

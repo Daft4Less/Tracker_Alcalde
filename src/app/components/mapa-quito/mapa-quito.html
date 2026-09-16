@@ -1,4 +1,4 @@
-<div class="map-card-wrapper">
+<div class="map-card-wrapper" [class.full-page]="fullPageMode">
   <div class="map-card-header">
     <div class="header-title-box">
       <div class="map-icon-badge">
@@ -18,7 +18,7 @@
       <span class="location-badge">Quito - Pichincha</span>
 
       <!-- Indicador de estado del mapa en móvil (informativo, no botón de acción) -->
-      @if (collapsibleOnMobile) {
+      @if (!fullPageMode && collapsibleOnMobile) {
         <div
           class="mobile-status-badge sm:hidden"
           [class.status-visible]="showMapOnMobile"
@@ -36,7 +36,7 @@
   </div>
 
   <!-- Banner interactivo en celular cuando el mapa está oculto (sm:hidden) -->
-  @if (collapsibleOnMobile && !showMapOnMobile) {
+  @if (!fullPageMode && collapsibleOnMobile && !showMapOnMobile) {
     <div class="mobile-toggle-card sm:hidden" (click)="toggleMobileMap()">
       <div class="mobile-toggle-info">
         <div class="toggle-icon-wrap">
@@ -62,12 +62,12 @@
   <div
     #mapContainer
     class="leaflet-map-container"
-    [class.map-hidden-mobile]="collapsibleOnMobile && !showMapOnMobile"
+    [class.map-hidden-mobile]="!fullPageMode && collapsibleOnMobile && !showMapOnMobile"
     [style.height]="mapHeight"
   ></div>
 
   <!-- Barra inferior en móvil cuando el mapa está abierto para cerrarlo rápidamente -->
-  @if (collapsibleOnMobile && showMapOnMobile) {
+  @if (!fullPageMode && collapsibleOnMobile && showMapOnMobile) {
     <div class="mobile-close-footer sm:hidden">
       <div class="mobile-gesture-tip">
         <span class="material-symbols-rounded text-sm">touch_app</span>
